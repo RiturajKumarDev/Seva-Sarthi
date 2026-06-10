@@ -1,0 +1,636 @@
+package com.rituraj.sevamitra.ui.dashboard.fragments;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+
+import com.bumptech.glide.Glide;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.rituraj.sevamitra.R;
+import com.rituraj.sevamitra.models.User;
+import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.ui.auth.LoginActivity;
+import com.rituraj.sevamitra.ui.auth.RegistrationActivity;
+import com.rituraj.sevamitra.ui.dashboard.BaseDashboardActivity;
+
+import java.util.ArrayList;
+
+public class ProfileFragment extends Fragment {
+    private View view;
+    private FirebaseAuth auth;
+    private FirebaseUser firebaseUser;
+    private FirebaseDatabase database;
+    private DatabaseReference reference;
+
+    // Header Views
+    private ImageView ivProfile, ivEditProfile;
+    private TextView tvName, tvUserType, tvEmail, tvPhone;
+    private CardView cardProfileImage;
+
+    // Personal Information Views
+    private TextInputEditText etFullName, etEmail, etPhone, etAddress;
+    private TextInputEditText etAadharNumber, etState, etCity;
+    private Button btnEditPersonal, btnSavePersonal;
+    private LinearLayout personalInfoLayout;
+    private boolean isPersonalEditing = false;
+
+    // Officer Specific Views
+    private CardView officerSection;
+    private TextView tvDepartment, tvDesignation, tvEmployeeId;
+    private Button btnEditOfficer, btnSaveOfficer;
+    private LinearLayout officerEditLayout;
+    private TextInputEditText etDepartment, etDesignation, etEmployeeId;
+    private boolean isOfficerEditing = false;
+
+    // Worker Specific Views
+    private CardView workerSection;
+    private TextView tvPrimaryCategory, tvCategories, tvExperience, tvSpecialization;
+    private TextView tvHourlyRate, tvStatus, tvCompletedWorks, tvRating;
+    private Button btnEditWorker, btnSaveWorker;
+    private LinearLayout workerEditLayout;
+    private TextInputEditText etPrimaryCategory, etExperience, etSpecialization, etHourlyRate;
+    private boolean isWorkerEditing = false;
+
+    // Founder Specific Views
+    private CardView founderSection;
+    private TextView tvCompanyName, tvGstNumber, tvOfficeAddress;
+    private Button btnEditFounder, btnSaveFounder;
+    private LinearLayout founderEditLayout;
+    private TextInputEditText etCompanyName, etGstNumber, etOfficeAddress;
+    private boolean isFounderEditing = false;
+
+    // SDM Specific Views
+    private CardView sdmSection;
+    private TextView tvDistrict, tvDivision, tvGovtId;
+    private Button btnEditSDM, btnSaveSDM;
+    private LinearLayout sdmEditLayout;
+    private TextInputEditText etDistrict, etDivision, etGovtId;
+    private boolean isSDMEditing = false;
+
+    private Button btnChangePassword;
+    private Button btnLogout;
+
+    // Stats Views (for Worker)
+    private UserData currentUser;
+    private String userType;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        initViews(view);
+        getUser();
+
+        setupBottomButtons(view);
+        return view;
+    }
+
+    private void initViews(View view) {
+        // Header
+        ivProfile = view.findViewById(R.id.ivProfile);
+        ivEditProfile = view.findViewById(R.id.ivEditProfile);
+        tvName = view.findViewById(R.id.tvName);
+        tvUserType = view.findViewById(R.id.tvUserType);
+        tvEmail = view.findViewById(R.id.tvEmail);
+        tvPhone = view.findViewById(R.id.tvPhone);
+        cardProfileImage = view.findViewById(R.id.cardProfileImage);
+
+        // Personal Information
+        etFullName = view.findViewById(R.id.etFullName);
+        etEmail = view.findViewById(R.id.etEmail);
+        etPhone = view.findViewById(R.id.etPhone);
+        etAddress = view.findViewById(R.id.etAddress);
+        etAadharNumber = view.findViewById(R.id.etAadharNumber);
+        etState = view.findViewById(R.id.etState);
+        etCity = view.findViewById(R.id.etCity);
+        btnEditPersonal = view.findViewById(R.id.btnEditPersonal);
+        btnSavePersonal = view.findViewById(R.id.btnSavePersonal);
+        personalInfoLayout = view.findViewById(R.id.personalInfoLayout);
+
+        // Officer Section
+        officerSection = view.findViewById(R.id.officerSection);
+        tvDepartment = view.findViewById(R.id.tvDepartment);
+        tvDesignation = view.findViewById(R.id.tvDesignation);
+        tvEmployeeId = view.findViewById(R.id.tvEmployeeId);
+        btnEditOfficer = view.findViewById(R.id.btnEditOfficer);
+        btnSaveOfficer = view.findViewById(R.id.btnSaveOfficer);
+        officerEditLayout = view.findViewById(R.id.officerEditLayout);
+        etDepartment = view.findViewById(R.id.etDepartment);
+        etDesignation = view.findViewById(R.id.etDesignation);
+        etEmployeeId = view.findViewById(R.id.etEmployeeId);
+
+        // Worker Section
+        workerSection = view.findViewById(R.id.workerSection);
+        tvPrimaryCategory = view.findViewById(R.id.tvPrimaryCategory);
+        tvCategories = view.findViewById(R.id.tvCategories);
+        tvExperience = view.findViewById(R.id.tvExperience);
+        tvSpecialization = view.findViewById(R.id.tvSpecialization);
+        tvHourlyRate = view.findViewById(R.id.tvHourlyRate);
+        tvStatus = view.findViewById(R.id.tvStatus);
+        tvCompletedWorks = view.findViewById(R.id.tvCompletedWorks);
+        tvRating = view.findViewById(R.id.tvRating);
+        btnEditWorker = view.findViewById(R.id.btnEditWorker);
+        btnSaveWorker = view.findViewById(R.id.btnSaveWorker);
+        workerEditLayout = view.findViewById(R.id.workerEditLayout);
+        etPrimaryCategory = view.findViewById(R.id.etPrimaryCategory);
+        etExperience = view.findViewById(R.id.etExperience);
+        etSpecialization = view.findViewById(R.id.etSpecialization);
+        etHourlyRate = view.findViewById(R.id.etHourlyRate);
+
+        btnChangePassword = view.findViewById(R.id.btnChangePassword);
+        btnLogout = view.findViewById(R.id.btnLogout);
+
+        // Founder Section
+        founderSection = view.findViewById(R.id.founderSection);
+        tvCompanyName = view.findViewById(R.id.tvCompanyName);
+        tvGstNumber = view.findViewById(R.id.tvGstNumber);
+        tvOfficeAddress = view.findViewById(R.id.tvOfficeAddress);
+        btnEditFounder = view.findViewById(R.id.btnEditFounder);
+        btnSaveFounder = view.findViewById(R.id.btnSaveFounder);
+        founderEditLayout = view.findViewById(R.id.founderEditLayout);
+        etCompanyName = view.findViewById(R.id.etCompanyName);
+        etGstNumber = view.findViewById(R.id.etGstNumber);
+        etOfficeAddress = view.findViewById(R.id.etOfficeAddress);
+
+        // SDM Section
+        sdmSection = view.findViewById(R.id.sdmSection);
+        tvDistrict = view.findViewById(R.id.tvDistrict);
+        tvDivision = view.findViewById(R.id.tvDivision);
+        tvGovtId = view.findViewById(R.id.tvGovtId);
+        btnEditSDM = view.findViewById(R.id.btnEditSDM);
+        btnSaveSDM = view.findViewById(R.id.btnSaveSDM);
+        sdmEditLayout = view.findViewById(R.id.sdmEditLayout);
+        etDistrict = view.findViewById(R.id.etDistrict);
+        etDivision = view.findViewById(R.id.etDivision);
+        etGovtId = view.findViewById(R.id.etGovtId);
+
+        auth = FirebaseAuth.getInstance();
+        firebaseUser = auth.getCurrentUser();
+        database = FirebaseDatabase.getInstance();
+        reference = database.getReference();
+    }
+
+    private void setupHeader() {
+        userType = currentUser.getUserType();
+        tvName.setText(currentUser.getFullName());
+        tvEmail.setText(currentUser.getEmail());
+        tvPhone.setText(currentUser.getPhone());
+
+        // Set user type with badge
+        switch (userType) {
+            case "OFFICER":
+                tvUserType.setText("👮 Officer");
+                tvUserType.setBackgroundResource(R.drawable.user_type_badge_officer);
+                break;
+            case "WORKER":
+                tvUserType.setText("🔧 Worker");
+                tvUserType.setBackgroundResource(R.drawable.user_type_badge_worker);
+                break;
+            case "FOUNDER":
+                tvUserType.setText("👔 Founder");
+                tvUserType.setBackgroundResource(R.drawable.user_type_badge_founder);
+                break;
+            case "SDM":
+                tvUserType.setText("📋 SDM");
+                tvUserType.setBackgroundResource(R.drawable.user_type_badge_sdm);
+                break;
+        }
+
+        // Load profile image
+        if (currentUser.getProfileUrl() != null && !currentUser.getProfileUrl().isEmpty()) {
+            Glide.with(this)
+                    .load(currentUser.getProfileUrl())
+                    .placeholder(R.drawable.ic_profile)
+                    .into(ivProfile);
+        }
+
+        ivEditProfile.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "Change profile picture", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void setupPersonalInfo() {
+        // Set personal info
+        etFullName.setText(currentUser.getFullName());
+        etEmail.setText(currentUser.getEmail());
+        etPhone.setText(currentUser.getPhone());
+        etAddress.setText(currentUser.getAddress());
+        etAadharNumber.setText(currentUser.getAadharNumber());
+        etState.setText(currentUser.getState());
+        etCity.setText(currentUser.getCity());
+
+        // Make fields non-editable initially
+        setPersonalInfoEditable(false);
+
+        btnEditPersonal.setOnClickListener(v -> {
+            if (isPersonalEditing) {
+                // Save mode
+                savePersonalInfo();
+            } else {
+                // Edit mode
+                setPersonalInfoEditable(true);
+                btnEditPersonal.setText("Cancel");
+                btnSavePersonal.setVisibility(View.VISIBLE);
+                isPersonalEditing = true;
+            }
+        });
+
+        btnSavePersonal.setOnClickListener(v -> {
+            savePersonalInfo();
+        });
+    }
+
+    private void setPersonalInfoEditable(boolean editable) {
+        etPhone.setEnabled(editable);
+        etAddress.setEnabled(editable);
+        etAadharNumber.setEnabled(editable);
+        etState.setEnabled(editable);
+        etCity.setEnabled(editable);
+
+        if (!editable) {
+            btnEditPersonal.setText("Edit");
+            btnSavePersonal.setVisibility(View.GONE);
+            isPersonalEditing = false;
+        }
+    }
+
+    private void savePersonalInfo() {
+        // Save personal info to database
+        currentUser.setFullName(etFullName.getText().toString());
+        currentUser.setEmail(etEmail.getText().toString());
+        currentUser.setPhone(etPhone.getText().toString());
+        currentUser.setAddress(etAddress.getText().toString());
+        currentUser.setAadharNumber(etAadharNumber.getText().toString());
+        currentUser.setState(etState.getText().toString());
+        currentUser.setCity(etCity.getText().toString());
+
+        // Update header
+        tvName.setText(currentUser.getFullName());
+        tvEmail.setText(currentUser.getEmail());
+        tvPhone.setText(currentUser.getPhone());
+
+        setPersonalInfoEditable(false);
+        Toast.makeText(getContext(), "Personal information saved", Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupTypeSpecificSections() {
+        // Hide all sections first
+        officerSection.setVisibility(View.GONE);
+        workerSection.setVisibility(View.GONE);
+        founderSection.setVisibility(View.GONE);
+        sdmSection.setVisibility(View.GONE);
+
+        switch (userType) {
+            case "OFFICER":
+                setupOfficerSection();
+                break;
+            case "WORKER":
+                setupWorkerSection();
+                break;
+            case "FOUNDER":
+                setupFounderSection();
+                break;
+            case "SDM":
+                setupSDMSection();
+                break;
+        }
+    }
+
+    private void setupOfficerSection() {
+        officerSection.setVisibility(View.VISIBLE);
+
+        tvDepartment.setText(currentUser.getDepartment());
+        tvDesignation.setText(currentUser.getDesignation());
+        tvEmployeeId.setText(currentUser.getEmployeeId());
+
+        etDepartment.setText(currentUser.getDepartment());
+        etDesignation.setText(currentUser.getDesignation());
+        etEmployeeId.setText(currentUser.getEmployeeId());
+
+        setOfficerEditable(false);
+
+        btnEditOfficer.setOnClickListener(v -> {
+            if (isOfficerEditing) {
+                saveOfficerInfo();
+            } else {
+                setOfficerEditable(true);
+                btnEditOfficer.setText("Cancel");
+                btnSaveOfficer.setVisibility(View.VISIBLE);
+                isOfficerEditing = true;
+            }
+        });
+
+        btnSaveOfficer.setOnClickListener(v -> saveOfficerInfo());
+    }
+
+    private void setOfficerEditable(boolean editable) {
+        etDepartment.setEnabled(editable);
+        etDesignation.setEnabled(editable);
+        etEmployeeId.setEnabled(editable);
+
+        if (editable) {
+            officerEditLayout.setVisibility(View.VISIBLE);
+        } else {
+            officerEditLayout.setVisibility(View.GONE);
+            btnEditOfficer.setText("Edit");
+            btnSaveOfficer.setVisibility(View.GONE);
+            isOfficerEditing = false;
+        }
+    }
+
+    private void saveOfficerInfo() {
+        currentUser.setDepartment(etDepartment.getText().toString());
+        currentUser.setDesignation(etDesignation.getText().toString());
+        currentUser.setEmployeeId(etEmployeeId.getText().toString());
+
+        tvDepartment.setText(currentUser.getDepartment());
+        tvDesignation.setText(currentUser.getDesignation());
+        tvEmployeeId.setText(currentUser.getEmployeeId());
+
+        setOfficerEditable(false);
+        Toast.makeText(getContext(), "Officer information saved", Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupWorkerSection() {
+        workerSection.setVisibility(View.VISIBLE);
+
+        tvPrimaryCategory.setText(currentUser.getPrimaryCategory());
+
+        // Display categories
+        StringBuilder categoriesStr = new StringBuilder();
+        if (currentUser.getCategories() != null) {
+            for (String category : currentUser.getCategories()) {
+                if (categoriesStr.length() > 0) categoriesStr.append(", ");
+                categoriesStr.append(category);
+            }
+        }
+        tvCategories.setText(categoriesStr.toString());
+
+        tvExperience.setText(currentUser.getExperience() + " years");
+        tvSpecialization.setText(currentUser.getSpecialization());
+        tvHourlyRate.setText("₹" + currentUser.getHourlyRate() + "/hour");
+
+        // Set status with color
+        String status = currentUser.getStatus();
+        tvStatus.setText(status);
+        if ("Available".equals(status)) {
+            tvStatus.setTextColor(getResources().getColor(R.color.logo_green));
+        } else if ("Busy".equals(status)) {
+            tvStatus.setTextColor(getResources().getColor(R.color.logo_orange));
+        } else {
+            tvStatus.setTextColor(getResources().getColor(R.color.logo_gold_dark));
+        }
+
+        // Sample stats - replace with actual data
+        tvCompletedWorks.setText("156");
+        tvRating.setText("4.8 ★");
+
+        etPrimaryCategory.setText(currentUser.getPrimaryCategory());
+        etExperience.setText(currentUser.getExperience());
+        etSpecialization.setText(currentUser.getSpecialization());
+        etHourlyRate.setText(currentUser.getHourlyRate());
+
+        setWorkerEditable(false);
+
+        btnEditWorker.setOnClickListener(v -> {
+            if (isWorkerEditing) {
+                saveWorkerInfo();
+            } else {
+                setWorkerEditable(true);
+                btnEditWorker.setText("Cancel");
+                btnSaveWorker.setVisibility(View.VISIBLE);
+                isWorkerEditing = true;
+            }
+        });
+
+        btnSaveWorker.setOnClickListener(v -> saveWorkerInfo());
+    }
+
+    private void setWorkerEditable(boolean editable) {
+        etPrimaryCategory.setEnabled(editable);
+        etExperience.setEnabled(editable);
+        etSpecialization.setEnabled(editable);
+        etHourlyRate.setEnabled(editable);
+
+        if (editable) {
+            workerEditLayout.setVisibility(View.VISIBLE);
+        } else {
+            workerEditLayout.setVisibility(View.GONE);
+            btnEditWorker.setText("Edit");
+            btnSaveWorker.setVisibility(View.GONE);
+            isWorkerEditing = false;
+        }
+    }
+
+    private void saveWorkerInfo() {
+        currentUser.setPrimaryCategory(etPrimaryCategory.getText().toString());
+        currentUser.setExperience(etExperience.getText().toString());
+        currentUser.setSpecialization(etSpecialization.getText().toString());
+        currentUser.setHourlyRate(etHourlyRate.getText().toString());
+
+        tvPrimaryCategory.setText(currentUser.getPrimaryCategory());
+        tvExperience.setText(currentUser.getExperience() + " years");
+        tvSpecialization.setText(currentUser.getSpecialization());
+        tvHourlyRate.setText("₹" + currentUser.getHourlyRate() + "/hour");
+
+        setWorkerEditable(false);
+        Toast.makeText(getContext(), "Worker information saved", Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupFounderSection() {
+        founderSection.setVisibility(View.VISIBLE);
+
+        tvCompanyName.setText(currentUser.getCompanyName());
+        tvGstNumber.setText(currentUser.getGstNumber());
+        tvOfficeAddress.setText(currentUser.getOfficeAddress());
+
+        etCompanyName.setText(currentUser.getCompanyName());
+        etGstNumber.setText(currentUser.getGstNumber());
+        etOfficeAddress.setText(currentUser.getOfficeAddress());
+
+        setFounderEditable(false);
+
+        btnEditFounder.setOnClickListener(v -> {
+            if (isFounderEditing) {
+                saveFounderInfo();
+            } else {
+                setFounderEditable(true);
+                btnEditFounder.setText("Cancel");
+                btnSaveFounder.setVisibility(View.VISIBLE);
+                isFounderEditing = true;
+            }
+        });
+
+        btnSaveFounder.setOnClickListener(v -> saveFounderInfo());
+    }
+
+    private void setFounderEditable(boolean editable) {
+        etCompanyName.setEnabled(editable);
+        etGstNumber.setEnabled(editable);
+        etOfficeAddress.setEnabled(editable);
+
+        if (editable) {
+            founderEditLayout.setVisibility(View.VISIBLE);
+        } else {
+            founderEditLayout.setVisibility(View.GONE);
+            btnEditFounder.setText("Edit");
+            btnSaveFounder.setVisibility(View.GONE);
+            isFounderEditing = false;
+        }
+    }
+
+    private void saveFounderInfo() {
+        currentUser.setCompanyName(etCompanyName.getText().toString());
+        currentUser.setGstNumber(etGstNumber.getText().toString());
+        currentUser.setOfficeAddress(etOfficeAddress.getText().toString());
+
+        tvCompanyName.setText(currentUser.getCompanyName());
+        tvGstNumber.setText(currentUser.getGstNumber());
+        tvOfficeAddress.setText(currentUser.getOfficeAddress());
+
+        setFounderEditable(false);
+        Toast.makeText(getContext(), "Founder information saved", Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupSDMSection() {
+        sdmSection.setVisibility(View.VISIBLE);
+
+        tvDistrict.setText(currentUser.getDistrict());
+        tvDivision.setText(currentUser.getDivision());
+        tvGovtId.setText(currentUser.getGovtId());
+
+        etDistrict.setText(currentUser.getDistrict());
+        etDivision.setText(currentUser.getDivision());
+        etGovtId.setText(currentUser.getGovtId());
+
+        setSDMEditable(false);
+
+        btnEditSDM.setOnClickListener(v -> {
+            if (isSDMEditing) {
+                saveSDMInfo();
+            } else {
+                setSDMEditable(true);
+                btnEditSDM.setText("Cancel");
+                btnSaveSDM.setVisibility(View.VISIBLE);
+                isSDMEditing = true;
+            }
+        });
+
+        btnSaveSDM.setOnClickListener(v -> saveSDMInfo());
+    }
+
+    private void setSDMEditable(boolean editable) {
+        etDistrict.setEnabled(editable);
+        etDivision.setEnabled(editable);
+        etGovtId.setEnabled(editable);
+
+        if (editable) {
+            sdmEditLayout.setVisibility(View.VISIBLE);
+        } else {
+            sdmEditLayout.setVisibility(View.GONE);
+            btnEditSDM.setText("Edit");
+            btnSaveSDM.setVisibility(View.GONE);
+            isSDMEditing = false;
+        }
+    }
+
+    private void saveSDMInfo() {
+        currentUser.setDistrict(etDistrict.getText().toString());
+        currentUser.setDivision(etDivision.getText().toString());
+        currentUser.setGovtId(etGovtId.getText().toString());
+
+        tvDistrict.setText(currentUser.getDistrict());
+        tvDivision.setText(currentUser.getDivision());
+        tvGovtId.setText(currentUser.getGovtId());
+
+        setSDMEditable(false);
+        Toast.makeText(getContext(), "SDM information saved", Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupBottomButtons(View view) {
+
+
+        btnChangePassword.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "Change password", Toast.LENGTH_SHORT).show();
+        });
+
+        btnLogout.setOnClickListener(v -> {
+            // Logout logic
+            if (getActivity() != null) {
+                auth.signOut();
+                requireActivity().startActivity(new Intent(requireActivity(), LoginActivity.class));
+                getActivity().finish();
+            }
+        });
+    }
+
+    private void getUser() {
+        reference = database.getReference().child("Users").child(firebaseUser.getUid());
+        reference.keepSynced(true);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    User user = snapshot.getValue(User.class);
+                    if (user != null) {
+                        if (user.getUserId() == null) {
+                            user.setUserId(snapshot.getKey());
+                        }
+                        if (user.getUserType() != null) {
+                            loadSampleUserData(user);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
+
+    private void loadSampleUserData(User user) {
+        if (user.getUserType() == null || user.getUserId() == null) {
+            return;
+        }
+        reference = database.getReference().child("UserData").child(user.getUserType()).child(user.getUserId());
+        reference.keepSynced(true);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    UserData userData = snapshot.getValue(UserData.class);
+                    if (userData != null) {
+                        currentUser = userData;
+                        setupHeader();
+                        setupPersonalInfo();
+                        setupTypeSpecificSections();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
+}

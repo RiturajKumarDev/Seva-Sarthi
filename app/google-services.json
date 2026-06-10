@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "693220545364",
+    "firebase_url": "https://sevamitra-15b3d-default-rtdb.firebaseio.com",
+    "project_id": "sevamitra-15b3d",
+    "storage_bucket": "sevamitra-15b3d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:693220545364:android:6f80aaf4c75b3518df2ec1",
+        "android_client_info": {
+          "package_name": "com.rituraj.sevamitra"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "693220545364-s1l74v99jjuq8v9ru7g0j6eroku2lpck.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rituraj.sevamitra",
+            "certificate_hash": "6e32a4bc5b89d39bd83b0033d2c84eec2ae0470a"
+          }
+        },
+        {
+          "client_id": "693220545364-t67ijgqqam4uci4cui0p3cngkj3kp5ad.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVVZ0oNMV1bvwYANnFQTxH6kUEtUqu-ag"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "693220545364-t67ijgqqam4uci4cui0p3cngkj3kp5ad.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

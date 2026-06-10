@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">SevaMitra</string>
+    <string name="default_web_client_id">693220545364-t67ijgqqam4uci4cui0p3cngkj3kp5ad.apps.googleusercontent.com</string>
+    <string name="tagline">सेवा मित्र · आपका सहायक</string>
+    <string name="powered_by">Empowering Service Excellence</string>
+    <string name="app_logo">App Logo</string>
+    <string name="welcome_message">Welcome to SevaMitra</string>
+    <string name="login_subtitle">Your trusted partner for service management</string>
+    <string name="select_language">Select Language / भाषा चुनें</string>
+    <string name="or">OR</string>
+    <string name="continue_with_phone">Continue with Phone Number</string>
+    <string name="continue_text">Continue</string>
+    <string name="terms_text">By continuing, you agree to our Terms of Service and Privacy Policy</string>
+    <string name="login_success">Welcome</string>
+    <string name="login_failed">Sign in failed: </string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

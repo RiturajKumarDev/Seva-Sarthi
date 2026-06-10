@@ -1,0 +1,29 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme -->
+    <style name="Theme.SevaMitra" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/logo_dark_blue</item>
+        <item name="colorOnPrimary">@color/logo_white</item>
+        <item name="colorSecondary">@color/logo_orange</item>
+        <item name="colorOnSecondary">@color/logo_dark_blue</item>
+        <item name="android:statusBarColor">@color/logo_dark_blue</item>
+        <item name="android:navigationBarColor">@color/logo_dark_blue</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+    </style>
+
+    <!-- Splash Screen theme -->
+    <style name="Theme.SevaMitra.Splash" parent="Theme.SevaMitra">
+        <item name="android:windowBackground">@drawable/splash_gradient_bg</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <!-- Window Animation Style -->
+    <style name="WindowAnimationTransition">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/slide_out_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/slide_in_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
+    </style>
+</resources>
