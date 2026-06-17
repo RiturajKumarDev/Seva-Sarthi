@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme -->
-    <style name="Theme.SevaMitra" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.SevaSarthi" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/logo_dark_blue</item>
         <item name="colorOnPrimary">@color/logo_white</item>
         <item name="colorSecondary">@color/logo_orange</item>
@@ -11,7 +11,7 @@
     </style>
 
     <!-- Splash Screen theme -->
-    <style name="Theme.SevaMitra.Splash" parent="Theme.SevaMitra">
+    <style name="Theme.SevaSarthi.Splash" parent="Theme.SevaSarthi">
         <item name="android:windowBackground">@drawable/splash_gradient_bg</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>

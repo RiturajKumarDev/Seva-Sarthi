@@ -5,6 +5,7 @@
 
     <!-- Background -->
     <color name="logo_dark_blue">#00093A</color>
+    <color name="logo_red">#FF3B30</color>
 
     <!-- Gold S -->
     <color name="logo_gold_light">#F5E58A</color>
@@ -22,4 +23,11 @@
     <!-- Green -->
     <color name="logo_green">#58D51A</color>
     <color name="logo_green_dark">#2FA80C</color>
+
+    <!-- Avatar Colors -->
+    <color name="avatar_color_1">#FF5722</color>
+    <color name="avatar_color_2">#4CAF50</color>
+    <color name="avatar_color_3">#2196F3</color>
+    <color name="avatar_color_4">#9C27B0</color>
+    <color name="avatar_color_5">#FF9800</color>
 </resources>

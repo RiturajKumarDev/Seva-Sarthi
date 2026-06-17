@@ -34,18 +34,19 @@
                     android:layout_height="wrap_content">
 
                     <androidx.cardview.widget.CardView
+                        android:id="@+id/ivProfile"
                         android:layout_width="100dp"
                         android:layout_height="100dp"
-                        app:cardCornerRadius="100dp">
+                        app:cardCornerRadius="100dp" >
 
-                        <ImageView
-                            android:id="@+id/ivProfile"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            android:background="@drawable/profile_bg"
-                            android:padding="4dp"
-                            android:src="@drawable/ic_profile" />
-
+                        <TextView
+                            android:id="@+id/vtProfileLetter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="R"
+                            android:textSize="80sp"
+                            android:textStyle="bold" />
                     </androidx.cardview.widget.CardView>
 
                     <ImageView
@@ -218,22 +219,6 @@
                             android:id="@+id/etAddress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/logo_white" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="Aadhar Number"
-                        app:hintTextColor="@color/logo_gold_light">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etAadharNumber"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number"
                             android:textColor="@color/logo_white" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -543,22 +528,6 @@
 
                     <TextView
                         android:id="@+id/tvExperience"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:text="-"
-                        android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Specialization"
-                        android:textColor="@color/logo_gold_light"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tvSpecialization"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
@@ -962,7 +931,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Government ID"
+                        android:text="Department"
                         android:textColor="@color/logo_gold_light"
                         android:textSize="12sp" />
 

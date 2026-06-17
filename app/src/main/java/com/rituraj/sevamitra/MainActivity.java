@@ -9,7 +9,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.rituraj.sevamitra.ui.auth.RegistrationActivity;
 import com.rituraj.sevamitra.ui.dashboard.BaseDashboardActivity;
 
 public class MainActivity extends AppCompatActivity {

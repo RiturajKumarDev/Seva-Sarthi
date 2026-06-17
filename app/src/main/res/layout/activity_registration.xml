@@ -10,61 +10,60 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="16dp"
+        android:paddingBottom="32dp">
 
         <!-- Header -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:text="Register as"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp"
+            android:text="Create Account"
             android:textColor="@color/logo_white"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:textStyle="bold" />
 
-        <!-- User Type Selection -->
-        <RadioGroup
-            android:id="@+id/userTypeRadioGroup"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="Register as a new user"
+            android:textColor="@color/logo_gold_light"
+            android:textSize="14sp" />
+
+        <!-- Error Text -->
+        <TextView
+            android:id="@+id/tvError"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:text=""
+            android:textColor="@android:color/holo_red_light"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <!-- User Type Selection Spinner -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Select User Type"
+            android:textColor="@color/logo_gold"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerUserType"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
             android:layout_marginBottom="20dp"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/radioOfficer"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Officer"
-                android:textColor="@color/logo_white" />
-
-            <RadioButton
-                android:id="@+id/radioWorker"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Worker"
-                android:textColor="@color/logo_white" />
-
-            <RadioButton
-                android:id="@+id/radioFounder"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Founder"
-                android:textColor="@color/logo_white" />
-
-            <RadioButton
-                android:id="@+id/radioSDM"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="SDM"
-                android:textColor="@color/logo_white" />
-        </RadioGroup>
+            android:background="@drawable/spinner_background"
+            android:popupBackground="@drawable/spinner_dropdown_bg" />
 
         <!-- Common Fields Card -->
-        <com.google.android.material.card.MaterialCardView
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -75,6 +74,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="10dp"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -100,7 +100,6 @@
                         android:id="@+id/etFullName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:enabled="false"
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -117,7 +116,6 @@
                         android:id="@+id/etEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:enabled="false"
                         android:inputType="textEmailAddress"
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -155,23 +153,6 @@
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Aadhar Number -->
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:hint="Aadhar Number"
-                    app:hintTextColor="@color/logo_gold_light">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etAadharNumber"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:textColor="@color/logo_white" />
-                </com.google.android.material.textfield.TextInputLayout>
-
                 <!-- State and City Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -182,7 +163,7 @@
                     <Spinner
                         android:id="@+id/spinnerState"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
                         android:background="@drawable/spinner_background" />
@@ -190,7 +171,7 @@
                     <Spinner
                         android:id="@+id/spinnerCity"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:layout_weight="1"
                         android:background="@drawable/spinner_background" />
                 </LinearLayout>
@@ -202,9 +183,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="Password"
-                    android:visibility="gone"
-                    app:endIconMode="password_toggle"
-                    app:hintTextColor="@color/logo_gold_light">
+                    app:hintTextColor="@color/logo_gold_light"
+                    app:passwordToggleEnabled="true">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etPassword"
@@ -221,9 +201,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="Confirm Password"
-                    android:visibility="gone"
-                    app:endIconMode="password_toggle"
-                    app:hintTextColor="@color/logo_gold_light">
+                    app:hintTextColor="@color/logo_gold_light"
+                    app:passwordToggleEnabled="true">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etConfirmPassword"
@@ -234,11 +213,11 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        </androidx.cardview.widget.CardView>
 
-        <!-- Officer Specific Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/officerCard"
+        <!-- SevaMitra (Earlier Officer) Specific Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardSevaMitraFields"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -250,6 +229,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="10dp"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -257,11 +237,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="Officer Details"
+                    android:text="SevaMitra Details"
                     android:textColor="@color/logo_gold"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
+                <!-- Department -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -276,6 +257,7 @@
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Designation -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -291,26 +273,12 @@
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:hint="Employee ID"
-                    app:hintTextColor="@color/logo_gold_light">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etEmployeeId"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/logo_white" />
-                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        </androidx.cardview.widget.CardView>
 
         <!-- Worker Specific Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/workerCard"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardWorkerFields"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -322,6 +290,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="10dp"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -334,31 +303,34 @@
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
+                <!-- Skills (Multiple Selection) -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:text="Select Your Skills (Multiple)"
-                    android:textColor="@color/logo_white" />
+                    android:layout_marginBottom="8dp"
+                    android:text="Select Your Skills"
+                    android:textColor="@color/logo_white"
+                    android:textSize="14sp" />
 
                 <LinearLayout
-                    android:id="@+id/workerCategoriesLayout"
+                    android:id="@+id/workerSkillsLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     android:orientation="vertical">
-
-                    <CheckBox
-                        android:id="@+id/cbCCTV"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="CCTV Technician"
-                        android:textColor="@color/logo_white" />
 
                     <CheckBox
                         android:id="@+id/cbPlumber"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Plumber"
+                        android:textColor="@color/logo_white" />
+
+                    <CheckBox
+                        android:id="@+id/cbElectrician"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Electrician"
                         android:textColor="@color/logo_white" />
 
                     <CheckBox
@@ -369,10 +341,10 @@
                         android:textColor="@color/logo_white" />
 
                     <CheckBox
-                        android:id="@+id/cbElectrician"
+                        android:id="@+id/cbCCTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Electrician"
+                        android:text="CCTV Technician"
                         android:textColor="@color/logo_white" />
 
                     <CheckBox
@@ -397,20 +369,39 @@
                         android:textColor="@color/logo_white" />
                 </LinearLayout>
 
-                <Spinner
-                    android:id="@+id/spinnerFounder"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="12dp"
-                    android:background="@drawable/spinner_background" />
+                <!-- Primary Category -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Primary Category"
+                    android:textColor="@color/logo_white"
+                    android:textSize="14sp" />
 
                 <Spinner
                     android:id="@+id/spinnerWorkerCategory"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
                     android:background="@drawable/spinner_background" />
 
+                <!--   Select Founder-->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Select Your Founder"
+                    android:textColor="@color/logo_white"
+                    android:textSize="14sp" />
+
+                <Spinner
+                    android:id="@+id/spinnerFounder"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/spinner_background" />
+
+                <!-- Experience -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -427,21 +418,7 @@
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:hint="Specialization"
-                    app:hintTextColor="@color/logo_gold_light">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etSpecialization"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/logo_white" />
-                </com.google.android.material.textfield.TextInputLayout>
-
+                <!-- Hourly Rate -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -457,12 +434,13 @@
                         android:inputType="numberDecimal"
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
+
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        </androidx.cardview.widget.CardView>
 
         <!-- Founder Specific Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/founderCard"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardFounderFields"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -474,6 +452,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="10dp"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -486,6 +465,7 @@
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
+                <!-- Company Name -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -500,6 +480,7 @@
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- GST Number -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -515,6 +496,7 @@
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Office Address -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -529,12 +511,13 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- SDM Specific Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/sdmCard"
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Officer (Earlier SDM) Specific Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardOfficerFields"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -546,6 +529,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="10dp"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -553,11 +537,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="SDM Details"
+                    android:text="Officer Details"
                     android:textColor="@color/logo_gold"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
+                <!-- Select Department -->
+                <Spinner
+                    android:id="@+id/spinnerOfficerDepartment"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/spinner_background" />
+
+                <!-- District -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -572,6 +565,7 @@
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Division -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -587,35 +581,60 @@
                         android:textColor="@color/logo_white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:hint="Government ID"
-                    app:hintTextColor="@color/logo_gold_light">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etGovtId"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/logo_white" />
-                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        </androidx.cardview.widget.CardView>
 
         <!-- Register Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRegister"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="32dp"
-            android:text="Register"
-            android:textColor="@color/logo_dark_blue"
-            android:textSize="16sp"
-            app:backgroundTint="@color/logo_gold"
-            app:cornerRadius="28dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRegister"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Register"
+                android:textColor="@color/logo_dark_blue"
+                android:textSize="16sp"
+                app:backgroundTint="@color/logo_gold"
+                app:cornerRadius="28dp" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Login Link -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Already have an account? "
+                android:textColor="@color/logo_white"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/btnLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="Login"
+                android:textColor="@color/logo_gold"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

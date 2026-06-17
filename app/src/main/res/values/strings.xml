@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">SevaMitra</string>
+    <string name="app_name">Seva Sarthi</string>
     <string name="default_web_client_id">693220545364-t67ijgqqam4uci4cui0p3cngkj3kp5ad.apps.googleusercontent.com</string>
-    <string name="tagline">सेवा मित्र · आपका सहायक</string>
-    <string name="powered_by">Empowering Service Excellence</string>
+    <string name="tagline">सेवा सारथी · आपका सहायक</string>
+    <string name="powered_by">Seva Sarthi · Empowering Service Excellence</string>
     <string name="app_logo">App Logo</string>
-    <string name="welcome_message">Welcome to SevaMitra</string>
-    <string name="login_subtitle">Your trusted partner for service management</string>
+    <string name="welcome_message">Welcome to Seva Sarthi</string>
+    <string name="login_subtitle">Your trusted Sarthi for service management</string>
     <string name="select_language">Select Language / भाषा चुनें</string>
     <string name="or">OR</string>
     <string name="continue_with_phone">Continue with Phone Number</string>

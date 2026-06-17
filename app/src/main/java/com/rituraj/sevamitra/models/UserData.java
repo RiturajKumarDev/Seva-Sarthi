@@ -6,67 +6,68 @@ public class UserData {
     private String id;
     private String userType;
     private String fullName;
-    private String profileUrl;
     private String email;
-    private String phone;
+    private String phone, profileUrl;
     private String address;
-    private String aadharNumber;
     private String state;
     private String city;
     private String password;
 
-    // Officer specific
+    // SevaMitra specific
     private String department;
     private String designation;
-    private String employeeId;
 
     // Worker specific
-    private String primaryCategory;
     private ArrayList<String> categories;
-    private String experience;
-    private String specialization;
-    private String hourlyRate;
-    private String status;
+    private String primaryCategory;
     private String founderId;
+    private String experience;
+    private String hourlyRate;
+    private String isSelected;
 
     // Founder specific
     private String companyName;
     private String gstNumber;
     private String officeAddress;
 
-    // SDM specific
+    // Officer specific
     private String district;
     private String division;
-    private String govtId;
 
     public UserData() {
     }
 
-    public UserData(String id, String userType, String fullName, String email, String phone, String address, String aadharNumber, String state, String city, String password, String department, String designation, String employeeId, String primaryCategory, ArrayList<String> categories, String experience, String specialization, String hourlyRate, String companyName, String gstNumber, String officeAddress, String district, String division, String govtId) {
+    public UserData(String id, String userType, String fullName, String email, String phone, String address, String state, String city, String password, String department, String designation, ArrayList<String> categories, String primaryCategory, String founderId, String experience, String hourlyRate, String isSelected, String companyName, String gstNumber, String officeAddress, String district, String division) {
         this.id = id;
         this.userType = userType;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
         this.address = address;
-        this.aadharNumber = aadharNumber;
         this.state = state;
         this.city = city;
         this.password = password;
         this.department = department;
         this.designation = designation;
-        this.employeeId = employeeId;
-        this.primaryCategory = primaryCategory;
         this.categories = categories;
+        this.primaryCategory = primaryCategory;
+        this.founderId = founderId;
         this.experience = experience;
-        this.specialization = specialization;
         this.hourlyRate = hourlyRate;
+        this.isSelected = isSelected;
         this.companyName = companyName;
         this.gstNumber = gstNumber;
         this.officeAddress = officeAddress;
         this.district = district;
         this.division = division;
-        this.govtId = govtId;
+    }
+
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
     }
 
     public String getId() {
@@ -93,14 +94,6 @@ public class UserData {
         this.fullName = fullName;
     }
 
-    public String getProfileUrl() {
-        return profileUrl;
-    }
-
-    public void setProfileUrl(String profileUrl) {
-        this.profileUrl = profileUrl;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -123,14 +116,6 @@ public class UserData {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getAadharNumber() {
-        return aadharNumber;
-    }
-
-    public void setAadharNumber(String aadharNumber) {
-        this.aadharNumber = aadharNumber;
     }
 
     public String getState() {
@@ -173,14 +158,6 @@ public class UserData {
         this.designation = designation;
     }
 
-    public String getEmployeeId() {
-        return employeeId;
-    }
-
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
-    }
-
     public String getPrimaryCategory() {
         return primaryCategory;
     }
@@ -205,12 +182,12 @@ public class UserData {
         this.founderId = founderId;
     }
 
-    public String getStatus() {
-        return status;
+    public String getIsSelected() {
+        return isSelected;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setIsSelected(String isSelected) {
+        this.isSelected = isSelected;
     }
 
     public String getExperience() {
@@ -219,14 +196,6 @@ public class UserData {
 
     public void setExperience(String experience) {
         this.experience = experience;
-    }
-
-    public String getSpecialization() {
-        return specialization;
-    }
-
-    public void setSpecialization(String specialization) {
-        this.specialization = specialization;
     }
 
     public String getHourlyRate() {
@@ -277,16 +246,8 @@ public class UserData {
         this.division = division;
     }
 
-    public String getGovtId() {
-        return govtId;
-    }
-
-    public void setGovtId(String govtId) {
-        this.govtId = govtId;
-    }
-
     @Override
     public String toString() {
-        return fullName + " , " + id;
+        return fullName + " , " + companyName + " , " + city;
     }
 }

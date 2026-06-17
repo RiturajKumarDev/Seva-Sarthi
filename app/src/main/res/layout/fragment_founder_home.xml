@@ -29,20 +29,24 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
                     android:orientation="horizontal"
                     android:padding="16dp">
 
                     <androidx.cardview.widget.CardView
+                        android:id="@+id/ivProfile"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         app:cardCornerRadius="100dp">
 
-                        <ImageView
-                            android:id="@+id/ivProfile"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/profile_bg"
-                            android:src="@drawable/ic_profile" />
+                        <TextView
+                            android:id="@+id/vtProfileLetter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="R"
+                            android:textSize="40sp"
+                            android:textStyle="bold" />
                     </androidx.cardview.widget.CardView>
 
                     <LinearLayout

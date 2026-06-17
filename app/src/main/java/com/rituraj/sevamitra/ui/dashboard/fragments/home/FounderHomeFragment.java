@@ -1,21 +1,17 @@
 package com.rituraj.sevamitra.ui.dashboard.fragments.home;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -25,17 +21,14 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.adapters.WorkerAdapter;
-import com.rituraj.sevamitra.models.User;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.ui.issues.IssueListActivity;
+import com.rituraj.sevamitra.ui.worker.WorkerListActivity;
 
-import java.security.Guard;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,8 +40,8 @@ public class FounderHomeFragment extends Fragment {
     private DatabaseReference reference;
 
     // Header Views
-    private TextView tvGreeting, tvFounderName, tvCompanyName;
-    private ImageView ivProfile;
+    private TextView tvGreeting, tvFounderName, tvCompanyName, vtProfileLetter;
+    private CardView ivProfile;
 
     // Statistics Cards
     private TextView tvTotalWorkers, tvActiveWorkers, tvTotalWorks, tvCompletedWorks;
@@ -92,6 +85,7 @@ public class FounderHomeFragment extends Fragment {
     private void initViews(View view) {
         // Header
         tvGreeting = view.findViewById(R.id.tvGreeting);
+        vtProfileLetter = view.findViewById(R.id.vtProfileLetter);
         tvFounderName = view.findViewById(R.id.tvFounderName);
         tvCompanyName = view.findViewById(R.id.tvCompanyName);
         ivProfile = view.findViewById(R.id.ivProfile);
@@ -227,7 +221,8 @@ public class FounderHomeFragment extends Fragment {
     private void setupClickListeners() {
         // Statistics Cards
         cardTotalWorkers.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View all workers", Toast.LENGTH_SHORT).show());
+                Toast.makeText(getContext(), "Total workers", Toast.LENGTH_SHORT).show()
+        );
 
         cardActiveWorkers.setOnClickListener(v ->
                 Toast.makeText(getContext(), "View active workers", Toast.LENGTH_SHORT).show());
@@ -243,13 +238,13 @@ public class FounderHomeFragment extends Fragment {
 
         // Management Cards
         cardManageWorkers.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Manage workers", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), WorkerListActivity.class)));
 
         cardAssignWork.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Assign work to workers", Toast.LENGTH_SHORT).show());
 
         cardTrackWorks.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Track ongoing works", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), IssueListActivity.class)));
 
         cardWorkerPerformance.setOnClickListener(v ->
                 Toast.makeText(getContext(), "View worker performance", Toast.LENGTH_SHORT).show());
@@ -272,11 +267,33 @@ public class FounderHomeFragment extends Fragment {
     }
 
     private void setUserData() {
-        tvFounderName.setText(firebaseUser.getDisplayName());
-        tvCompanyName.setText(firebaseUser.getEmail());
-        Glide.with(requireActivity())
-                .load(firebaseUser.getPhotoUrl())
-                .placeholder(R.drawable.ic_profile)
-                .into(ivProfile);
+        String displayName = firebaseUser.getDisplayName();
+        String email = firebaseUser.getEmail();
+        
+        tvFounderName.setText(displayName != null ? displayName : "User");
+        tvCompanyName.setText(email != null ? email : "No Email");
+        setAvatarColor(displayName != null && !displayName.isEmpty() ? displayName : "User");
+    }
+
+    private void setAvatarColor(String name) {
+        Context context = getContext();
+        if (context == null || name == null || name.isEmpty()) return;
+        
+        int color;
+        char firstChar = Character.toUpperCase(name.charAt(0));
+        vtProfileLetter.setText(String.valueOf(firstChar));
+
+        if (firstChar >= 'A' && firstChar <= 'E') {
+            color = context.getColor(R.color.avatar_color_1);
+        } else if (firstChar >= 'F' && firstChar <= 'J') {
+            color = context.getColor(R.color.avatar_color_2);
+        } else if (firstChar >= 'K' && firstChar <= 'O') {
+            color = context.getColor(R.color.avatar_color_3);
+        } else if (firstChar >= 'P' && firstChar <= 'T') {
+            color = context.getColor(R.color.avatar_color_4);
+        } else {
+            color = context.getColor(R.color.avatar_color_5);
+        }
+        ivProfile.setCardBackgroundColor(color);
     }
 }

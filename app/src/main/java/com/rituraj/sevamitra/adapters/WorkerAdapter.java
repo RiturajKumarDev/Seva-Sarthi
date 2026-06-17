@@ -1,16 +1,17 @@
 package com.rituraj.sevamitra.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.UserData;
 
@@ -18,12 +19,23 @@ import java.util.List;
 
 public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.WorkerViewHolder> {
 
-    private List<UserData> workers;
-    private Context context;
+    private List<UserData> workerList;
+    private OnWorkerClickListener listener;
+    private String issueId;
 
-    public WorkerAdapter(List<UserData> workers, Context context) {
-        this.workers = workers;
-        this.context = context;
+    public interface OnWorkerClickListener {
+        void onWorkerClick(UserData worker);
+
+        void onContactClick(UserData worker);
+        void onManageClick(UserData worker);
+
+        void onAssignClick(UserData worker);
+    }
+
+    public WorkerAdapter(List<UserData> workerList, String issueId, OnWorkerClickListener listener) {
+        this.workerList = workerList;
+        this.issueId = issueId;
+        this.listener = listener;
     }
 
     @NonNull
@@ -36,103 +48,96 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.WorkerView
 
     @Override
     public void onBindViewHolder(@NonNull WorkerViewHolder holder, int position) {
-        UserData worker = workers.get(position);
-
-        holder.tvName.setText(worker.getFullName());
-        holder.tvCategory.setText(worker.getPrimaryCategory());
-        holder.tvExperience.setText("Exp: " + worker.getExperience());
-        holder.tvHourlyRate.setText(worker.getHourlyRate() + "/hour");
-        holder.tvRating.setText(String.valueOf(4));
-        holder.tvLocation.setText(worker.getAddress());
-
-        holder.tvAvailable.setText("Available");
-
-        // Set rating stars
-        setRatingStars(holder, 4);
-
-        holder.cardView.setOnClickListener(v -> {
-            Toast.makeText(context, "Selected: " + worker.getFullName(), Toast.LENGTH_LONG).show();
-        });
-
-        holder.btnHire.setOnClickListener(v -> {
-            Toast.makeText(context, "Hire " + worker.getFullName(), Toast.LENGTH_LONG).show();
-        });
-    }
-
-    private void setRatingStars(WorkerViewHolder holder, double rating) {
-        int fullStars = (int) rating;
-        boolean hasHalfStar = (rating - fullStars) >= 0.5;
-
-        // Reset all stars
-        holder.star1.setVisibility(View.GONE);
-        holder.star2.setVisibility(View.GONE);
-        holder.star3.setVisibility(View.GONE);
-        holder.star4.setVisibility(View.GONE);
-        holder.star5.setVisibility(View.GONE);
-
-        // Set full stars
-        for (int i = 1; i <= fullStars; i++) {
-            getStarView(holder, i).setVisibility(View.VISIBLE);
-            getStarView(holder, i).setText("★");
-        }
-
-        // Set half star
-        if (hasHalfStar && fullStars < 5) {
-            getStarView(holder, fullStars + 1).setVisibility(View.VISIBLE);
-            getStarView(holder, fullStars + 1).setText("½");
-        }
-
-        // Set empty stars
-        for (int i = fullStars + (hasHalfStar ? 2 : 1); i <= 5; i++) {
-            getStarView(holder, i).setVisibility(View.VISIBLE);
-            getStarView(holder, i).setText("☆");
-        }
-    }
-
-    private TextView getStarView(WorkerViewHolder holder, int starNumber) {
-        switch (starNumber) {
-            case 1:
-                return holder.star1;
-            case 2:
-                return holder.star2;
-            case 3:
-                return holder.star3;
-            case 4:
-                return holder.star4;
-            case 5:
-                return holder.star5;
-            default:
-                return holder.star1;
-        }
+        UserData worker = workerList.get(position);
+        holder.bind(worker);
     }
 
     @Override
     public int getItemCount() {
-        return workers.size();
+        return workerList.size();
     }
 
     class WorkerViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvCategory, tvExperience, tvHourlyRate, tvRating, tvLocation, tvAvailable;
-        TextView star1, star2, star3, star4, star5;
-        CardView cardView;
-        com.google.android.material.button.MaterialButton btnHire;
+        private CardView cardView;
+        private ImageView ivProfile, ivStatus;
+        private TextView tvName, tvCategory, tvExperience, tvRate;
+        private TextView tvEmail, tvPhone, tvAddress, tvCityState, tvSkills;
+        private LinearLayout btnContact, btnManage, btnAssign;
 
         public WorkerViewHolder(@NonNull View itemView) {
             super(itemView);
+            cardView = itemView.findViewById(R.id.cardView);
+            ivProfile = itemView.findViewById(R.id.ivProfile);
+            ivStatus = itemView.findViewById(R.id.ivStatus);
             tvName = itemView.findViewById(R.id.tvName);
             tvCategory = itemView.findViewById(R.id.tvCategory);
             tvExperience = itemView.findViewById(R.id.tvExperience);
-            tvHourlyRate = itemView.findViewById(R.id.tvHourlyRate);
-            tvRating = itemView.findViewById(R.id.tvRating);
-            tvLocation = itemView.findViewById(R.id.tvLocation);
-            tvAvailable = itemView.findViewById(R.id.tvAvailable);
-            star1 = itemView.findViewById(R.id.star1);
-            star2 = itemView.findViewById(R.id.star2);
-            star3 = itemView.findViewById(R.id.star3);
-            star4 = itemView.findViewById(R.id.star4);
-            star5 = itemView.findViewById(R.id.star5);
-            cardView = itemView.findViewById(R.id.cardView);
-            btnHire = itemView.findViewById(R.id.btnHire);
+            tvRate = itemView.findViewById(R.id.tvRate);
+            tvEmail = itemView.findViewById(R.id.tvEmail);
+            tvPhone = itemView.findViewById(R.id.tvPhone);
+            tvAddress = itemView.findViewById(R.id.tvAddress);
+            tvCityState = itemView.findViewById(R.id.tvCityState);
+            tvSkills = itemView.findViewById(R.id.tvSkills);
+            btnContact = itemView.findViewById(R.id.btnContact);
+            btnManage = itemView.findViewById(R.id.btnManage);
+            btnAssign = itemView.findViewById(R.id.btnAssign);
+        }
+
+        public void bind(UserData worker) {
+            // Basic Info
+            tvName.setText(worker.getFullName());
+            tvCategory.setText(worker.getPrimaryCategory() != null ? worker.getPrimaryCategory() : "General");
+            tvExperience.setText("Experience: " + (worker.getExperience() != null ? worker.getExperience() : "0") + " years");
+            tvRate.setText("₹" + (worker.getHourlyRate() != null ? worker.getHourlyRate() : "0") + "/hour");
+
+            // Contact Info
+            tvEmail.setText(worker.getEmail() != null ? worker.getEmail() : "Email not provided");
+            tvPhone.setText(worker.getPhone() != null ? worker.getPhone() : "Phone not provided");
+
+            // Address Info
+            tvAddress.setText(worker.getAddress() != null ? worker.getAddress() : "Address not provided");
+            tvCityState.setText((worker.getCity() != null ? worker.getCity() : "") + ", " +
+                    (worker.getState() != null ? worker.getState() : ""));
+
+            // Skills
+            if (worker.getCategories() != null && !worker.getCategories().isEmpty()) {
+                StringBuilder skillsStr = new StringBuilder();
+                for (String skill : worker.getCategories()) {
+                    if (skillsStr.length() > 0) skillsStr.append(" • ");
+                    skillsStr.append(skill);
+                }
+                tvSkills.setText(skillsStr.toString());
+            } else {
+                tvSkills.setText("No additional skills listed");
+            }
+
+            // Set status color
+            String status = worker.getIsSelected();
+            if ("Available".equals(status)) {
+                btnManage.setVisibility(View.GONE);
+                ivStatus.setColorFilter(itemView.getContext().getColor(R.color.logo_green));
+            } else if ("Pending".equals(status)) {
+                ivStatus.setColorFilter(itemView.getContext().getColor(R.color.logo_orange));
+            } else {
+                ivStatus.setColorFilter(itemView.getContext().getColor(R.color.logo_red));
+            }
+
+            // Load profile image
+            if (worker.getProfileUrl() != null && !worker.getProfileUrl().isEmpty()) {
+                Glide.with(itemView.getContext())
+                        .load(worker.getProfileUrl())
+                        .placeholder(R.drawable.ic_profile)
+                        .into(ivProfile);
+            }
+
+            if (issueId == null || issueId.isEmpty())
+                btnAssign.setVisibility(View.GONE);
+
+            // Click listeners
+            cardView.setOnClickListener(v -> listener.onWorkerClick(worker));
+            btnContact.setOnClickListener(v -> listener.onContactClick(worker));
+            btnManage.setOnClickListener(v -> listener.onManageClick(worker));
+            btnAssign.setOnClickListener(v -> listener.onAssignClick(worker));
         }
     }
 }

@@ -2,7 +2,7 @@ package com.rituraj.sevamitra.models;
 
 
 public class User {
-    private String userId, userName, email, profileUrl, userType;
+    private String userId, userName, email, profileUrl;
     private boolean isOnline;
 
     public User() {
@@ -27,14 +27,6 @@ public class User {
         this.userName = userName;
         this.email = email;
         this.profileUrl = profileUrl;
-    }
-
-    public String getUserType() {
-        return userType;
-    }
-
-    public void setUserType(String userType) {
-        this.userType = userType;
     }
 
     public String getUserId() {

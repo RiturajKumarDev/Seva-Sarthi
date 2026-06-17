@@ -1,22 +1,22 @@
 package com.rituraj.sevamitra.ui.auth;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import com.google.android.gms.tasks.OnCanceledListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,82 +25,84 @@ import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.User;
 import com.rituraj.sevamitra.models.UserData;
-import com.rituraj.sevamitra.ui.dashboard.BaseDashboardActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class RegistrationActivity extends AppCompatActivity {
-    private FirebaseAuth auth;
-    private FirebaseUser firebaseUser;
-    private FirebaseDatabase database;
-    private ProgressDialog progressDialog;
-    private DatabaseReference reference;
 
-    // User Type Selection
-    private RadioGroup userTypeRadioGroup;
-    private CardView officerCard, workerCard, founderCard, sdmCard;
+    // User Type Spinner
+    private Spinner spinnerUserType;
+    private CardView cardSevaMitraFields, cardWorkerFields, cardFounderFields, cardOfficerFields;
 
     // Common Fields
     private TextInputEditText etFullName, etEmail, etPhone, etPassword, etConfirmPassword;
-    private TextInputEditText etAddress, etAadharNumber;
+    private TextInputEditText etAddress;
     private Spinner spinnerState, spinnerCity;
 
-    // Officer Specific Fields
-    private TextInputEditText etDepartment, etDesignation, etEmployeeId;
+    // SevaMitra (Earlier Officer) Specific Fields
+    private TextInputEditText etDepartment, etDesignation;
 
     // Worker Specific Fields
-    private Spinner spinnerWorkerCategory, spinnerFounder;
-    private TextInputEditText etExperience, etSpecialization, etHourlyRate;
-    private LinearLayout workerCategoriesLayout;
-    private CheckBox cbCCTV, cbPlumber, cbAC, cbElectrician, cbCarpenter, cbPainter, cbMechanic;
+    private Spinner spinnerWorkerCategory, spinnerOfficerDepartment, spinnerFounder;
+    private TextInputEditText etExperience, etHourlyRate;
+    private LinearLayout workerSkillsLayout;
+    private CheckBox cbPlumber, cbElectrician, cbAC, cbCCTV, cbCarpenter, cbPainter, cbMechanic;
+    private ArrayList<UserData> founderList = new ArrayList<>();
 
     // Founder Specific Fields
     private TextInputEditText etCompanyName, etGstNumber, etOfficeAddress;
 
-    // SDM Specific Fields
-    private TextInputEditText etDistrict, etDivision, etGovtId;
+    // Officer (Earlier SDM) Specific Fields
+    private TextInputEditText etDistrict, etDivision;
 
-    // Submit Button
+    // Buttons
     private MaterialButton btnRegister;
+    private TextView btnLogin;
+    private ProgressBar progressBar;
+    private TextView tvError;
+
+    // Firebase
+    private FirebaseAuth mAuth;
+    private FirebaseDatabase database;
+    private DatabaseReference reference;
 
     // Selected User Type
     private String selectedUserType = "";
 
-    // Worker Categories List
-    private ArrayList<String> selectedCategories = new ArrayList<>();
-    private ArrayList<UserData> founderList = new ArrayList<>();
-
     // State-City Mapping
     private Map<String, String[]> stateCityMap = new HashMap<>();
+
+    // User Types Array
+    private String[] userTypes = {"Select User Type", "SevaMitra", "Worker", "Founder", "Officer"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
+        // Initialize Firebase
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        reference = database.getReference();
+
         initViews();
         setupStateCityMap();
-        setupUserTypeSelection();
         setupSpinners();
-        setupSubmitButton();
+        setupUserTypeSpinner();
+        setupClickListeners();
     }
 
     private void initViews() {
-        auth = FirebaseAuth.getInstance();
-        firebaseUser = auth.getCurrentUser();
-        database = FirebaseDatabase.getInstance();
-        reference = database.getReference();
-        progressDialog = new ProgressDialog(RegistrationActivity.this);
-        progressDialog.setCancelable(false);
+        // User Type Spinner
+        spinnerUserType = findViewById(R.id.spinnerUserType);
 
-        // User Type Selection
-        userTypeRadioGroup = findViewById(R.id.userTypeRadioGroup);
-        officerCard = findViewById(R.id.officerCard);
-        workerCard = findViewById(R.id.workerCard);
-        founderCard = findViewById(R.id.founderCard);
-        sdmCard = findViewById(R.id.sdmCard);
+        // Cards
+        cardSevaMitraFields = findViewById(R.id.cardSevaMitraFields);
+        cardWorkerFields = findViewById(R.id.cardWorkerFields);
+        cardFounderFields = findViewById(R.id.cardFounderFields);
+        cardOfficerFields = findViewById(R.id.cardOfficerFields);
 
         // Common Fields
         etFullName = findViewById(R.id.etFullName);
@@ -109,28 +111,23 @@ public class RegistrationActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         etAddress = findViewById(R.id.etAddress);
-        etAadharNumber = findViewById(R.id.etAadharNumber);
         spinnerState = findViewById(R.id.spinnerState);
         spinnerCity = findViewById(R.id.spinnerCity);
 
-        // Officer Fields
+        // SevaMitra Fields (Earlier Officer)
         etDepartment = findViewById(R.id.etDepartment);
         etDesignation = findViewById(R.id.etDesignation);
-        etEmployeeId = findViewById(R.id.etEmployeeId);
 
         // Worker Fields
         spinnerWorkerCategory = findViewById(R.id.spinnerWorkerCategory);
         spinnerFounder = findViewById(R.id.spinnerFounder);
         etExperience = findViewById(R.id.etExperience);
-        etSpecialization = findViewById(R.id.etSpecialization);
         etHourlyRate = findViewById(R.id.etHourlyRate);
-        workerCategoriesLayout = findViewById(R.id.workerCategoriesLayout);
-
-        // Multiple Categories Selection
-        cbCCTV = findViewById(R.id.cbCCTV);
+        workerSkillsLayout = findViewById(R.id.workerSkillsLayout);
         cbPlumber = findViewById(R.id.cbPlumber);
-        cbAC = findViewById(R.id.cbAC);
         cbElectrician = findViewById(R.id.cbElectrician);
+        cbAC = findViewById(R.id.cbAC);
+        cbCCTV = findViewById(R.id.cbCCTV);
         cbCarpenter = findViewById(R.id.cbCarpenter);
         cbPainter = findViewById(R.id.cbPainter);
         cbMechanic = findViewById(R.id.cbMechanic);
@@ -140,79 +137,29 @@ public class RegistrationActivity extends AppCompatActivity {
         etGstNumber = findViewById(R.id.etGstNumber);
         etOfficeAddress = findViewById(R.id.etOfficeAddress);
 
-        // SDM Fields
+        // Officer Fields (Earlier SDM)
         etDistrict = findViewById(R.id.etDistrict);
         etDivision = findViewById(R.id.etDivision);
-        etGovtId = findViewById(R.id.etGovtId);
+        spinnerOfficerDepartment = findViewById(R.id.spinnerOfficerDepartment);
 
-        // Button
+        // Buttons
         btnRegister = findViewById(R.id.btnRegister);
-
-        etFullName.setText(firebaseUser.getDisplayName());
-        etEmail.setText(firebaseUser.getEmail());
-//        getUser();
-    }
-
-    private void getUser() {
-        progressDialog.setTitle("Loading ...");
-        progressDialog.setMessage("Loading ...");
-        progressDialog.show();
-        if (firebaseUser == null)
-            return;
-        reference = database.getReference().child("Users").child(firebaseUser.getUid());
-        reference.keepSynced(true);
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    User user = snapshot.getValue(User.class);
-                    if (user != null) {
-                        user.setUserId(snapshot.getKey());
-//                        getUserData(user);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                progressDialog.dismiss();
-            }
-        });
-    }
-
-    private void getUserData(User user) {
-        if (user.getUserType() == null || user.getUserId() == null)
-            return;
-        reference = database.getReference().child("UserData").child(user.getUserType()).child(user.getUserId());
-        reference.keepSynced(true);
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    UserData userData = snapshot.getValue(UserData.class);
-                    if (userData != null) {
-                        progressDialog.dismiss();
-                        Intent intent = new Intent(RegistrationActivity.this, BaseDashboardActivity.class);
-                        intent.putExtra("UserType", userData.getUserType());
-                        startActivity(intent);
-                        finish();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                progressDialog.dismiss();
-            }
-        });
+        btnLogin = findViewById(R.id.btnLogin);
+        progressBar = findViewById(R.id.progressBar);
+        tvError = findViewById(R.id.tvError);
     }
 
     private void setupStateCityMap() {
-        stateCityMap.put("Uttar Pradesh", new String[]{"Lucknow", "Kanpur", "Varanasi", "Agra", "Prayagraj"});
-        stateCityMap.put("Maharashtra", new String[]{"Mumbai", "Pune", "Nagpur", "Nashik"});
-        stateCityMap.put("Delhi", new String[]{"New Delhi", "South Delhi", "East Delhi", "West Delhi"});
-        stateCityMap.put("Bihar", new String[]{"Ara", "Araria", "Bagaha", "Banka", "Begusarai", "Bettiah", "Bhagalpur", "Bihar Sharif", "Buxar", "Chhapra", "Darbhanga", "Dehri", "Forbesganj", "Gaya", "Gopalganj", "Hajipur", "Jamalpur", "Jamui", "Jehanabad", "Katihar", "Khagaria", "Kishanganj", "Lakhisarai", "Madhepura", "Madhubani", "Motihari", "Munger", "Muzaffarpur", "Nawada", "Patna", "Purnia", "Raxaul", "Saharsa", "Samastipur", "Sasaram", "Sheikhpura", "Sitamarhi", "Siwan", "Supaul"});
-        stateCityMap.put("Gujarat", new String[]{"Ahmedabad", "Surat", "Vadodara", "Rajkot"});
+        stateCityMap.put("Bihar", new String[]{"Ara", "Araria", "Aurangabad", "Bagaha", "Banka", "Barh", "Barsoi", "Begusarai", "Bettiah", "Bhagalpur", "Bihar Sharif", "Bikramganj", "Bodh Gaya", "Buxar", "Chapra", "Dalsinghsarai", "Danapur", "Darbhanga", "Dehri", "Forbesganj", "Gaya", "Gopalganj", "Hajipur", "Hilsa", "Islampur", "Jamui", "Jehanabad", "Jhajha", "Kahalgaon", "Katihar", "Khagaria", "Kishanganj", "Lakhisarai", "Madhepura", "Madhubani", "Maner", "Manihari", "Masaurhi", "Mokama", "Motihari", "Munger", "Muzaffarpur", "Nabinagar", "Narkatiaganj", "Nawada", "Patna", "Purnia", "Rafiganj", "Raxaul", "Revelganj", "Rosera", "Saharsa", "Samastipur", "Sasaram", "Sheikhpura", "Sherghati", "Sitamarhi", "Siwan", "Sultanganj", "Supaul", "Teghra", "Vaishali", "Warisaliganj"});
+        stateCityMap.put("Uttar Pradesh", new String[]{"Lucknow", "Kanpur", "Varanasi", "Agra", "Prayagraj", "Noida", "Ghaziabad"});
+        stateCityMap.put("Maharashtra", new String[]{"Mumbai", "Pune", "Nagpur", "Nashik", "Thane"});
+        stateCityMap.put("Delhi", new String[]{"New Delhi", "South Delhi", "East Delhi", "West Delhi", "North Delhi"});
+        stateCityMap.put("Gujarat", new String[]{"Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar"});
+        stateCityMap.put("Rajasthan", new String[]{"Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer"});
+        stateCityMap.put("Madhya Pradesh", new String[]{"Bhopal", "Indore", "Gwalior", "Jabalpur", "Ujjain"});
+        stateCityMap.put("West Bengal", new String[]{"Kolkata", "Howrah", "Durgapur", "Siliguri", "Darjeeling"});
+        stateCityMap.put("Tamil Nadu", new String[]{"Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem"});
+        stateCityMap.put("Karnataka", new String[]{"Bengaluru", "Mysore", "Hubli", "Mangalore", "Belgaum"});
     }
 
     private void setupSpinners() {
@@ -240,16 +187,21 @@ public class RegistrationActivity extends AppCompatActivity {
         String[] categories = {"Select Primary Category", "Plumber", "Electrician", "AC Technician", "CCTV Technician", "Carpenter", "Painter", "Mechanic", "Other"};
         ArrayAdapter<String> workerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
         spinnerWorkerCategory.setAdapter(workerAdapter);
-        setSpinnerFounder();
+
+        String[] departments = {"Select Department", "Electrician", "Technician", "Carpenter", "Mechanic", "Other"};
+        ArrayAdapter<String> departmentAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, departments);
+        spinnerOfficerDepartment.setAdapter(departmentAdapter);
+        getFounderList();
     }
 
-    private void setSpinnerFounder() {
+    private void getFounderList() {
         reference = database.getReference().child("UserData").child("FOUNDER");
         reference.keepSynced(true);
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
+                    founderList.clear();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         UserData userData = dataSnapshot.getValue(UserData.class);
                         if (userData != null) {
@@ -264,222 +216,369 @@ public class RegistrationActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
     }
 
-    private void setupUserTypeSelection() {
-        userTypeRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            // Hide all cards first
-            officerCard.setVisibility(View.GONE);
-            workerCard.setVisibility(View.GONE);
-            founderCard.setVisibility(View.GONE);
-            sdmCard.setVisibility(View.GONE);
+    private void setupUserTypeSpinner() {
+        // Create custom adapter for user type spinner
+        ArrayAdapter<String> userTypeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, userTypes) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View v = super.getView(position, convertView, parent);
+                if (position == 0) {
+                    ((TextView) v).setTextColor(getResources().getColor(android.R.color.darker_gray));
+                } else {
+                    ((TextView) v).setTextColor(getResources().getColor(R.color.logo_white));
+                }
+                return v;
+            }
 
-            if (checkedId == R.id.radioOfficer) {
-                selectedUserType = "OFFICER";
-                officerCard.setVisibility(View.VISIBLE);
-            } else if (checkedId == R.id.radioWorker) {
-                selectedUserType = "WORKER";
-                workerCard.setVisibility(View.VISIBLE);
-                workerCategoriesLayout.setVisibility(View.VISIBLE);
-            } else if (checkedId == R.id.radioFounder) {
-                selectedUserType = "FOUNDER";
-                founderCard.setVisibility(View.VISIBLE);
-            } else if (checkedId == R.id.radioSDM) {
-                selectedUserType = "SDM";
-                sdmCard.setVisibility(View.VISIBLE);
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View v = super.getDropDownView(position, convertView, parent);
+                if (position == 0) {
+                    ((TextView) v).setTextColor(getResources().getColor(android.R.color.darker_gray));
+                } else {
+                    ((TextView) v).setTextColor(getResources().getColor(R.color.logo_white));
+                }
+                return v;
+            }
+        };
+        userTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerUserType.setAdapter(userTypeAdapter);
+
+        spinnerUserType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    // Hide all cards
+                    cardSevaMitraFields.setVisibility(View.GONE);
+                    cardWorkerFields.setVisibility(View.GONE);
+                    cardFounderFields.setVisibility(View.GONE);
+                    cardOfficerFields.setVisibility(View.GONE);
+                    selectedUserType = "";
+                    return;
+                }
+
+                String selected = parent.getItemAtPosition(position).toString();
+
+                // Hide all cards first
+                cardSevaMitraFields.setVisibility(View.GONE);
+                cardWorkerFields.setVisibility(View.GONE);
+                cardFounderFields.setVisibility(View.GONE);
+                cardOfficerFields.setVisibility(View.GONE);
+
+                switch (selected) {
+                    case "SevaMitra":
+                        selectedUserType = "SEVAMITRA";
+                        cardSevaMitraFields.setVisibility(View.VISIBLE);
+                        break;
+                    case "Worker":
+                        selectedUserType = "WORKER";
+                        cardWorkerFields.setVisibility(View.VISIBLE);
+                        break;
+                    case "Founder":
+                        selectedUserType = "FOUNDER";
+                        cardFounderFields.setVisibility(View.VISIBLE);
+                        break;
+                    case "Officer":
+                        selectedUserType = "OFFICER";
+                        cardOfficerFields.setVisibility(View.VISIBLE);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedUserType = "";
             }
         });
     }
 
-    private void setupSubmitButton() {
+    private void setupClickListeners() {
         btnRegister.setOnClickListener(v -> validateAndRegister());
+        btnLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        });
     }
 
     private void validateAndRegister() {
+        // Check if user type is selected
+        if (TextUtils.isEmpty(selectedUserType)) {
+            showError("Please select user type");
+            return;
+        }
+
         // Common Validation
-        String fullName = firebaseUser.getDisplayName();
-        String email = firebaseUser.getEmail();
+        String fullName = etFullName.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
-        String address = etAddress.getText().toString().trim();
         String password = etPassword.getText().toString();
         String confirmPassword = etConfirmPassword.getText().toString();
-        String department = etDepartment.getText().toString().trim();
+        String address = etAddress.getText().toString().trim();
+        String state = spinnerState.getSelectedItem().toString();
+        String city = spinnerCity.getSelectedItem().toString();
 
-        if (selectedUserType.isEmpty()) {
-            Toast.makeText(RegistrationActivity.this, "Please select a user type", Toast.LENGTH_LONG).show();
+        if (TextUtils.isEmpty(fullName)) {
+            showError("Full name is required");
+            etFullName.requestFocus();
             return;
         }
 
-        if (phone.isEmpty() || phone.length() != 10) {
-            etPhone.setError("Valid 10-digit phone number is required");
+        if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            showError("Valid email is required");
+            etEmail.requestFocus();
             return;
         }
 
-        if (address.isEmpty()) {
-            etAddress.setError("Address is required");
+        if (TextUtils.isEmpty(phone) || phone.length() != 10) {
+            showError("Valid 10-digit phone number is required");
+            etPhone.requestFocus();
             return;
         }
 
-        String aadhar = etAadharNumber.getText().toString().trim();
-        if (aadhar.isEmpty() || aadhar.length() != 12) {
-            etAadharNumber.setError("Valid 12-digit Aadhar number is required");
+        if (TextUtils.isEmpty(password) || password.length() < 6) {
+            showError("Password must be at least 6 characters");
+            etPassword.requestFocus();
             return;
         }
 
-//        if (password.isEmpty() || password.length() < 6) {
-//            etPassword.setError("Password must be at least 6 characters");
-//            return;
-//        }
-//
-//        if (!password.equals(confirmPassword)) {
-//            etConfirmPassword.setError("Passwords do not match");
-//            return;
-//        }
-
-        // Get selected categories for worker
-        if (selectedUserType.equals("WORKER")) {
-            selectedCategories.clear();
-            if (cbCCTV.isChecked()) selectedCategories.add("CCTV Technician");
-            if (cbPlumber.isChecked()) selectedCategories.add("Plumber");
-            if (cbAC.isChecked()) selectedCategories.add("AC Technician");
-            if (cbElectrician.isChecked()) selectedCategories.add("Electrician");
-            if (cbCarpenter.isChecked()) selectedCategories.add("Carpenter");
-            if (cbPainter.isChecked()) selectedCategories.add("Painter");
-            if (cbMechanic.isChecked()) selectedCategories.add("Mechanic");
+        if (!password.equals(confirmPassword)) {
+            showError("Passwords do not match");
+            etConfirmPassword.requestFocus();
+            return;
         }
 
-        // Create User Data Object
+        if (TextUtils.isEmpty(address)) {
+            showError("Address is required");
+            etAddress.requestFocus();
+            return;
+        }
+
+        // Create UserData object
         UserData userData = new UserData();
-        userData.setId(firebaseUser.getUid());
-        userData.setProfileUrl(firebaseUser.getPhotoUrl().toString());
-        userData.setUserType(selectedUserType);
         userData.setFullName(fullName);
         userData.setEmail(email);
         userData.setPhone(phone);
-        userData.setAddress(etAddress.getText().toString().trim());
-        userData.setAadharNumber(etAadharNumber.getText().toString().trim());
-        userData.setState(spinnerState.getSelectedItem().toString());
-        userData.setCity(spinnerCity.getSelectedItem().toString());
+        userData.setAddress(address);
+        userData.setState(state);
+        userData.setCity(city);
+        userData.setUserType(selectedUserType);
 
-        // Type specific data
+        // Type specific validation and data
         switch (selectedUserType) {
-            case "OFFICER":
-                if (department.isEmpty()) {
-                    etDepartment.setError("Department is required");
-                    return;
-                }
-                String designation = etDesignation.getText().toString().trim();
-                if (designation.isEmpty()) {
-                    etDesignation.setError("Designation is required");
-                    return;
-                }
-                String employeeId = etEmployeeId.getText().toString().trim();
-                if (employeeId.isEmpty()) {
-                    etEmployeeId.setError("Employee ID is required");
-                    return;
-                }
-                userData.setDepartment(department);
-                userData.setDesignation(designation);
-                userData.setEmployeeId(employeeId);
+            case "SEVAMITRA":
+                if (!validateSevaMitraData(userData)) return;
                 break;
-
             case "WORKER":
-                userData.setState("Pending");
-                userData.setPrimaryCategory(spinnerWorkerCategory.getSelectedItem().toString());
-                userData.setCategories(new ArrayList<>(selectedCategories));
-                String experience = etExperience.getText().toString().trim();
-                if (experience.isEmpty()) {
-                    etExperience.setError("Experience is required!");
-                    return;
-                }
-                String specialization = etSpecialization.getText().toString().trim();
-                if (specialization.isEmpty()) {
-                    etSpecialization.setError("Specialization is required!");
-                    return;
-                }
-                String hourlyRate = etHourlyRate.getText().toString().trim();
-                if (hourlyRate.isEmpty()) {
-                    etHourlyRate.setError("Hourly rate is required!");
-                    return;
-                }
-
-                userData.setExperience(etExperience.getText().toString().trim());
-                userData.setSpecialization(etSpecialization.getText().toString().trim());
-                userData.setHourlyRate(etHourlyRate.getText().toString().trim());
-                userData.setFounderId(founderList.get(spinnerFounder.getSelectedItemPosition()).getId());
+                if (!validateWorkerData(userData)) return;
                 break;
-
             case "FOUNDER":
-                String companyName = etCompanyName.getText().toString().trim();
-                if (companyName.isEmpty()) {
-                    etCompanyName.setError("CompanyName is required!");
-                    return;
-                }
-                String gstNumber = etGstNumber.getText().toString().trim();
-                if (gstNumber.isEmpty()) {
-                    etGstNumber.setError("GST Number is required!");
-                    return;
-                }
-                String officeAddress = etOfficeAddress.getText().toString().trim();
-                if (officeAddress.isEmpty()) {
-                    etOfficeAddress.setError("Office Address is required!");
-                    return;
-                }
-                userData.setCompanyName(etCompanyName.getText().toString().trim());
-                userData.setGstNumber(etGstNumber.getText().toString().trim());
-                userData.setOfficeAddress(etOfficeAddress.getText().toString().trim());
+                if (!validateFounderData(userData)) return;
                 break;
-
-            case "SDM":
-                String district = etDistrict.getText().toString().trim();
-                if (district.isEmpty()) {
-                    etDistrict.setError("District Name is required!");
-                    return;
-                }
-                String division = etDivision.getText().toString().trim();
-                if (division.isEmpty()) {
-                    etDivision.setError("Division is required!");
-                    return;
-                }
-                String govtId = etGovtId.getText().toString().trim();
-                if (govtId.isEmpty()) {
-                    etGovtId.setError("Government ID is required!");
-                    return;
-                }
-                userData.setDistrict(district);
-                userData.setDivision(division);
-                userData.setGovtId(govtId);
+            case "OFFICER":
+                if (!validateOfficerData(userData)) return;
                 break;
         }
-        saveUserToDatabase(userData);
+
+        // Register with Firebase
+        registerWithFirebase(email, password, userData);
     }
 
-    private void saveUserToDatabase(UserData userData) {
-        progressDialog.show();
-        progressDialog.setMessage("Uploading ...");
-        progressDialog.setTitle("Uploading ...");
-        database.getReference().child("Users").child(userData.getId()).child("userType").setValue(userData.getUserType());
-        reference = database.getReference().child("UserData").child(userData.getUserType());
+    private boolean validateSevaMitraData(UserData userData) {
+        String department = etDepartment.getText().toString().trim();
+        if (TextUtils.isEmpty(department)) {
+            showError("Department is required");
+            etDepartment.requestFocus();
+            return false;
+        }
+
+        String designation = etDesignation.getText().toString().trim();
+        if (TextUtils.isEmpty(designation)) {
+            showError("Designation is required");
+            etDesignation.requestFocus();
+            return false;
+        }
+
+        userData.setDepartment(department);
+        userData.setDesignation(designation);
+
+        return true;
+    }
+
+    private boolean validateWorkerData(UserData userData) {
+        String primaryCategory = spinnerWorkerCategory.getSelectedItem().toString();
+        if (primaryCategory.equals("Select Primary Category")) {
+            showError("Please select primary category");
+            return false;
+        }
+
+        String experience = etExperience.getText().toString().trim();
+        if (TextUtils.isEmpty(experience)) {
+            showError("Experience is required");
+            etExperience.requestFocus();
+            return false;
+        }
+
+        String hourlyRate = etHourlyRate.getText().toString().trim();
+        if (TextUtils.isEmpty(hourlyRate)) {
+            showError("Hourly rate is required");
+            etHourlyRate.requestFocus();
+            return false;
+        }
+
+        // Get selected skills
+        ArrayList<String> skills = new ArrayList<>();
+        if (cbPlumber.isChecked()) skills.add("Plumber");
+        if (cbElectrician.isChecked()) skills.add("Electrician");
+        if (cbAC.isChecked()) skills.add("AC Technician");
+        if (cbCCTV.isChecked()) skills.add("CCTV Technician");
+        if (cbCarpenter.isChecked()) skills.add("Carpenter");
+        if (cbPainter.isChecked()) skills.add("Painter");
+        if (cbMechanic.isChecked()) skills.add("Mechanic");
+
+        userData.setFounderId(founderList.get(spinnerFounder.getSelectedItemPosition()).getId());
+        userData.setPrimaryCategory(primaryCategory);
+        userData.setCategories(skills);
+        userData.setExperience(experience);
+        userData.setHourlyRate(hourlyRate);
+        userData.setIsSelected("Pending");
+
+        return true;
+    }
+
+    private boolean validateFounderData(UserData userData) {
+        String companyName = etCompanyName.getText().toString().trim();
+        if (TextUtils.isEmpty(companyName)) {
+            showError("Company name is required");
+            etCompanyName.requestFocus();
+            return false;
+        }
+
+        String gstNumber = etGstNumber.getText().toString().trim();
+        if (TextUtils.isEmpty(gstNumber)) {
+            showError("GST number is required");
+            etGstNumber.requestFocus();
+            return false;
+        }
+
+        String officeAddress = etOfficeAddress.getText().toString().trim();
+        if (TextUtils.isEmpty(officeAddress)) {
+            showError("Office address is required");
+            etOfficeAddress.requestFocus();
+            return false;
+        }
+
+        userData.setCompanyName(companyName);
+        userData.setGstNumber(gstNumber);
+        userData.setOfficeAddress(officeAddress);
+
+        return true;
+    }
+
+    private boolean validateOfficerData(UserData userData) {
+        String district = etDistrict.getText().toString().trim();
+        if (TextUtils.isEmpty(district)) {
+            showError("District is required");
+            etDistrict.requestFocus();
+            return false;
+        }
+
+        String division = etDivision.getText().toString().trim();
+        if (TextUtils.isEmpty(division)) {
+            showError("Division is required");
+            etDivision.requestFocus();
+            return false;
+        }
+
+        String officerDepartment = spinnerOfficerDepartment.getSelectedItem().toString();
+        if (officerDepartment.equals("Select Department")) {
+            showError("Select Department");
+            spinnerOfficerDepartment.requestFocus();
+            return false;
+        }
+
+        userData.setDistrict(district);
+        userData.setDivision(division);
+        userData.setDepartment(officerDepartment);
+
+        return true;
+    }
+
+    private void registerWithFirebase(String email, String password, UserData userData) {
+        setLoading(true);
+        tvError.setVisibility(View.GONE);
+
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                // Registration success
+                FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                User user = new User();
+                if (firebaseUser != null) {
+                    UserProfileChangeRequest profileUpdates =
+                            new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(userData.getFullName())
+                                    .setPhotoUri(Uri.parse(selectedUserType))
+                                    .build();
+                    firebaseUser.updateProfile(profileUpdates);
+                    user.setEmail(email);
+                    user.setUserName(userData.getFullName());
+                    user.setProfileUrl(selectedUserType);
+                    user.setUserId(mAuth.getUid());
+                    database.getReference().child("Users").child(user.getUserId()).setValue(user);
+                    // Save user data to Firestore
+                    saveUserToFirebase(user.getUserId(), userData);
+                    mAuth.signOut();
+                }
+            } else {
+                setLoading(false);
+                String errorMessage = task.getException() != null ? task.getException().getMessage() : "Registration failed";
+                showError(errorMessage);
+            }
+        });
+    }
+
+    private void saveUserToFirebase(String userId, UserData userData) {
+        reference = database.getReference().child("UserData").child(selectedUserType).child(userId);
         reference.keepSynced(true);
-        reference.child(userData.getId()).setValue(userData)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Toast.makeText(RegistrationActivity.this, "Registration Successful!\nUser Type: " + userData.getUserType(), Toast.LENGTH_LONG).show();
-                        progressDialog.dismiss();
-                        Intent intent = new Intent(RegistrationActivity.this, BaseDashboardActivity.class);
-                        intent.putExtra("UserType", userData.getUserType());
-                        startActivity(intent);
-                        finish();
-                    }
-                }).addOnCanceledListener(new OnCanceledListener() {
-                    @Override
-                    public void onCanceled() {
-                        Toast.makeText(RegistrationActivity.this, "Registration Cancel!!", Toast.LENGTH_LONG).show();
-                    }
-                });
+        reference.setValue(userData).addOnSuccessListener(aVoid -> {
+            setLoading(false);
+            showSuccessAndNavigate(userData);
+        }).addOnFailureListener(e -> {
+            setLoading(false);
+            showError("Failed to save user data: " + e.getMessage());
+        });
+    }
+
+    private void showSuccessAndNavigate(UserData userData) {
+        Toast.makeText(this, "Registration Successful!", Toast.LENGTH_LONG).show();
+
+        // Navigate to respective dashboard
+        Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void setLoading(boolean isLoading) {
+        if (isLoading) {
+            progressBar.setVisibility(View.VISIBLE);
+            btnRegister.setEnabled(false);
+            btnRegister.setText("");
+        } else {
+            progressBar.setVisibility(View.GONE);
+            btnRegister.setEnabled(true);
+            btnRegister.setText("Register");
+        }
+    }
+
+    private void showError(String message) {
+        tvError.setText(message);
+        tvError.setVisibility(View.VISIBLE);
+
+        // Auto hide after 3 seconds
+        new android.os.Handler().postDelayed(() -> tvError.setVisibility(View.GONE), 3000);
     }
 }

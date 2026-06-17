@@ -1,5 +1,6 @@
 package com.rituraj.sevamitra.ui.dashboard.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,13 +26,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
-import com.rituraj.sevamitra.models.User;
 import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.ui.auth.LoginActivity;
-import com.rituraj.sevamitra.ui.auth.RegistrationActivity;
-import com.rituraj.sevamitra.ui.dashboard.BaseDashboardActivity;
-
-import java.util.ArrayList;
 
 public class ProfileFragment extends Fragment {
     private View view;
@@ -42,20 +37,21 @@ public class ProfileFragment extends Fragment {
     private DatabaseReference reference;
 
     // Header Views
-    private ImageView ivProfile, ivEditProfile;
-    private TextView tvName, tvUserType, tvEmail, tvPhone;
+    private ImageView ivEditProfile;
+    private CardView ivProfile;
+    private TextView tvName, tvUserType, tvEmail, tvPhone, vtProfileLetter;
     private CardView cardProfileImage;
 
     // Personal Information Views
     private TextInputEditText etFullName, etEmail, etPhone, etAddress;
-    private TextInputEditText etAadharNumber, etState, etCity;
+    private TextInputEditText etState, etCity;
     private Button btnEditPersonal, btnSavePersonal;
     private LinearLayout personalInfoLayout;
     private boolean isPersonalEditing = false;
 
     // Officer Specific Views
     private CardView officerSection;
-    private TextView tvDepartment, tvDesignation, tvEmployeeId;
+    private TextView tvDepartment, tvDesignation;
     private Button btnEditOfficer, btnSaveOfficer;
     private LinearLayout officerEditLayout;
     private TextInputEditText etDepartment, etDesignation, etEmployeeId;
@@ -63,7 +59,7 @@ public class ProfileFragment extends Fragment {
 
     // Worker Specific Views
     private CardView workerSection;
-    private TextView tvPrimaryCategory, tvCategories, tvExperience, tvSpecialization;
+    private TextView tvPrimaryCategory, tvCategories, tvExperience;
     private TextView tvHourlyRate, tvStatus, tvCompletedWorks, tvRating;
     private Button btnEditWorker, btnSaveWorker;
     private LinearLayout workerEditLayout;
@@ -98,14 +94,19 @@ public class ProfileFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         initViews(view);
-        getUser();
+        loadSampleUserData(firebaseUser);
 
         setupBottomButtons(view);
         return view;
     }
 
     private void initViews(View view) {
+        auth = FirebaseAuth.getInstance();
+        firebaseUser = auth.getCurrentUser();
+        database = FirebaseDatabase.getInstance();
+        reference = database.getReference();
         // Header
+        vtProfileLetter = view.findViewById(R.id.vtProfileLetter);
         ivProfile = view.findViewById(R.id.ivProfile);
         ivEditProfile = view.findViewById(R.id.ivEditProfile);
         tvName = view.findViewById(R.id.tvName);
@@ -119,7 +120,6 @@ public class ProfileFragment extends Fragment {
         etEmail = view.findViewById(R.id.etEmail);
         etPhone = view.findViewById(R.id.etPhone);
         etAddress = view.findViewById(R.id.etAddress);
-        etAadharNumber = view.findViewById(R.id.etAadharNumber);
         etState = view.findViewById(R.id.etState);
         etCity = view.findViewById(R.id.etCity);
         btnEditPersonal = view.findViewById(R.id.btnEditPersonal);
@@ -130,7 +130,6 @@ public class ProfileFragment extends Fragment {
         officerSection = view.findViewById(R.id.officerSection);
         tvDepartment = view.findViewById(R.id.tvDepartment);
         tvDesignation = view.findViewById(R.id.tvDesignation);
-        tvEmployeeId = view.findViewById(R.id.tvEmployeeId);
         btnEditOfficer = view.findViewById(R.id.btnEditOfficer);
         btnSaveOfficer = view.findViewById(R.id.btnSaveOfficer);
         officerEditLayout = view.findViewById(R.id.officerEditLayout);
@@ -143,7 +142,6 @@ public class ProfileFragment extends Fragment {
         tvPrimaryCategory = view.findViewById(R.id.tvPrimaryCategory);
         tvCategories = view.findViewById(R.id.tvCategories);
         tvExperience = view.findViewById(R.id.tvExperience);
-        tvSpecialization = view.findViewById(R.id.tvSpecialization);
         tvHourlyRate = view.findViewById(R.id.tvHourlyRate);
         tvStatus = view.findViewById(R.id.tvStatus);
         tvCompletedWorks = view.findViewById(R.id.tvCompletedWorks);
@@ -182,11 +180,6 @@ public class ProfileFragment extends Fragment {
         etDistrict = view.findViewById(R.id.etDistrict);
         etDivision = view.findViewById(R.id.etDivision);
         etGovtId = view.findViewById(R.id.etGovtId);
-
-        auth = FirebaseAuth.getInstance();
-        firebaseUser = auth.getCurrentUser();
-        database = FirebaseDatabase.getInstance();
-        reference = database.getReference();
     }
 
     private void setupHeader() {
@@ -194,11 +187,12 @@ public class ProfileFragment extends Fragment {
         tvName.setText(currentUser.getFullName());
         tvEmail.setText(currentUser.getEmail());
         tvPhone.setText(currentUser.getPhone());
+        setAvatarColor(currentUser.getFullName());
 
         // Set user type with badge
         switch (userType) {
-            case "OFFICER":
-                tvUserType.setText("👮 Officer");
+            case "SEVAMITRA":
+                tvUserType.setText("👮 SevaMitra");
                 tvUserType.setBackgroundResource(R.drawable.user_type_badge_officer);
                 break;
             case "WORKER":
@@ -209,23 +203,35 @@ public class ProfileFragment extends Fragment {
                 tvUserType.setText("👔 Founder");
                 tvUserType.setBackgroundResource(R.drawable.user_type_badge_founder);
                 break;
-            case "SDM":
-                tvUserType.setText("📋 SDM");
+            case "OFFICER":
+                tvUserType.setText("📋 Officer");
                 tvUserType.setBackgroundResource(R.drawable.user_type_badge_sdm);
                 break;
-        }
-
-        // Load profile image
-        if (currentUser.getProfileUrl() != null && !currentUser.getProfileUrl().isEmpty()) {
-            Glide.with(this)
-                    .load(currentUser.getProfileUrl())
-                    .placeholder(R.drawable.ic_profile)
-                    .into(ivProfile);
         }
 
         ivEditProfile.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Change profile picture", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void setAvatarColor(String name) {
+        Context context = getContext();
+        int color;
+        char firstChar = name.charAt(0);
+        vtProfileLetter.setText(String.valueOf(firstChar));
+
+        if (firstChar >= 'A' && firstChar <= 'E') {
+            color = context.getColor(R.color.avatar_color_1);
+        } else if (firstChar >= 'F' && firstChar <= 'J') {
+            color = context.getColor(R.color.avatar_color_2);
+        } else if (firstChar >= 'K' && firstChar <= 'O') {
+            color = context.getColor(R.color.avatar_color_3);
+        } else if (firstChar >= 'P' && firstChar <= 'T') {
+            color = context.getColor(R.color.avatar_color_4);
+        } else {
+            color = context.getColor(R.color.avatar_color_5);
+        }
+        ivProfile.setCardBackgroundColor(color);
     }
 
     private void setupPersonalInfo() {
@@ -234,7 +240,6 @@ public class ProfileFragment extends Fragment {
         etEmail.setText(currentUser.getEmail());
         etPhone.setText(currentUser.getPhone());
         etAddress.setText(currentUser.getAddress());
-        etAadharNumber.setText(currentUser.getAadharNumber());
         etState.setText(currentUser.getState());
         etCity.setText(currentUser.getCity());
 
@@ -262,7 +267,6 @@ public class ProfileFragment extends Fragment {
     private void setPersonalInfoEditable(boolean editable) {
         etPhone.setEnabled(editable);
         etAddress.setEnabled(editable);
-        etAadharNumber.setEnabled(editable);
         etState.setEnabled(editable);
         etCity.setEnabled(editable);
 
@@ -279,7 +283,6 @@ public class ProfileFragment extends Fragment {
         currentUser.setEmail(etEmail.getText().toString());
         currentUser.setPhone(etPhone.getText().toString());
         currentUser.setAddress(etAddress.getText().toString());
-        currentUser.setAadharNumber(etAadharNumber.getText().toString());
         currentUser.setState(etState.getText().toString());
         currentUser.setCity(etCity.getText().toString());
 
@@ -300,8 +303,8 @@ public class ProfileFragment extends Fragment {
         sdmSection.setVisibility(View.GONE);
 
         switch (userType) {
-            case "OFFICER":
-                setupOfficerSection();
+            case "SEVAMITRA":
+                setupSevaMitraSection();
                 break;
             case "WORKER":
                 setupWorkerSection();
@@ -309,22 +312,20 @@ public class ProfileFragment extends Fragment {
             case "FOUNDER":
                 setupFounderSection();
                 break;
-            case "SDM":
-                setupSDMSection();
+            case "OFFICER":
+                setupOfficerSection();
                 break;
         }
     }
 
-    private void setupOfficerSection() {
+    private void setupSevaMitraSection() {
         officerSection.setVisibility(View.VISIBLE);
 
         tvDepartment.setText(currentUser.getDepartment());
         tvDesignation.setText(currentUser.getDesignation());
-        tvEmployeeId.setText(currentUser.getEmployeeId());
 
         etDepartment.setText(currentUser.getDepartment());
         etDesignation.setText(currentUser.getDesignation());
-        etEmployeeId.setText(currentUser.getEmployeeId());
 
         setOfficerEditable(false);
 
@@ -360,11 +361,11 @@ public class ProfileFragment extends Fragment {
     private void saveOfficerInfo() {
         currentUser.setDepartment(etDepartment.getText().toString());
         currentUser.setDesignation(etDesignation.getText().toString());
-        currentUser.setEmployeeId(etEmployeeId.getText().toString());
+//        currentUser.setEmployeeId(etEmployeeId.getText().toString());
 
         tvDepartment.setText(currentUser.getDepartment());
         tvDesignation.setText(currentUser.getDesignation());
-        tvEmployeeId.setText(currentUser.getEmployeeId());
+//        tvEmployeeId.setText(currentUser.getEmployeeId());
 
         setOfficerEditable(false);
         Toast.makeText(getContext(), "Officer information saved", Toast.LENGTH_SHORT).show();
@@ -386,11 +387,10 @@ public class ProfileFragment extends Fragment {
         tvCategories.setText(categoriesStr.toString());
 
         tvExperience.setText(currentUser.getExperience() + " years");
-        tvSpecialization.setText(currentUser.getSpecialization());
         tvHourlyRate.setText("₹" + currentUser.getHourlyRate() + "/hour");
 
         // Set status with color
-        String status = currentUser.getStatus();
+        String status = currentUser.getIsSelected();
         tvStatus.setText(status);
         if ("Available".equals(status)) {
             tvStatus.setTextColor(getResources().getColor(R.color.logo_green));
@@ -406,7 +406,6 @@ public class ProfileFragment extends Fragment {
 
         etPrimaryCategory.setText(currentUser.getPrimaryCategory());
         etExperience.setText(currentUser.getExperience());
-        etSpecialization.setText(currentUser.getSpecialization());
         etHourlyRate.setText(currentUser.getHourlyRate());
 
         setWorkerEditable(false);
@@ -444,12 +443,10 @@ public class ProfileFragment extends Fragment {
     private void saveWorkerInfo() {
         currentUser.setPrimaryCategory(etPrimaryCategory.getText().toString());
         currentUser.setExperience(etExperience.getText().toString());
-        currentUser.setSpecialization(etSpecialization.getText().toString());
         currentUser.setHourlyRate(etHourlyRate.getText().toString());
 
         tvPrimaryCategory.setText(currentUser.getPrimaryCategory());
         tvExperience.setText(currentUser.getExperience() + " years");
-        tvSpecialization.setText(currentUser.getSpecialization());
         tvHourlyRate.setText("₹" + currentUser.getHourlyRate() + "/hour");
 
         setWorkerEditable(false);
@@ -511,16 +508,16 @@ public class ProfileFragment extends Fragment {
         Toast.makeText(getContext(), "Founder information saved", Toast.LENGTH_SHORT).show();
     }
 
-    private void setupSDMSection() {
+    private void setupOfficerSection() {
         sdmSection.setVisibility(View.VISIBLE);
 
         tvDistrict.setText(currentUser.getDistrict());
         tvDivision.setText(currentUser.getDivision());
-        tvGovtId.setText(currentUser.getGovtId());
+        tvGovtId.setText(currentUser.getDepartment());
 
         etDistrict.setText(currentUser.getDistrict());
         etDivision.setText(currentUser.getDivision());
-        etGovtId.setText(currentUser.getGovtId());
+        etGovtId.setText(currentUser.getDepartment());
 
         setSDMEditable(false);
 
@@ -556,19 +553,17 @@ public class ProfileFragment extends Fragment {
     private void saveSDMInfo() {
         currentUser.setDistrict(etDistrict.getText().toString());
         currentUser.setDivision(etDivision.getText().toString());
-        currentUser.setGovtId(etGovtId.getText().toString());
+        currentUser.setDepartment(etGovtId.getText().toString());
 
         tvDistrict.setText(currentUser.getDistrict());
         tvDivision.setText(currentUser.getDivision());
-        tvGovtId.setText(currentUser.getGovtId());
+        tvGovtId.setText(currentUser.getDepartment());
 
         setSDMEditable(false);
         Toast.makeText(getContext(), "SDM information saved", Toast.LENGTH_SHORT).show();
     }
 
     private void setupBottomButtons(View view) {
-
-
         btnChangePassword.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Change password", Toast.LENGTH_SHORT).show();
         });
@@ -583,36 +578,9 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void getUser() {
-        reference = database.getReference().child("Users").child(firebaseUser.getUid());
-        reference.keepSynced(true);
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    User user = snapshot.getValue(User.class);
-                    if (user != null) {
-                        if (user.getUserId() == null) {
-                            user.setUserId(snapshot.getKey());
-                        }
-                        if (user.getUserType() != null) {
-                            loadSampleUserData(user);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-    }
-
-    private void loadSampleUserData(User user) {
-        if (user.getUserType() == null || user.getUserId() == null) {
-            return;
-        }
-        reference = database.getReference().child("UserData").child(user.getUserType()).child(user.getUserId());
+    private void loadSampleUserData(FirebaseUser user) {
+        String userType = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "FOUNDER";
+        reference = database.getReference().child("UserData").child(userType).child(user.getUid());
         reference.keepSynced(true);
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

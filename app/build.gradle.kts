@@ -5,18 +5,14 @@ plugins {
 
 android {
     namespace = "com.rituraj.sevamitra"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.rituraj.sevamitra"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,6 +29,13 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    packaging {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/INDEX.LIST"
+        }
     }
 }
 
@@ -54,9 +57,13 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.android.gms:play-services-auth:21.4.0")
-
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.23.0")
+    
     // Translation
     implementation("com.google.mlkit:translate:17.0.3")
+
+    // Loading animation
+    implementation("com.github.d-max:spots-dialog:1.1@aar")
 
     // Image handling
     implementation("com.github.dhaval2404:imagepicker:2.1")
