@@ -3,6 +3,7 @@ package com.rituraj.sevamitra.ui.worker;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
 
@@ -25,6 +26,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.adapters.WorkerAdapter;
+import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
 
 import java.util.ArrayList;
@@ -110,7 +112,7 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
     }
 
     private void setupRecyclerView() {
-        workerAdapter = new WorkerAdapter(workerList, issueId, this);
+        workerAdapter = new WorkerAdapter(workerList, issueId, firebaseUser, this);
         rvWorkers.setLayoutManager(new LinearLayoutManager(this));
         rvWorkers.setAdapter(workerAdapter);
     }
@@ -161,7 +163,7 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
         });
 
         chipAvailable.setOnClickListener(v -> {
-            currentStatusFilter = "available";
+            currentStatusFilter = Status.ACTIVE;
             updateChipSelection(chipAvailable);
             applyFilters();
         });
@@ -289,11 +291,8 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
                 case "all":
                     statusMatch = true;
                     break;
-                case "available":
-                    statusMatch = "Available".equals(worker.getIsSelected());
-                    break;
-                case "busy":
-                    statusMatch = "Busy".equals(worker.getIsSelected());
+                case Status.ACTIVE:
+                    statusMatch = Status.ACTIVE.equals(worker.getIsSelected());
                     break;
             }
 
@@ -301,7 +300,7 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
             if ("all".equals(currentCategoryFilter)) {
                 categoryMatch = true;
             } else {
-                categoryMatch = currentCategoryFilter.equals(worker.getPrimaryCategory());
+                categoryMatch = currentCategoryFilter.equals(worker.getDepartment());
             }
 
             if (statusMatch && categoryMatch) {
@@ -323,12 +322,12 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
             String lowerCaseQuery = query.toLowerCase();
             for (UserData worker : workerListFull) {
                 if (worker.getFullName().toLowerCase().contains(lowerCaseQuery) ||
-                        worker.getPrimaryCategory().toLowerCase().contains(lowerCaseQuery) ||
+                        worker.getDepartment().toLowerCase().contains(lowerCaseQuery) ||
                         worker.getCity().toLowerCase().contains(lowerCaseQuery) ||
                         worker.getState().toLowerCase().contains(lowerCaseQuery) ||
                         worker.getEmail().toLowerCase().contains(lowerCaseQuery) ||
                         worker.getPhone().contains(lowerCaseQuery) ||
-                        (worker.getCategories() != null && worker.getCategories().toString().toLowerCase().contains(lowerCaseQuery))) {
+                        (worker.getSkills() != null && worker.getSkills().toString().toLowerCase().contains(lowerCaseQuery))) {
                     workerList.add(worker);
                 }
             }
@@ -347,42 +346,9 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
                 break;
             case "category_asc":
                 workerList.sort((w1, w2) -> {
-                    String cat1 = w1.getPrimaryCategory() != null ? w1.getPrimaryCategory() : "";
-                    String cat2 = w2.getPrimaryCategory() != null ? w2.getPrimaryCategory() : "";
+                    String cat1 = w1.getDepartment() != null ? w1.getDepartment() : "";
+                    String cat2 = w2.getDepartment() != null ? w2.getDepartment() : "";
                     return cat1.compareTo(cat2);
-                });
-                break;
-            case "experience_desc":
-                workerList.sort((w1, w2) -> {
-                    int exp1 = 0, exp2 = 0;
-                    try {
-                        exp1 = Integer.parseInt(w1.getExperience());
-                        exp2 = Integer.parseInt(w2.getExperience());
-                    } catch (NumberFormatException e) {
-                    }
-                    return Integer.compare(exp2, exp1);
-                });
-                break;
-            case "rate_asc":
-                workerList.sort((w1, w2) -> {
-                    double rate1 = 0, rate2 = 0;
-                    try {
-                        rate1 = Double.parseDouble(w1.getHourlyRate());
-                        rate2 = Double.parseDouble(w2.getHourlyRate());
-                    } catch (NumberFormatException e) {
-                    }
-                    return Double.compare(rate1, rate2);
-                });
-                break;
-            case "rate_desc":
-                workerList.sort((w1, w2) -> {
-                    double rate1 = 0, rate2 = 0;
-                    try {
-                        rate1 = Double.parseDouble(w1.getHourlyRate());
-                        rate2 = Double.parseDouble(w2.getHourlyRate());
-                    } catch (NumberFormatException e) {
-                    }
-                    return Double.compare(rate2, rate1);
                 });
                 break;
         }
@@ -404,10 +370,15 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
                     rvWorkers.setVisibility(View.VISIBLE);
                     UserData userData = snapshot.getValue(UserData.class);
                     if (userData != null) {
-                        if (userData.getFounderId().equalsIgnoreCase(firebaseUser.getUid())) {
-                            userData.setId(snapshot.getKey());
+                        userData.setId(snapshot.getKey());
+                        if (userData.getIsSelected().equalsIgnoreCase(Status.ACTIVE)) {
                             workerList.add(userData);
                             workerListFull.add(userData);
+                        } else {
+                            if (firebaseUser != null && firebaseUser.getPhotoUrl() != null && firebaseUser.getPhotoUrl().toString().equals("FOUNDER")) {
+                                workerList.add(userData);
+                                workerListFull.add(userData);
+                            }
                         }
                     }
                 }
@@ -415,6 +386,18 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                UserData updatedUser = snapshot.getValue(UserData.class);
+                if (updatedUser != null) {
+                    updatedUser.setId(snapshot.getKey());
+                    for (int i = 0; i < workerList.size(); i++) {
+                        if (workerList.get(i).getId().equals(updatedUser.getId())) {
+                            workerList.set(i, updatedUser);
+                            workerListFull.set(i, updatedUser);
+                            workerAdapter.notifyItemChanged(i);
+                            break;
+                        }
+                    }
+                }
             }
 
             @Override
@@ -459,13 +442,16 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
 
     @Override
     public void onAssignClick(UserData worker) {
-        long timestamp = System.currentTimeMillis();
-        reference = database.getReference().child("Issues").child(issueId);
-        reference.child("assignedTo").setValue(worker.getId());
-        reference.child("workAssignTimestamp").setValue(timestamp);
-        reference.child("status").setValue("In Progress");
-        Toast.makeText(this, "Work assigned to: " + worker.getFullName(), Toast.LENGTH_SHORT).show();
-        finish();
+        if (worker.getState().equalsIgnoreCase(Status.ACTIVE)) {
+            long timestamp = System.currentTimeMillis();
+            reference = database.getReference().child("Issues").child(issueId);
+            reference.child("assignedTo").setValue(worker.getId());
+            reference.child("workAssignTimestamp").setValue(timestamp);
+            reference.child("status").setValue(Status.PROCESS);
+            Toast.makeText(this, "Work assigned to: " + worker.getFullName(), Toast.LENGTH_SHORT).show();
+            finish();
+        } else
+            Toast.makeText(WorkerListActivity.this, "Worker not accepted by founder!!", Toast.LENGTH_SHORT).show();
     }
 
     private void showManageDialog(UserData worker) {
@@ -477,13 +463,13 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
                         "Worker: " + worker.getFullName()
         );
 
-        builder.setPositiveButton("Accept", (dialog, which) -> {
-            reference.setValue("Available");
+        builder.setPositiveButton("ACTIVE", (dialog, which) -> {
+            reference.setValue(Status.ACTIVE);
             dialog.dismiss();
         });
 
-        builder.setNegativeButton("Reject", (dialog, which) -> {
-            reference.setValue("Reject");
+        builder.setNegativeButton("SUSPENDED", (dialog, which) -> {
+            reference.setValue(Status.SUSPENDED);
             dialog.dismiss();
         });
 

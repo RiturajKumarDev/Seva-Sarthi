@@ -1,5 +1,6 @@
 package com.rituraj.sevamitra.ui.auth;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -23,11 +25,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
+import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.User;
 import com.rituraj.sevamitra.models.UserData;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RegistrationActivity extends AppCompatActivity {
@@ -43,13 +49,16 @@ public class RegistrationActivity extends AppCompatActivity {
 
     // SevaMitra (Earlier Officer) Specific Fields
     private TextInputEditText etDepartment, etDesignation;
+    private TextView otherIfo;
 
     // Worker Specific Fields
-    private Spinner spinnerWorkerCategory, spinnerOfficerDepartment, spinnerFounder;
-    private TextInputEditText etExperience, etHourlyRate;
     private LinearLayout workerSkillsLayout;
-    private CheckBox cbPlumber, cbElectrician, cbAC, cbCCTV, cbCarpenter, cbPainter, cbMechanic;
+    private int FRONT_REQUEST_IMAGE = 100, BACK_REQUEST_IMAGE = 101;
+    private Spinner spinnerWorkerCategory, spinnerOfficerDepartment, spinnerFounder;
     private ArrayList<UserData> founderList = new ArrayList<>();
+    private ImageView aadharCardBackImg, aadharCardFrontImg;
+    private Uri frontAadharImgUri, backAadharImgUri;
+    private final List<CheckBox> skillCheckBoxes = new ArrayList<>();
 
     // Founder Specific Fields
     private TextInputEditText etCompanyName, etGstNumber, etOfficeAddress;
@@ -75,7 +84,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private Map<String, String[]> stateCityMap = new HashMap<>();
 
     // User Types Array
-    private String[] userTypes = {"Select User Type", "SevaMitra", "Worker", "Founder", "Officer"};
+    private String[] userTypes = {"Select User Type", "SevaSarthi", "Worker", "Officer", "Other"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +95,9 @@ public class RegistrationActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         reference = database.getReference();
+
+        if (mAuth.getCurrentUser() != null)
+            userTypes = new String[]{"Select User Type", "SevaSarthi", "Worker", "Founder", "Officer", "Other"};
 
         initViews();
         setupStateCityMap();
@@ -117,20 +129,15 @@ public class RegistrationActivity extends AppCompatActivity {
         // SevaMitra Fields (Earlier Officer)
         etDepartment = findViewById(R.id.etDepartment);
         etDesignation = findViewById(R.id.etDesignation);
+        otherIfo = findViewById(R.id.otherIfo);
 
         // Worker Fields
+        workerSkillsLayout = findViewById(R.id.workerSkillsLayout);
         spinnerWorkerCategory = findViewById(R.id.spinnerWorkerCategory);
         spinnerFounder = findViewById(R.id.spinnerFounder);
-        etExperience = findViewById(R.id.etExperience);
-        etHourlyRate = findViewById(R.id.etHourlyRate);
-        workerSkillsLayout = findViewById(R.id.workerSkillsLayout);
-        cbPlumber = findViewById(R.id.cbPlumber);
-        cbElectrician = findViewById(R.id.cbElectrician);
-        cbAC = findViewById(R.id.cbAC);
-        cbCCTV = findViewById(R.id.cbCCTV);
-        cbCarpenter = findViewById(R.id.cbCarpenter);
-        cbPainter = findViewById(R.id.cbPainter);
-        cbMechanic = findViewById(R.id.cbMechanic);
+
+        aadharCardFrontImg = findViewById(R.id.aadharCardFrontImg);
+        aadharCardBackImg = findViewById(R.id.aadharCardBackImg);
 
         // Founder Fields
         etCompanyName = findViewById(R.id.etCompanyName);
@@ -166,7 +173,6 @@ public class RegistrationActivity extends AppCompatActivity {
         // State Spinner
         ArrayAdapter<String> stateAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, new ArrayList<>(stateCityMap.keySet()));
         spinnerState.setAdapter(stateAdapter);
-
         spinnerState.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -183,15 +189,87 @@ public class RegistrationActivity extends AppCompatActivity {
             }
         });
 
-        // Worker Category Spinner
-        String[] categories = {"Select Primary Category", "Plumber", "Electrician", "AC Technician", "CCTV Technician", "Carpenter", "Painter", "Mechanic", "Other"};
-        ArrayAdapter<String> workerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
-        spinnerWorkerCategory.setAdapter(workerAdapter);
+        spinnerWorkerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                String selectedItem = position == 0 ? "" : (String) spinnerWorkerCategory.getSelectedItem();
+                setSelectedProblemType(selectedItem);
+            }
 
-        String[] departments = {"Select Department", "Electrician", "Technician", "Carpenter", "Mechanic", "Other"};
-        ArrayAdapter<String> departmentAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, departments);
-        spinnerOfficerDepartment.setAdapter(departmentAdapter);
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
         getFounderList();
+    }
+
+    private void setSelectedProblemType(String selectedProblemType) {
+        int arrayResId;
+        switch (selectedProblemType) {
+            case "Beauty & Personal Care":
+                arrayResId = R.array.beauty_personal_care_issues;
+                break;
+            case "Carpenter":
+                arrayResId = R.array.carpenter_issues;
+                break;
+            case "Computer":
+                arrayResId = R.array.computer_issues;
+                break;
+            case "Computer & IT Services":
+                arrayResId = R.array.computer_it_services_issues;
+                break;
+            case "Dairy Services":
+                arrayResId = R.array.dairy_services_issues;
+                break;
+            case "Decoration":
+                arrayResId = R.array.decoration_issues;
+                break;
+            case "Electrician":
+                arrayResId = R.array.electrician_issues;
+                break;
+            case "Home Services":
+                arrayResId = R.array.home_services_issues;
+                break;
+            case "Mechanic":
+                arrayResId = R.array.mechanic_issues;
+                break;
+            case "Painter":
+                arrayResId = R.array.painter_issues;
+                break;
+            case "Plumber":
+                arrayResId = R.array.plumber_issues;
+                break;
+            case "Sanitation":
+                arrayResId = R.array.sanitation_issues;
+                break;
+            case "Water Supply":
+                arrayResId = R.array.water_supply_issues;
+                break;
+            case "Laundry Services":
+                arrayResId = R.array.laundry_services_issues;
+                break;
+            default:
+                arrayResId = R.array.other_issues;
+                break;
+        }
+        String[] issueList = getResources().getStringArray(arrayResId);
+        setSkillsList(issueList);
+    }
+
+    private void setSkillsList(String[] skills) {
+        if (skills != null && skills.length > 1)
+            skills = Arrays.copyOfRange(skills, 1, skills.length);
+        workerSkillsLayout.removeAllViews();
+        skillCheckBoxes.clear();
+        for (String skill : skills) {
+            CheckBox checkBox = new CheckBox(this);
+            checkBox.setText(skill);
+            checkBox.setTextColor(getResources().getColor(R.color.logo_white));
+
+            workerSkillsLayout.addView(checkBox);
+            skillCheckBoxes.add(checkBox);
+        }
     }
 
     private void getFounderList() {
@@ -270,10 +348,6 @@ public class RegistrationActivity extends AppCompatActivity {
                 cardOfficerFields.setVisibility(View.GONE);
 
                 switch (selected) {
-                    case "SevaMitra":
-                        selectedUserType = "SEVAMITRA";
-                        cardSevaMitraFields.setVisibility(View.VISIBLE);
-                        break;
                     case "Worker":
                         selectedUserType = "WORKER";
                         cardWorkerFields.setVisibility(View.VISIBLE);
@@ -285,6 +359,16 @@ public class RegistrationActivity extends AppCompatActivity {
                     case "Officer":
                         selectedUserType = "OFFICER";
                         cardOfficerFields.setVisibility(View.VISIBLE);
+                        break;
+                    case "Other":
+                        selectedUserType = "OTHER";
+                        otherIfo.setText("Other User Details");
+                        cardSevaMitraFields.setVisibility(View.VISIBLE);
+                        break;
+                    case "SevaSarthi":
+                        selectedUserType = "SEVASARTHI";
+                        otherIfo.setText("SevaSarthi Details");
+                        cardSevaMitraFields.setVisibility(View.VISIBLE);
                         break;
                 }
             }
@@ -302,6 +386,21 @@ public class RegistrationActivity extends AppCompatActivity {
             Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
+        });
+
+        aadharCardFrontImg.setOnClickListener((v) -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");   // 🔥 only images from gallery
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            startActivityForResult(Intent.createChooser(intent, "Select Image"), FRONT_REQUEST_IMAGE);
+        });
+        aadharCardBackImg.setOnClickListener((v) -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");   // 🔥 only images from gallery
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            startActivityForResult(Intent.createChooser(intent, "Select Image"), BACK_REQUEST_IMAGE);
         });
     }
 
@@ -370,9 +469,6 @@ public class RegistrationActivity extends AppCompatActivity {
 
         // Type specific validation and data
         switch (selectedUserType) {
-            case "SEVAMITRA":
-                if (!validateSevaMitraData(userData)) return;
-                break;
             case "WORKER":
                 if (!validateWorkerData(userData)) return;
                 break;
@@ -381,6 +477,9 @@ public class RegistrationActivity extends AppCompatActivity {
                 break;
             case "OFFICER":
                 if (!validateOfficerData(userData)) return;
+                break;
+            default:
+                if (!validateSevaMitraData(userData)) return;
                 break;
         }
 
@@ -411,41 +510,25 @@ public class RegistrationActivity extends AppCompatActivity {
 
     private boolean validateWorkerData(UserData userData) {
         String primaryCategory = spinnerWorkerCategory.getSelectedItem().toString();
-        if (primaryCategory.equals("Select Primary Category")) {
-            showError("Please select primary category");
+        if (primaryCategory.equals("Select Department")) {
+            showError("Please select Department");
             return false;
         }
 
-        String experience = etExperience.getText().toString().trim();
-        if (TextUtils.isEmpty(experience)) {
-            showError("Experience is required");
-            etExperience.requestFocus();
+        ArrayList<String> arraySkills = new ArrayList<>();
+        for (CheckBox skill : skillCheckBoxes) {
+            if (skill.isChecked())
+                arraySkills.add(skill.getText().toString());
+        }
+        if (arraySkills.isEmpty()) {
+            showError("Skills is required");
             return false;
         }
-
-        String hourlyRate = etHourlyRate.getText().toString().trim();
-        if (TextUtils.isEmpty(hourlyRate)) {
-            showError("Hourly rate is required");
-            etHourlyRate.requestFocus();
-            return false;
-        }
-
-        // Get selected skills
-        ArrayList<String> skills = new ArrayList<>();
-        if (cbPlumber.isChecked()) skills.add("Plumber");
-        if (cbElectrician.isChecked()) skills.add("Electrician");
-        if (cbAC.isChecked()) skills.add("AC Technician");
-        if (cbCCTV.isChecked()) skills.add("CCTV Technician");
-        if (cbCarpenter.isChecked()) skills.add("Carpenter");
-        if (cbPainter.isChecked()) skills.add("Painter");
-        if (cbMechanic.isChecked()) skills.add("Mechanic");
 
         userData.setFounderId(founderList.get(spinnerFounder.getSelectedItemPosition()).getId());
-        userData.setPrimaryCategory(primaryCategory);
-        userData.setCategories(skills);
-        userData.setExperience(experience);
-        userData.setHourlyRate(hourlyRate);
-        userData.setIsSelected("Pending");
+        userData.setDepartment(primaryCategory);
+        userData.setSkills(arraySkills);
+        userData.setIsSelected(Status.INACTIVE);
 
         return true;
     }
@@ -475,8 +558,18 @@ public class RegistrationActivity extends AppCompatActivity {
         userData.setCompanyName(companyName);
         userData.setGstNumber(gstNumber);
         userData.setOfficeAddress(officeAddress);
-
         return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            if (uri == null) return;
+            if (requestCode == FRONT_REQUEST_IMAGE) frontAadharImgUri = uri;
+            else if (requestCode == BACK_REQUEST_IMAGE) backAadharImgUri = uri;
+        }
     }
 
     private boolean validateOfficerData(UserData userData) {
@@ -518,11 +611,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 FirebaseUser firebaseUser = mAuth.getCurrentUser();
                 User user = new User();
                 if (firebaseUser != null) {
-                    UserProfileChangeRequest profileUpdates =
-                            new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(userData.getFullName())
-                                    .setPhotoUri(Uri.parse(selectedUserType))
-                                    .build();
+                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder().setDisplayName(userData.getFullName()).setPhotoUri(Uri.parse(selectedUserType)).build();
                     firebaseUser.updateProfile(profileUpdates);
                     user.setEmail(email);
                     user.setUserName(userData.getFullName());

@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,6 +21,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.IssueModel;
+import com.rituraj.sevamitra.models.Priority;
+import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.ui.auth.LoginActivity;
 
@@ -50,10 +53,10 @@ public class IssueDetailsActivity extends AppCompatActivity {
     private TextView tvLocation;
 
     // Timeline Views
-    private TextView tvCreatedTime, tvAssignedTime, tvCompletedTime, tvSevaApprovedTime, tvOfficerApprovedTime;
+    private TextView tvCreatedTime, tvRejectTime, tvAssignedTime, tvCompletedTime, tvSevaApprovedTime, tvOfficerApprovedTime;
 
     // Resolution Views
-    private TextView tvResolutionNotes;
+    private TextView tvResolutionNotes, resolutionHeading;
     private CardView cardResolution, cardResolutionNote;
 
     // User Info Views (Created By)
@@ -112,7 +115,6 @@ public class IssueDetailsActivity extends AppCompatActivity {
             return;
         }
         issueId = getIntent().getStringExtra("IssueId");
-        Toast.makeText(IssueDetailsActivity.this, issueId + "", Toast.LENGTH_SHORT).show();
 
         initViews();
         setupToolbar();
@@ -152,6 +154,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
         // Timeline
         tvCreatedTime = findViewById(R.id.tvCreatedTime);
+        tvRejectTime = findViewById(R.id.tvRejectTime);
         tvAssignedTime = findViewById(R.id.tvAssignedTime);
         tvCompletedTime = findViewById(R.id.tvCompletedTime);
         tvSevaApprovedTime = findViewById(R.id.tvSevaApprovedTime);
@@ -159,6 +162,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
         // Resolution
         tvResolutionNotes = findViewById(R.id.tvResolutionNotes);
+        resolutionHeading = findViewById(R.id.resolutionHeading);
         cardResolutionNote = findViewById(R.id.cardResolutionNote);
 
         // Created By User
@@ -243,23 +247,23 @@ public class IssueDetailsActivity extends AppCompatActivity {
         tvIssueId.setText("#" + (issue.getId() != null ? issue.getId() : ""));
         tvProblemTitle.setText(issue.getProblemTitle() != null ? issue.getProblemTitle() : "");
         tvProblemType.setText(issue.getProblemType() != null ? issue.getProblemType() : "");
-        tvIssueType.setText(issue.getIssueType() != null ? issue.getIssueType() : "");
-        tvPriority.setText(issue.getPriority() != null ? issue.getPriority() : "Medium");
-        tvStatus.setText(issue.getStatus() != null ? issue.getStatus() : "Pending");
+        tvIssueType.setText(issue.getIssue() != null ? issue.getIssue() : "");
+        tvPriority.setText(issue.getPriority() != null ? issue.getPriority() : Priority.MEDIUM);
+        tvStatus.setText(issue.getStatus() != null ? issue.getStatus() : Status.PENDING);
 
         // Set Priority Color
         String priority = issue.getPriority();
-        if (priority == null) priority = "Medium";
+        if (priority == null) priority = Priority.MEDIUM;
         switch (priority) {
-            case "Critical":
+            case Priority.CRITICAL:
                 priorityIndicator.setBackgroundColor(getColor(R.color.logo_orange));
                 tvPriority.setTextColor(getColor(R.color.logo_orange));
                 break;
-            case "High":
+            case Priority.HIGH:
                 priorityIndicator.setBackgroundColor(getColor(R.color.logo_gold));
                 tvPriority.setTextColor(getColor(R.color.logo_gold));
                 break;
-            case "Medium":
+            case Priority.MEDIUM:
                 priorityIndicator.setBackgroundColor(getColor(R.color.logo_green));
                 tvPriority.setTextColor(getColor(R.color.logo_green));
                 break;
@@ -271,21 +275,21 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
         // Set Status Color
         String status = issue.getStatus();
-        if (status == null) status = "Pending";
+        if (status == null) status = Status.PENDING;
         switch (status) {
-            case "Pending":
+            case Status.PENDING:
                 statusIndicator.setBackgroundColor(getColor(R.color.logo_orange));
                 tvStatus.setTextColor(getColor(R.color.logo_orange));
                 break;
-            case "In Progress":
+            case Status.PROCESS:
                 statusIndicator.setBackgroundColor(getColor(R.color.logo_gold));
                 tvStatus.setTextColor(getColor(R.color.logo_gold));
                 break;
-            case "Resolved":
+            case Status.RESOLVED:
                 statusIndicator.setBackgroundColor(getColor(R.color.logo_green));
                 tvStatus.setTextColor(getColor(R.color.logo_green));
                 break;
-            case "Rejected":
+            case Status.REJECTED:
                 statusIndicator.setBackgroundColor(getColor(R.color.logo_red));
                 tvStatus.setTextColor(getColor(R.color.logo_red));
                 break;
@@ -299,14 +303,19 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
         // Timeline
         tvCreatedTime.setText(formatTimestamp(issue.getCreatedTimestamp()));
+        tvRejectTime.setText(formatTimestamp(issue.getRejectTimestamp()));
         tvAssignedTime.setText(formatTimestamp(issue.getWorkAssignTimestamp()));
         tvCompletedTime.setText(formatTimestamp(issue.getWorkCompleteTimestamp()));
         tvSevaApprovedTime.setText(formatTimestamp(issue.getSevaMitraApprovedTimestamp()));
+        tvOfficerApprovedTime.setText(formatTimestamp(issue.getOfficerApprovedTimestamp()));
         tvOfficerApprovedTime.setText(formatTimestamp(issue.getOfficerApprovedTimestamp()));
 
         // Show/hide timeline items based on availability
         if (issue.getWorkAssignTimestamp() <= 0) {
             findViewById(R.id.assignedRow).setVisibility(View.GONE);
+        }
+        if (issue.getRejectTimestamp() <= 0) {
+            findViewById(R.id.rejectRow).setVisibility(View.GONE);
         }
         if (issue.getWorkCompleteTimestamp() <= 0) {
             findViewById(R.id.completedRow).setVisibility(View.GONE);
@@ -320,6 +329,12 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
         // Resolution Notes
         if (issue.getResolutionNotes() != null && !issue.getResolutionNotes().isEmpty()) {
+            if (issue.getRejectTimestamp() > 0) {
+                resolutionHeading.setText("Rejection Notes");
+                resolutionHeading.setTextColor(
+                        ContextCompat.getColor(this, R.color.logo_red)
+                );
+            }
             tvResolutionNotes.setText(issue.getResolutionNotes());
             cardResolution.setVisibility(View.VISIBLE);
         } else {
@@ -333,7 +348,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
     private void loadUserData() {
         // Load Created By User (SevaMitra)
         if (issue.getCreatedBy() != null && !issue.getCreatedBy().isEmpty()) {
-            reference = database.getReference().child("UserData").child("SEVAMITRA").child(issue.getCreatedBy());
+            reference = database.getReference().child("UserData").child("SEVASARTHI").child(issue.getCreatedBy());
             reference.keepSynced(true);
             reference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -419,7 +434,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     private void displayCreatedByUser(UserData user) {
         tvCreatedByName.setText(user.getFullName());
-        tvCreatedByType.setText("SevaMitra");
+        tvCreatedByType.setText("SevaSarthi");
         tvCreatedByEmail.setText(user.getEmail());
         tvCreatedByPhone.setText(user.getPhone());
         ivCreatedByIcon.setImageResource(R.drawable.ic_profile);
@@ -427,12 +442,12 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
     private void displayAssignedWorker(UserData worker) {
         tvAssignedWorkerName.setText(worker.getFullName());
-        tvAssignedWorkerType.setText(worker.getPrimaryCategory());
+        tvAssignedWorkerType.setText(worker.getDepartment());
 
         // Display skills
         StringBuilder skills = new StringBuilder();
-        if (worker.getCategories() != null && !worker.getCategories().isEmpty()) {
-            for (String skill : worker.getCategories()) {
+        if (worker.getSkills() != null && !worker.getSkills().isEmpty()) {
+            for (String skill : worker.getSkills()) {
                 if (skills.length() > 0) skills.append(" • ");
                 skills.append(skill);
             }
@@ -471,31 +486,30 @@ public class IssueDetailsActivity extends AppCompatActivity {
         String status = issue.getStatus();
 
         // SevaMitra Actions
-        if ("SEVAMITRA".equals(userType)) {
-            if ("Pending".equals(status)) {
-                btnReject.setVisibility(View.VISIBLE);
-            } else if (issue.getSevaMitraApprovedTimestamp() < 0) {
+        if ("SEVASARTHI".equals(userType)) {
+            if (issue.getWorkCompleteTimestamp() > 0 && issue.getSevaMitraApprovedTimestamp() == 0)
                 btnMarkComplete.setVisibility(View.VISIBLE);
-            }
         }
         // Worker Actions
         else if ("WORKER".equals(userType)) {
-            if ("In Progress".equals(status) && issue.getAssignedTo() != null && issue.getAssignedTo().equals(userId)) {
+            if (Status.PROCESS.equals(status) && issue.getWorkCompleteTimestamp() == 0 && issue.getAssignedTo() != null && issue.getAssignedTo().equals(userId)) {
                 cardResolutionNote.setVisibility(View.VISIBLE);
                 btnMarkComplete.setVisibility(View.VISIBLE);
             }
         }
         // Founder Actions
         else if ("FOUNDER".equals(userType)) {
-            if ("Resolved".equals(status) && issue.getSevaMitraApprovedTimestamp() > 0) {
+            btnReject.setVisibility(View.VISIBLE);
+            cardResolutionNote.setVisibility(View.VISIBLE);
+            if ((Status.RESOLVED.equals(status) || Status.REJECTED.equals(status))) {
+                btnReject.setVisibility(View.GONE);
+                cardResolutionNote.setVisibility(View.GONE);
             }
         }
         // Officer Actions
         else if ("OFFICER".equals(userType)) {
-            if (issue.getOfficerApprovedTimestamp() == 0)
-                if (issue.getSevaMitraApprovedTimestamp() > 0) {
-                    btnApprove.setVisibility(View.VISIBLE);
-                }
+            if (issue.getOfficerApprovedTimestamp() == 0 && issue.getSevaMitraApprovedTimestamp() > 0)
+                btnApprove.setVisibility(View.VISIBLE);
         }
 
         // Set click listeners
@@ -515,21 +529,25 @@ public class IssueDetailsActivity extends AppCompatActivity {
             reference = database.getReference().child("Issues").child(issueId);
             long timestamp = System.currentTimeMillis();
             reference.child("officerApprovedTimestamp").setValue(timestamp);
-            reference.child("status").setValue("Resolved");
+            reference.child("status").setValue(Status.RESOLVED);
             finish();
         }
     }
 
     private void rejectIssue() {
-        new android.app.AlertDialog.Builder(this).setTitle("Reject Issue").setMessage("Are you sure you want to reject this issue?").setPositiveButton("Reject", (dialog, which) -> {
-//            issue.setStatus("Rejected");
-//            firestore.collection("issues").document(issueId).set(issue).addOnSuccessListener(aVoid -> {
-//                Toast.makeText(this, "Issue rejected!", Toast.LENGTH_SHORT).show();
-//                loadIssueData();
-//            }).addOnFailureListener(e -> {
-//                Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//            });
-        }).setNegativeButton("Cancel", null).show();
+        reference = database.getReference().child("Issues").child(issueId);
+        if (userType.equalsIgnoreCase("FOUNDER")) {
+            String note = etResolveNote.getText().toString();
+            if (note.isEmpty()) {
+                etResolveNote.setError("Reject Note is require!!");
+                return;
+            }
+            long timestamp = System.currentTimeMillis();
+            reference.child("resolutionNotes").setValue(note);
+            reference.child("status").setValue(Status.REJECTED);
+            reference.child("rejectTimestamp").setValue(timestamp);
+            finish();
+        }
     }
 
     private void markComplete() {
@@ -542,10 +560,9 @@ public class IssueDetailsActivity extends AppCompatActivity {
             }
             long timestamp = System.currentTimeMillis();
             reference.child("resolutionNotes").setValue(note);
-            reference.child("status").setValue("Complete");
             reference.child("workCompleteTimestamp").setValue(timestamp);
             finish();
-        } else if (userType.equalsIgnoreCase("SEVAMITRA")) {
+        } else if (userType.equalsIgnoreCase("SEVASARTHI")) {
             long timestamp = System.currentTimeMillis();
             reference.child("sevaMitraApprovedTimestamp").setValue(timestamp);
             finish();

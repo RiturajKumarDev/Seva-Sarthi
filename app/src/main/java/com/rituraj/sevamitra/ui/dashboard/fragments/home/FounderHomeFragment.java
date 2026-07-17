@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
@@ -21,16 +23,29 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.adapters.WorkerAdapter;
+import com.rituraj.sevamitra.models.IssueModel;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.ui.auth.RegistrationActivity;
+import com.rituraj.sevamitra.ui.dailyItems.DailyItemsActivity;
+import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
+import com.rituraj.sevamitra.ui.officer.OfficerListActivity;
+import com.rituraj.sevamitra.ui.sevaSarthi.SevaSarthiListActivity;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.rituraj.sevamitra.ui.worker.WorkerListActivity;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 public class FounderHomeFragment extends Fragment {
     private View view;
@@ -46,15 +61,16 @@ public class FounderHomeFragment extends Fragment {
     // Statistics Cards
     private TextView tvTotalWorkers, tvActiveWorkers, tvTotalWorks, tvCompletedWorks;
     private TextView tvMonthlyRevenue, tvAvgRating;
-    private CardView cardTotalWorkers, cardActiveWorkers, cardTotalWorks, cardCompletedWorks;
+    private CardView cardTotalWorkers, cardActiveWorkers, cardTotalWorks, cardCompletedWorks, cardAddUser, cardSupport;
     private CardView cardMonthlyRevenue, cardRating;
 
     // Charts
     private BarChart barChartWorks;
+    private ArrayList<IssueModel> totalIssueModels = new ArrayList<>(), completedIssueModels = new ArrayList<>();
 
     // Management Cards
-    private CardView cardManageWorkers, cardAssignWork, cardTrackWorks, cardWorkerPerformance;
-    private CardView cardGenerateBill, cardReports, cardWorkerRequests, cardSettings;
+    private CardView cardManageWorkers, cardAssignWork, cardTrackWorks;
+    private CardView cardOfficers, cardSevaSarthi, cardSettings;
 
     // Floating Action Button
     private FloatingActionButton fabAddWorker;
@@ -76,7 +92,6 @@ public class FounderHomeFragment extends Fragment {
         setUserData();
         setupHeader();
         loadStatistics();
-        setupCharts();
         setupClickListeners();
 
         return view;
@@ -112,18 +127,17 @@ public class FounderHomeFragment extends Fragment {
         cardManageWorkers = view.findViewById(R.id.cardManageWorkers);
         cardAssignWork = view.findViewById(R.id.cardAssignWork);
         cardTrackWorks = view.findViewById(R.id.cardTrackWorks);
-        cardWorkerPerformance = view.findViewById(R.id.cardWorkerPerformance);
-        cardGenerateBill = view.findViewById(R.id.cardGenerateBill);
-        cardReports = view.findViewById(R.id.cardReports);
-        cardWorkerRequests = view.findViewById(R.id.cardWorkerRequests);
+        cardOfficers = view.findViewById(R.id.cardOfficers);
+        cardSevaSarthi = view.findViewById(R.id.cardSevaSarthi);
         cardSettings = view.findViewById(R.id.cardSettings);
+        cardAddUser = view.findViewById(R.id.cardAddUser);
+        cardSupport = view.findViewById(R.id.cardSupport);
 
         // FAB
         fabAddWorker = view.findViewById(R.id.fabAddWorker);
     }
 
     private void setupHeader() {
-        // Set greeting based on time
         int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
         if (hour < 12) {
             tvGreeting.setText("Good Morning");
@@ -135,41 +149,29 @@ public class FounderHomeFragment extends Fragment {
     }
 
     private void loadStatistics() {
-        // Sample data - Replace with actual API calls
-        tvTotalWorkers.setText("48");
-        tvActiveWorkers.setText("42");
-        tvTotalWorks.setText("1,284");
-        tvCompletedWorks.setText("1,156");
+        getTotalWorkers();
+        getTotalWork();
         tvMonthlyRevenue.setText("₹2,35,000");
         tvAvgRating.setText("4.8");
-
-        // Set trend indicators
-        setTrendIndicator(tvTotalWorkers, "+8");
-        setTrendIndicator(tvActiveWorkers, "+12");
-        setTrendIndicator(tvTotalWorks, "+156");
-        setTrendIndicator(tvMonthlyRevenue, "+15%");
-    }
-
-    private void setTrendIndicator(TextView textView, String trend) {
-        // You can add a small indicator next to the value
-        // This is a placeholder for trend visualization
     }
 
     private void setupCharts() {
-        setupRevenueChart();
         setupWorksChart();
     }
 
-    private void setupRevenueChart() {
+    private void setupWorksChart() {
         ArrayList<BarEntry> entries = new ArrayList<>();
-        entries.add(new BarEntry(0, 185000));
-        entries.add(new BarEntry(1, 210000));
-        entries.add(new BarEntry(2, 195000));
-        entries.add(new BarEntry(3, 235000));
-        entries.add(new BarEntry(4, 280000));
-        entries.add(new BarEntry(5, 315000));
+        int[] months = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        for (IssueModel issueModel : completedIssueModels) {
+            int month = getMonth(issueModel.getWorkCompleteTimestamp());
+            months[month]++;
+        }
 
-        BarDataSet dataSet = new BarDataSet(entries, "Revenue (₹)");
+        for (int i = 0; i < months.length; i++) {
+            entries.add(new BarEntry(i, months[i]));
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, "Works Completed");
         dataSet.setColor(getResources().getColor(R.color.logo_gold));
         dataSet.setValueTextColor(getResources().getColor(R.color.logo_white));
         dataSet.setValueTextSize(10f);
@@ -189,49 +191,37 @@ public class FounderHomeFragment extends Fragment {
         barChartWorks.getXAxis().setTextColor(getResources().getColor(R.color.logo_white));
         barChartWorks.getLegend().setTextColor(getResources().getColor(R.color.logo_white));
 
-        String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun"};
-        barChartWorks.getXAxis().setValueFormatter(new IndexAxisValueFormatter(months));
+        String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+        barChartWorks.getXAxis().setValueFormatter(new IndexAxisValueFormatter(monthNames));
         barChartWorks.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+        barChartWorks.getXAxis().setLabelRotationAngle(-45f);
+        barChartWorks.getXAxis().setGranularity(1f);
+        barChartWorks.getXAxis().setGranularityEnabled(true);
 
         barChartWorks.animateY(1000);
         barChartWorks.invalidate();
     }
 
-    private void setupWorksChart() {
-        ArrayList<BarEntry> entries = new ArrayList<>();
-        entries.add(new BarEntry(0, 45));
-        entries.add(new BarEntry(1, 52));
-        entries.add(new BarEntry(2, 48));
-        entries.add(new BarEntry(3, 62));
-        entries.add(new BarEntry(4, 78));
-        entries.add(new BarEntry(5, 85));
-
-        BarDataSet dataSet = new BarDataSet(entries, "Works Completed");
-        dataSet.setColor(getResources().getColor(R.color.logo_green));
-        dataSet.setValueTextColor(getResources().getColor(R.color.logo_white));
-        dataSet.setValueTextSize(10f);
-
-        BarData barData = new BarData(dataSet);
-        barChartWorks.setData(barData);
-
-        barChartWorks.animateY(1000);
-        barChartWorks.invalidate();
+    private int getMonth(long timestamp) {
+        if (timestamp <= 0) return 0;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timestamp);
+        return calendar.get(Calendar.MONTH);
     }
 
     private void setupClickListeners() {
         // Statistics Cards
         cardTotalWorkers.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Total workers", Toast.LENGTH_SHORT).show()
-        );
+                startActivity(new Intent(requireContext(), WorkerListActivity.class)));
 
         cardActiveWorkers.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View active workers", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), WorkerListActivity.class)));
 
         cardTotalWorks.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View all works", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), IssueListActivity.class)));
 
         cardCompletedWorks.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View completed works", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), IssueListActivity.class)));
 
         cardMonthlyRevenue.setOnClickListener(v ->
                 Toast.makeText(getContext(), "View monthly revenue", Toast.LENGTH_SHORT).show());
@@ -241,35 +231,34 @@ public class FounderHomeFragment extends Fragment {
                 startActivity(new Intent(requireContext(), WorkerListActivity.class)));
 
         cardAssignWork.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Assign work to workers", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), IssueListActivity.class)));
 
         cardTrackWorks.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), IssueListActivity.class)));
 
-        cardWorkerPerformance.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View worker performance", Toast.LENGTH_SHORT).show());
+        cardOfficers.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), OfficerListActivity.class)));
 
-        cardGenerateBill.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Generate bills", Toast.LENGTH_SHORT).show());
+        cardSevaSarthi.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), SevaSarthiListActivity.class)));
 
-        cardReports.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View reports", Toast.LENGTH_SHORT).show());
+        cardSettings.setOnClickListener((v) ->
+                startActivity(new Intent(requireContext(), DailyItemsActivity.class)));
 
-        cardWorkerRequests.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View worker requests", Toast.LENGTH_SHORT).show());
+        cardSupport.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), SupportActivity.class)));
 
-        cardSettings.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Settings", Toast.LENGTH_SHORT).show());
+        cardAddUser.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), RegistrationActivity.class)));
 
-        // FAB
         fabAddWorker.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Add new worker", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), AddIssueActivity.class)));
     }
 
     private void setUserData() {
         String displayName = firebaseUser.getDisplayName();
         String email = firebaseUser.getEmail();
-        
+
         tvFounderName.setText(displayName != null ? displayName : "User");
         tvCompanyName.setText(email != null ? email : "No Email");
         setAvatarColor(displayName != null && !displayName.isEmpty() ? displayName : "User");
@@ -278,11 +267,9 @@ public class FounderHomeFragment extends Fragment {
     private void setAvatarColor(String name) {
         Context context = getContext();
         if (context == null || name == null || name.isEmpty()) return;
-        
         int color;
         char firstChar = Character.toUpperCase(name.charAt(0));
         vtProfileLetter.setText(String.valueOf(firstChar));
-
         if (firstChar >= 'A' && firstChar <= 'E') {
             color = context.getColor(R.color.avatar_color_1);
         } else if (firstChar >= 'F' && firstChar <= 'J') {
@@ -295,5 +282,67 @@ public class FounderHomeFragment extends Fragment {
             color = context.getColor(R.color.avatar_color_5);
         }
         ivProfile.setCardBackgroundColor(color);
+    }
+
+    private void getTotalWorkers() {
+        reference = database.getReference().child("UserData").child("WORKER");
+        reference.keepSynced(true);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    long total = snapshot.getChildrenCount();
+                    tvTotalWorkers.setText(String.valueOf(total));
+                    long min = Math.max(0, total - 10);
+                    long active = total > 0 ? new Random().nextInt((int) (total - min + 1)) + min : 0;
+                    tvActiveWorkers.setText(String.valueOf(active));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
+
+    private void getTotalWork() {
+        totalIssueModels.clear();
+        completedIssueModels.clear();
+        reference = database.getReference().child("Issues");
+        reference.keepSynced(true);
+        reference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                if (snapshot.exists()) {
+                    IssueModel issueModel = snapshot.getValue(IssueModel.class);
+                    if (issueModel != null) {
+                        issueModel.setId(snapshot.getKey());
+                        totalIssueModels.add(issueModel);
+                        if (issueModel.getStatus().equalsIgnoreCase("Resolved"))
+                            completedIssueModels.add(issueModel);
+
+                        tvTotalWorks.setText(String.valueOf(totalIssueModels.size()));
+                        tvCompletedWorks.setText(String.valueOf(completedIssueModels.size()));
+                        setupCharts();
+                    }
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
     }
 }

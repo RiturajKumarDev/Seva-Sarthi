@@ -12,7 +12,9 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseUser;
 import com.rituraj.sevamitra.R;
+import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
 
 import java.util.List;
@@ -22,19 +24,22 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.WorkerView
     private List<UserData> workerList;
     private OnWorkerClickListener listener;
     private String issueId;
+    private FirebaseUser firebaseUser;
 
     public interface OnWorkerClickListener {
         void onWorkerClick(UserData worker);
 
         void onContactClick(UserData worker);
+
         void onManageClick(UserData worker);
 
         void onAssignClick(UserData worker);
     }
 
-    public WorkerAdapter(List<UserData> workerList, String issueId, OnWorkerClickListener listener) {
+    public WorkerAdapter(List<UserData> workerList, String issueId, FirebaseUser firebaseUser, OnWorkerClickListener listener) {
         this.workerList = workerList;
         this.issueId = issueId;
+        this.firebaseUser = firebaseUser;
         this.listener = listener;
     }
 
@@ -60,7 +65,7 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.WorkerView
     class WorkerViewHolder extends RecyclerView.ViewHolder {
         private CardView cardView;
         private ImageView ivProfile, ivStatus;
-        private TextView tvName, tvCategory, tvExperience, tvRate;
+        private TextView tvName, tvCategory;
         private TextView tvEmail, tvPhone, tvAddress, tvCityState, tvSkills;
         private LinearLayout btnContact, btnManage, btnAssign;
 
@@ -71,8 +76,6 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.WorkerView
             ivStatus = itemView.findViewById(R.id.ivStatus);
             tvName = itemView.findViewById(R.id.tvName);
             tvCategory = itemView.findViewById(R.id.tvCategory);
-            tvExperience = itemView.findViewById(R.id.tvExperience);
-            tvRate = itemView.findViewById(R.id.tvRate);
             tvEmail = itemView.findViewById(R.id.tvEmail);
             tvPhone = itemView.findViewById(R.id.tvPhone);
             tvAddress = itemView.findViewById(R.id.tvAddress);
@@ -86,9 +89,7 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.WorkerView
         public void bind(UserData worker) {
             // Basic Info
             tvName.setText(worker.getFullName());
-            tvCategory.setText(worker.getPrimaryCategory() != null ? worker.getPrimaryCategory() : "General");
-            tvExperience.setText("Experience: " + (worker.getExperience() != null ? worker.getExperience() : "0") + " years");
-            tvRate.setText("₹" + (worker.getHourlyRate() != null ? worker.getHourlyRate() : "0") + "/hour");
+            tvCategory.setText(worker.getDepartment() != null ? worker.getDepartment() : "General");
 
             // Contact Info
             tvEmail.setText(worker.getEmail() != null ? worker.getEmail() : "Email not provided");
@@ -100,9 +101,9 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.WorkerView
                     (worker.getState() != null ? worker.getState() : ""));
 
             // Skills
-            if (worker.getCategories() != null && !worker.getCategories().isEmpty()) {
+            if (worker.getSkills() != null && !worker.getSkills().isEmpty()) {
                 StringBuilder skillsStr = new StringBuilder();
-                for (String skill : worker.getCategories()) {
+                for (String skill : worker.getSkills()) {
                     if (skillsStr.length() > 0) skillsStr.append(" • ");
                     skillsStr.append(skill);
                 }
@@ -113,12 +114,14 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.WorkerView
 
             // Set status color
             String status = worker.getIsSelected();
-            if ("Available".equals(status)) {
+            if (Status.ACTIVE.equals(status)) {
                 btnManage.setVisibility(View.GONE);
                 ivStatus.setColorFilter(itemView.getContext().getColor(R.color.logo_green));
-            } else if ("Pending".equals(status)) {
+            } else if (Status.INACTIVE.equals(status)) {
+                btnManage.setVisibility(View.VISIBLE);
                 ivStatus.setColorFilter(itemView.getContext().getColor(R.color.logo_orange));
             } else {
+                btnManage.setVisibility(View.VISIBLE);
                 ivStatus.setColorFilter(itemView.getContext().getColor(R.color.logo_red));
             }
 
@@ -132,6 +135,11 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.WorkerView
 
             if (issueId == null || issueId.isEmpty())
                 btnAssign.setVisibility(View.GONE);
+
+            if (firebaseUser != null && firebaseUser.getPhotoUrl() != null && firebaseUser.getPhotoUrl().toString().equals("SEVASARTHI")) {
+                btnManage.setVisibility(View.GONE);
+                btnAssign.setVisibility(View.GONE);
+            }
 
             // Click listeners
             cardView.setOnClickListener(v -> listener.onWorkerClick(worker));

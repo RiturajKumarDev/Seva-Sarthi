@@ -369,6 +369,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:background="@drawable/save_button_bg"
+                android:clickable="false"
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp"

@@ -11,8 +11,8 @@ android {
         applicationId = "com.rituraj.sevamitra"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "2.0.0"
+        versionCode = 5
+        versionName = "2.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -58,7 +58,7 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.android.gms:play-services-auth:21.4.0")
     implementation("com.google.auth:google-auth-library-oauth2-http:1.23.0")
-    
+
     // Translation
     implementation("com.google.mlkit:translate:17.0.3")
 
@@ -75,6 +75,6 @@ dependencies {
     // MPAndroidChart for beautiful charts and Pie Chart
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
-    // Calling API
-//    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // Only Selecting Month and Year
+    implementation("com.github.dewinjm:monthyear-picker:1.0.2")
 }

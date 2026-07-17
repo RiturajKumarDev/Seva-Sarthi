@@ -14,7 +14,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SevaSarthi">
-
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -52,6 +51,26 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.issues.IssueDetailsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.support.SupportActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.officer.OfficerListActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.sevaSarthi.SevaSarthiListActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.dailyItems.DailyItemsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.dashboard.AdminUserManagementActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
     </application>

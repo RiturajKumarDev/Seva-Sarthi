@@ -5,10 +5,11 @@ public class IssueModel {
     private String problemTitle;
     private String problemDescription;
     private String problemType;
-    private String issueType;
+    private String issue;
+    private String userType;
     private String priority;
     private String location;
-    private long createdTimestamp, workAssignTimestamp, workCompleteTimestamp, sevaMitraApprovedTimestamp, officerApprovedTimestamp;
+    private long createdTimestamp, rejectTimestamp, workAssignTimestamp, workCompleteTimestamp, sevaMitraApprovedTimestamp, officerApprovedTimestamp;
 
     private String status; // Pending, In Progress, Resolved, Rejected
     private String assignedTo; // Worker ID
@@ -54,12 +55,12 @@ public class IssueModel {
         this.problemType = problemType;
     }
 
-    public String getIssueType() {
-        return issueType;
+    public String getIssue() {
+        return issue;
     }
 
-    public void setIssueType(String issueType) {
-        this.issueType = issueType;
+    public void setIssue(String issue) {
+        this.issue = issue;
     }
 
     public String getPriority() {
@@ -94,6 +95,14 @@ public class IssueModel {
         this.workAssignTimestamp = workAssignTimestamp;
     }
 
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
     public String getApprovedBy() {
         return approvedBy;
     }
@@ -124,6 +133,14 @@ public class IssueModel {
 
     public void setOfficerApprovedTimestamp(long officerApprovedTimestamp) {
         this.officerApprovedTimestamp = officerApprovedTimestamp;
+    }
+
+    public long getRejectTimestamp() {
+        return rejectTimestamp;
+    }
+
+    public void setRejectTimestamp(long rejectTimestamp) {
+        this.rejectTimestamp = rejectTimestamp;
     }
 
     public String getFounderId() {

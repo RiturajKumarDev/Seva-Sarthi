@@ -23,6 +23,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.IssueModel;
+import com.rituraj.sevamitra.models.Priority;
+import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
 
 import java.util.*;
@@ -51,6 +53,10 @@ public class AddIssueActivity extends AppCompatActivity {
     private Spinner spinnerPriority;
     private String selectedPriority = "";
     private Calendar calendar;
+
+    // Select Worker
+    private LinearLayout selectWorkerBox;
+    private Spinner spinnerSelectWorker;
 
     // Submit Button
     private MaterialButton btnSubmitIssue;
@@ -83,6 +89,7 @@ public class AddIssueActivity extends AppCompatActivity {
 
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
+        selectWorkerBox = findViewById(R.id.selectWorkerBox);
 
         // Problem Details
         etProblemTitle = findViewById(R.id.etProblemTitle);
@@ -97,6 +104,7 @@ public class AddIssueActivity extends AppCompatActivity {
         spinnerProblemType = findViewById(R.id.spinnerProblemType);
         spinnerIssueType = findViewById(R.id.spinnerIssueType);
         spinnerPriority = findViewById(R.id.spinnerPriority);
+        spinnerSelectWorker = findViewById(R.id.spinnerSelectWorker);
 
         // Buttons
         btnSubmitIssue = findViewById(R.id.btnSubmitIssue);
@@ -115,33 +123,11 @@ public class AddIssueActivity extends AppCompatActivity {
 
     private void setupSpinners() {
         // Problem Type Spinner
-        String[] problemTypes = {"Select Problem Type", "Infrastructure", "Electrical", "Plumbing",
-                "AC/Refrigeration", "CCTV/Security", "Furniture/Fixture", "Sanitation",
-                "IT/Network", "Vehicle/Transport", "Other"};
-        ArrayAdapter<String> problemTypeAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, problemTypes);
-        spinnerProblemType.setAdapter(problemTypeAdapter);
         spinnerProblemType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedProblemType = position == 0 ? "" : problemTypes[position];
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
-        // Issue Type Spinner
-        String[] issueTypes = {"Select Issue Type", "Breakdown", "Maintenance", "Installation",
-                "Repair", "Replacement", "Inspection", "Upgrade", "Emergency", "Routine", "Other"};
-        ArrayAdapter<String> issueTypeAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, issueTypes);
-        spinnerIssueType.setAdapter(issueTypeAdapter);
-        spinnerIssueType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedIssueType = position == 0 ? "" : issueTypes[position];
+                selectedProblemType = position == 0 ? "" : String.valueOf(spinnerProblemType.getSelectedItem());
+                setSelectedProblemType();
             }
 
             @Override
@@ -150,9 +136,8 @@ public class AddIssueActivity extends AppCompatActivity {
         });
 
         // Priority Spinner
-        String[] priorities = {"Select Priority", "Critical", "High", "Medium", "Low"};
-        ArrayAdapter<String> priorityAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, priorities);
+        String[] priorities = {"Select Priority", Priority.CRITICAL, Priority.HIGH, Priority.MEDIUM, Priority.LOW};
+        ArrayAdapter<String> priorityAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, priorities);
         spinnerPriority.setAdapter(priorityAdapter);
         spinnerPriority.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -165,6 +150,113 @@ public class AddIssueActivity extends AppCompatActivity {
             }
         });
         getFounders();
+    }
+
+    private void setSelectedProblemType() {
+        selectWorkerBox.setVisibility(View.GONE);
+        int arrayResId;
+        switch (selectedProblemType) {
+            case "Beauty & Personal Care":
+                arrayResId = R.array.beauty_personal_care_issues;
+                selectWorkerBox.setVisibility(View.VISIBLE);
+                break;
+            case "Carpenter":
+                arrayResId = R.array.carpenter_issues;
+                break;
+            case "Computer":
+                arrayResId = R.array.computer_issues;
+                break;
+            case "Computer & IT Services":
+                arrayResId = R.array.computer_it_services_issues;
+                break;
+            case "Dairy Services":
+                arrayResId = R.array.dairy_services_issues;
+                selectWorkerBox.setVisibility(View.VISIBLE);
+                break;
+            case "Decoration":
+                arrayResId = R.array.decoration_issues;
+                selectWorkerBox.setVisibility(View.VISIBLE);
+                break;
+            case "Electrician":
+                arrayResId = R.array.electrician_issues;
+                break;
+            case "Home Services":
+                arrayResId = R.array.home_services_issues;
+                selectWorkerBox.setVisibility(View.VISIBLE);
+                break;
+            case "Mechanic":
+                arrayResId = R.array.mechanic_issues;
+                break;
+            case "Painter":
+                arrayResId = R.array.painter_issues;
+                break;
+            case "Plumber":
+                arrayResId = R.array.plumber_issues;
+                break;
+            case "Sanitation":
+                arrayResId = R.array.sanitation_issues;
+                selectWorkerBox.setVisibility(View.VISIBLE);
+                break;
+            case "Water Supply":
+                arrayResId = R.array.water_supply_issues;
+                selectWorkerBox.setVisibility(View.VISIBLE);
+                break;
+            case "Laundry Services":
+                arrayResId = R.array.laundry_services_issues;
+                selectWorkerBox.setVisibility(View.VISIBLE);
+                break;
+            default:
+                arrayResId = R.array.other_issues;
+                break;
+        }
+        getWorkerData(selectedProblemType);
+        String[] issueList = getResources().getStringArray(arrayResId);
+        setSpinnerIssueType(issueList);
+    }
+
+    private void getWorkerData(String workerDepartment) {
+        reference = database.getReference().child("UserData").child("WORKER");
+        reference.keepSynced(true);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    ArrayList<UserData> workerList = new ArrayList<>();
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        UserData userData = dataSnapshot.getValue(UserData.class);
+                        if (userData != null) {
+                            userData.setId(dataSnapshot.getKey());
+                            if (userData.getDepartment() != null && userData.getDepartment().equalsIgnoreCase(workerDepartment))
+                                workerList.add(userData);
+                        }
+                    }
+                    ArrayAdapter<UserData> workerAdapter = new ArrayAdapter<>(AddIssueActivity.this, android.R.layout.simple_spinner_dropdown_item, workerList);
+                    spinnerSelectWorker.setAdapter(workerAdapter);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void setSpinnerIssueType(String[] issueList) {
+        // Issue Type Spinner
+        ArrayAdapter<String> issueAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, issueList);
+        issueAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerIssueType.setAdapter(issueAdapter);
+        spinnerIssueType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedIssueType = position == 0 ? "" : (String) spinnerIssueType.getSelectedItem();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
     }
 
     private void getFounders() {
@@ -246,6 +338,7 @@ public class AddIssueActivity extends AppCompatActivity {
         // Create Issue Model
         long timestamp = System.currentTimeMillis();
         IssueModel issue = new IssueModel();
+        issue.setUserType(firebaseUser.getPhotoUrl() != null ? String.valueOf(firebaseUser.getPhotoUrl()) : "Other");
         issue.setId(String.valueOf(timestamp));
         issue.setCreatedTimestamp(timestamp);
         issue.setProblemTitle(problemTitle);
@@ -253,10 +346,14 @@ public class AddIssueActivity extends AppCompatActivity {
         issue.setLocation(location);
         issue.setFounderId(founderList.get(spinnerFounder.getSelectedItemPosition()).getId());
         issue.setProblemType(selectedProblemType);
-        issue.setIssueType(selectedIssueType);
+        issue.setIssue(selectedIssueType);
         issue.setPriority(selectedPriority);
-        issue.setStatus("Pending");
+        issue.setStatus(Status.PENDING);
         issue.setCreatedBy(userId);
+        if (selectWorkerBox.getVisibility() == View.VISIBLE) {
+            UserData userData = (UserData) spinnerSelectWorker.getSelectedItem();
+            issue.setAssignedTo(userData.getId());
+        }
 
         // Submit to Firebase
         submitIssueToFirebase(issue);

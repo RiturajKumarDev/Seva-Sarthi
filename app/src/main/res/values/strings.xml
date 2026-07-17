@@ -13,6 +13,281 @@
     <string name="terms_text">By continuing, you agree to our Terms of Service and Privacy Policy</string>
     <string name="login_success">Welcome</string>
     <string name="login_failed">Sign in failed: </string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string-array name="department_category">
+        <item>Select Department</item>
+        <item>Beauty &amp; Personal Care</item>
+        <item>Carpenter</item>
+        <item>Computer</item>
+        <item>Computer &amp; IT Services</item>
+        <item>Dairy Services</item>
+        <item>Decoration</item>
+        <item>Electrician</item>
+        <item>Home Services</item>
+        <item>Laundry Services</item>
+        <item>Mechanic</item>
+        <item>Painter</item>
+        <item>Plumber</item>
+        <item>Sanitation</item>
+        <item>Water Supply</item>
+        <item>Other</item>
+    </string-array>
+
+    <!-- Beauty & Personal Care -->
+    <string-array name="beauty_personal_care_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Haircut at Home / घर पर हेयरकट</item>
+        <item>Makeup Service / मेकअप सेवा</item>
+        <item>Bridal Makeup / ब्राइडल मेकअप</item>
+        <item>Facial &amp; Cleanup / फेशियल और क्लीनअप</item>
+        <item>Hair Spa / हेयर स्पा</item>
+        <item>Hair Coloring / बालों में रंग</item>
+        <item>Waxing / वैक्सिंग</item>
+        <item>Threading / थ्रेडिंग</item>
+        <item>Manicure &amp; Pedicure / मैनीक्योर और पेडीक्योर</item>
+        <item>Mehndi Service / मेहंदी सेवा</item>
+        <item>Massage Therapy / मसाज थेरेपी</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Carpenter -->
+    <string-array name="carpenter_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Furniture Repair / फर्नीचर मरम्मत</item>
+        <item>Door Repair / दरवाज़ा मरम्मत</item>
+        <item>Window Repair / खिड़की मरम्मत</item>
+        <item>Cabinet Installation / कैबिनेट लगाना</item>
+        <item>Shelf Installation / शेल्फ लगाना</item>
+        <item>Bed Repair / बेड मरम्मत</item>
+        <item>Table Repair / टेबल मरम्मत</item>
+        <item>Chair Repair / कुर्सी मरम्मत</item>
+        <item>Lock Fitting / ताला लगाना</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Computer -->
+    <string-array name="computer_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Laptop Repair / लैपटॉप मरम्मत</item>
+        <item>Desktop Repair / डेस्कटॉप मरम्मत</item>
+        <item>Computer Installation / कंप्यूटर इंस्टॉलेशन</item>
+        <item>Wifi Technician / वाई-फाई तकनीशियन</item>
+        <item>Software Installation / सॉफ्टवेयर इंस्टॉलेशन</item>
+        <item>Printer Installation / प्रिंटर इंस्टॉलेशन</item>
+        <item>Windows Installation / विंडोज इंस्टॉलेशन</item>
+        <item>Virus Removal / वायरस हटाना</item>
+        <item>Hardware Upgrade / हार्डवेयर अपग्रेड</item>
+        <item>Printer Setup / प्रिंटर सेटअप</item>
+        <item>Data Recovery / डेटा रिकवरी</item>
+        <item>Slow Computer / धीमा कंप्यूटर</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Computer & IT Services -->
+    <string-array name="computer_it_services_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Wi-Fi Setup / वाई-फाई सेटअप</item>
+        <item>Network Issue / नेटवर्क समस्या</item>
+        <item>CCTV Installation / सीसीटीवी इंस्टॉलेशन</item>
+        <item>Printer Configuration / प्रिंटर कॉन्फ़िगरेशन</item>
+        <item>Email Setup / ईमेल सेटअप</item>
+        <item>Website Development / वेबसाइट डेवलपमेंट</item>
+        <item>Mobile App Development / मोबाइल ऐप डेवलपमेंट</item>
+        <item>Cloud Setup / क्लाउड सेटअप</item>
+        <item>Technical Support / तकनीकी सहायता</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Laundry Services -->
+    <string-array name="laundry_services_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Clothes Washing / कपड़े धोना</item>
+        <item>Ironing / इस्त्री करना</item>
+        <item>Dry Cleaning / ड्राई क्लीनिंग</item>
+        <item>Wash &amp; Fold / वॉश और फोल्ड</item>
+        <item>Curtain Cleaning / पर्दे की सफाई</item>
+        <item>Blanket Cleaning / कंबल की सफाई</item>
+        <item>Shoe Cleaning / जूते की सफाई</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Dairy Services -->
+    <string-array name="dairy_services_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Milk Delivery Issue / दूध डिलीवरी समस्या</item>
+        <item>Milk Order / दूध ऑर्डर</item>
+        <item>Late Delivery / देर से डिलीवरी</item>
+        <item>Poor Quality Milk / खराब गुणवत्ता का दूध</item>
+        <item>Wrong Quantity / गलत मात्रा</item>
+        <item>Subscription Change / सदस्यता बदलना</item>
+        <item>New Connection / नया कनेक्शन</item>
+        <item>Product Return / उत्पाद वापस करना</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Decoration -->
+    <string-array name="decoration_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Birthday Decoration / जन्मदिन सजावट</item>
+        <item>Wedding Decoration / शादी सजावट</item>
+        <item>Stage Decoration / स्टेज सजावट</item>
+        <item>Balloon Decoration / गुब्बारा सजावट</item>
+        <item>Flower Decoration / फूलों की सजावट</item>
+        <item>Lighting Decoration / लाइटिंग सजावट</item>
+        <item>Event Decoration / कार्यक्रम सजावट</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Electrician -->
+    <string-array name="electrician_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Power Failure / बिजली गुल</item>
+        <item>Fan Repair / पंखा मरम्मत</item>
+        <item>LED TV Installation / एलईडी टीवी इंस्टॉलेशन</item>
+        <item>RO Technician / आरओ तकनीशियन</item>
+        <item>Wifi Technician / वाई-फाई तकनीशियन</item>
+        <item>Light Repair / लाइट मरम्मत</item>
+        <item>Switch Repair / स्विच मरम्मत</item>
+        <item>Socket Repair / सॉकेट मरम्मत</item>
+        <item>Wiring Issue / वायरिंग समस्या</item>
+        <item>MCB Trip / एमसीबी ट्रिप</item>
+        <item>Meter Issue / मीटर समस्या</item>
+        <item>Inverter Installation / इन्वर्टर इंस्टॉलेशन</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Home Services -->
+    <string-array name="home_services_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>House Cleaning / घर की सफाई</item>
+        <item>Deep Cleaning / डीप क्लीनिंग</item>
+        <item>Kitchen Cleaning / रसोई की सफाई</item>
+        <item>Bathroom Cleaning / बाथरूम की सफाई</item>
+        <item>Sofa Cleaning / सोफा सफाई</item>
+        <item>Pest Control / कीट नियंत्रण</item>
+        <item>Home Shifting / घर शिफ्टिंग</item>
+        <item>Cooking Service / खाना बनाने की सेवा</item>
+        <item>Home Cook / घरेलू रसोइया</item>
+        <item>Maid Service / घरेलू सहायिका</item>
+        <item>Elder Care / बुजुर्गों की देखभाल</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Mechanic -->
+    <string-array name="mechanic_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Bike Repair / बाइक मरम्मत</item>
+        <item>Car Repair / कार मरम्मत</item>
+        <item>Engine Problem / इंजन समस्या</item>
+        <item>Battery Replacement / बैटरी बदलना</item>
+        <item>Brake Repair / ब्रेक मरम्मत</item>
+        <item>Oil Change / ऑयल बदलना</item>
+        <item>Puncture Repair / पंचर मरम्मत</item>
+        <item>General Servicing / सामान्य सर्विसिंग</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Painter -->
+    <string-array name="painter_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Interior Painting / अंदरूनी पेंटिंग</item>
+        <item>Exterior Painting / बाहरी पेंटिंग</item>
+        <item>Wall Putty / दीवार पुट्टी</item>
+        <item>Texture Painting / टेक्सचर पेंटिंग</item>
+        <item>Waterproof Coating / वॉटरप्रूफ कोटिंग</item>
+        <item>Ceiling Painting / छत की पेंटिंग</item>
+        <item>Wall Crack Repair / दीवार की दरार मरम्मत</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Plumber -->
+    <string-array name="plumber_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Water Leakage / पानी का रिसाव</item>
+        <item>Pipe Repair / पाइप मरम्मत</item>
+        <item>Tap Repair / नल मरम्मत</item>
+        <item>Toilet Repair / शौचालय मरम्मत</item>
+        <item>Drain Blockage / नाली जाम</item>
+        <item>Sink Repair / सिंक मरम्मत</item>
+        <item>Water Tank Cleaning / पानी की टंकी सफाई</item>
+        <item>Geyser Installation / गीजर इंस्टॉलेशन</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Sanitation -->
+    <string-array name="sanitation_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>Garbage Collection / कचरा संग्रह</item>
+        <item>Drain Cleaning / नाली सफाई</item>
+        <item>Street Cleaning / सड़क सफाई</item>
+        <item>Public Toilet Cleaning / सार्वजनिक शौचालय सफाई</item>
+        <item>Waste Disposal / कचरा निपटान</item>
+        <item>Bad Smell Complaint / बदबू की शिकायत</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Water Supply -->
+    <string-array name="water_supply_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>No Water Supply / पानी की आपूर्ति नहीं</item>
+        <item>Low Water Pressure / कम पानी का दबाव</item>
+        <item>Dirty Water / गंदा पानी</item>
+        <item>Water Leakage / पानी का रिसाव</item>
+        <item>Pipeline Damage / पाइपलाइन क्षतिग्रस्त</item>
+        <item>Water Tank Overflow / पानी की टंकी ओवरफ्लो</item>
+        <item>Order Water / पानी ऑर्डर करें</item>
+        <item>New Water Connection / नया पानी कनेक्शन</item>
+        <item>Water Bill Issue / पानी का बिल समस्या</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <!-- Other -->
+    <string-array name="other_issues">
+        <item>Select Issue / समस्या चुनें</item>
+        <item>General Inquiry / सामान्य पूछताछ</item>
+        <item>Complaint / शिकायत</item>
+        <item>Feedback / प्रतिक्रिया</item>
+        <item>Suggestion / सुझाव</item>
+        <item>Emergency Service / आपातकालीन सेवा</item>
+        <item>Other / अन्य</item>
+    </string-array>
+
+    <string-array name="measurement_units">
+        <item>Select Unit</item>
+        <item>Piece (pcs)</item>
+        <item>Kilogram (kg)</item>
+        <item>Gram (g)</item>
+        <item>Milligram (mg)</item>
+        <item>Quintal (qtl)</item>
+        <item>Tonne (t)</item>
+
+        <item>Liter (L)</item>
+        <item>Milliliter (mL)</item>
+
+        <item>Packet</item>
+        <item>Box</item>
+        <item>Bottles</item>
+        <item>Can</item>
+        <item>Jar</item>
+        <item>Bag</item>
+        <item>Sack</item>
+
+        <item>Dozen</item>
+        <item>Pair</item>
+        <item>Roll</item>
+        <item>Bundle</item>
+        <item>Set</item>
+
+        <item>Meter (m)</item>
+        <item>Centimeter (cm)</item>
+        <item>Millimeter (mm)</item>
+        <item>Foot (ft)</item>
+        <item>Inch (in)</item>
+
+        <item>Tray</item>
+        <item>Carton</item>
+        <item>Tin</item>
+        <item>Cup</item>
+    </string-array>
 </resources>

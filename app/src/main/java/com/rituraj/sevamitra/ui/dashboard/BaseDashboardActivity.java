@@ -2,9 +2,9 @@ package com.rituraj.sevamitra.ui.dashboard;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -16,7 +16,7 @@ import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.ui.auth.LoginActivity;
 import com.rituraj.sevamitra.ui.dashboard.fragments.ProfileFragment;
 import com.rituraj.sevamitra.ui.dashboard.fragments.home.FounderHomeFragment;
-import com.rituraj.sevamitra.ui.dashboard.fragments.home.SevaMitraHomeFragment;
+import com.rituraj.sevamitra.ui.dashboard.fragments.home.SevaSarthiHomeFragment;
 import com.rituraj.sevamitra.ui.dashboard.fragments.home.OfficerHomeFragment;
 import com.rituraj.sevamitra.ui.dashboard.fragments.home.WorkerHomeFragment;
 
@@ -26,6 +26,7 @@ public class BaseDashboardActivity extends AppCompatActivity {
     private String userType = "";
     private Fragment selectedFragment = null;
     protected BottomNavigationView bottomNavigationView;
+    protected Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,7 @@ public class BaseDashboardActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
 
+        toolbar = findViewById(R.id.toolbar);
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
         if (firebaseUser == null) {
@@ -45,6 +47,10 @@ public class BaseDashboardActivity extends AppCompatActivity {
         if (firebaseUser.getPhotoUrl() != null) {
             userType = firebaseUser.getPhotoUrl().toString();
         }
+        toolbar.setOnClickListener((v) -> {
+            if (firebaseUser.getEmail().equalsIgnoreCase("riturajkumar1105@gmail.com") || firebaseUser.getEmail().equalsIgnoreCase("sujeetkumarbth09@gmail.com"))
+                startActivity(new Intent(BaseDashboardActivity.this, AdminUserManagementActivity.class));
+        });
         setupBottomNavigation();
     }
 
@@ -80,16 +86,12 @@ public class BaseDashboardActivity extends AppCompatActivity {
 
     protected Fragment getHomeFragment() {
         if (userType.equalsIgnoreCase("FOUNDER")) return new FounderHomeFragment();
-        else if (userType.equalsIgnoreCase("SEVAMITRA")) return new SevaMitraHomeFragment();
+        else if (userType.equalsIgnoreCase("WORKER")) return new WorkerHomeFragment();
         else if (userType.equalsIgnoreCase("OFFICER")) return new OfficerHomeFragment();
-        else return new WorkerHomeFragment();
+        else return new SevaSarthiHomeFragment();
     }
 
     protected Fragment getProfileFragment() {
         return new ProfileFragment();
-    }
-
-    protected void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

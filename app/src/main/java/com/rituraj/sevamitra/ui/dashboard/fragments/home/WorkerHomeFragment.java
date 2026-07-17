@@ -10,16 +10,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
+import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,8 +48,8 @@ public class WorkerHomeFragment extends Fragment {
     private CardView cardAvailability;
 
     // Quick Actions
-    private CardView cardAvailableWork, cardMyTasks, cardCompletedWork, cardEarningsHistory;
-    private CardView cardAttendance, cardLeaveRequest, cardPerformance, cardSupport;
+    private CardView cardAvailableWork, cardMyTasks, cardCompletedWork;
+    private CardView cardAttendance, cardLeaveRequest, cardSupport;
 
     // Floating Action Button
     private FloatingActionButton fabMarkAttendance;
@@ -59,6 +66,7 @@ public class WorkerHomeFragment extends Fragment {
         initViews(view);
         setUserData();
         setupHeader();
+        getUserData();
         updateCurrentTime();
         setupClickListeners();
 
@@ -86,10 +94,8 @@ public class WorkerHomeFragment extends Fragment {
         cardAvailableWork = view.findViewById(R.id.cardAvailableWork);
         cardMyTasks = view.findViewById(R.id.cardMyTasks);
         cardCompletedWork = view.findViewById(R.id.cardCompletedWork);
-        cardEarningsHistory = view.findViewById(R.id.cardEarningsHistory);
         cardAttendance = view.findViewById(R.id.cardAttendance);
         cardLeaveRequest = view.findViewById(R.id.cardLeaveRequest);
-        cardPerformance = view.findViewById(R.id.cardPerformance);
         cardSupport = view.findViewById(R.id.cardSupport);
 
         // FAB
@@ -116,24 +122,15 @@ public class WorkerHomeFragment extends Fragment {
     }
 
     private void setupClickListeners() {
-        cardAvailability.setOnClickListener(v -> {
-            // Toggle availability status
-            Toast.makeText(getContext(), "Change availability status", Toast.LENGTH_SHORT).show();
-        });
-
         // Quick Actions
         cardAvailableWork.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Browse available work", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), IssueListActivity.class)));
 
-        cardMyTasks.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), IssueListActivity.class));
-        });
+        cardMyTasks.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), IssueListActivity.class)));
 
         cardCompletedWork.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View completed works", Toast.LENGTH_SHORT).show());
-
-        cardEarningsHistory.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View earnings history", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), IssueListActivity.class)));
 
         cardAttendance.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Mark attendance", Toast.LENGTH_SHORT).show());
@@ -141,15 +138,12 @@ public class WorkerHomeFragment extends Fragment {
         cardLeaveRequest.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Apply for leave", Toast.LENGTH_SHORT).show());
 
-        cardPerformance.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View performance report", Toast.LENGTH_SHORT).show());
-
         cardSupport.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Contact support", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), SupportActivity.class)));
 
         // FAB
         fabMarkAttendance.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Mark attendance", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), AddIssueActivity.class)));
     }
 
     private void setUserData() {
@@ -178,5 +172,28 @@ public class WorkerHomeFragment extends Fragment {
             color = context.getColor(R.color.avatar_color_5);
         }
         ivProfile.setCardBackgroundColor(color);
+    }
+
+    private void getUserData() {
+        reference = database.getReference().child("UserData").child("WORKER").child(firebaseUser.getUid());
+        reference.keepSynced(true);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    UserData worker = snapshot.getValue(UserData.class);
+                    if (worker != null)
+                        if ("Pending".equalsIgnoreCase(worker.getIsSelected())) {
+                            tvAvailabilityStatus.setText("Waiting for Founder Approval");
+                        } else {
+                            tvAvailabilityStatus.setText("Available for Work");
+                        }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
     }
 }

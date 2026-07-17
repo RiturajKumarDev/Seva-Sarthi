@@ -36,6 +36,11 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
+        try {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        } catch (Exception ignored) {
+        }
+
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();

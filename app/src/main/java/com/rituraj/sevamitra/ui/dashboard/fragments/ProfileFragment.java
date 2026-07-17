@@ -59,11 +59,11 @@ public class ProfileFragment extends Fragment {
 
     // Worker Specific Views
     private CardView workerSection;
-    private TextView tvPrimaryCategory, tvCategories, tvExperience;
-    private TextView tvHourlyRate, tvStatus, tvCompletedWorks, tvRating;
+    private TextView tvPrimaryCategory, tvCategories;
+    private TextView tvStatus, tvCompletedWorks, tvRating;
     private Button btnEditWorker, btnSaveWorker;
     private LinearLayout workerEditLayout;
-    private TextInputEditText etPrimaryCategory, etExperience, etSpecialization, etHourlyRate;
+    private TextInputEditText etPrimaryCategory, etSpecialization;
     private boolean isWorkerEditing = false;
 
     // Founder Specific Views
@@ -141,8 +141,6 @@ public class ProfileFragment extends Fragment {
         workerSection = view.findViewById(R.id.workerSection);
         tvPrimaryCategory = view.findViewById(R.id.tvPrimaryCategory);
         tvCategories = view.findViewById(R.id.tvCategories);
-        tvExperience = view.findViewById(R.id.tvExperience);
-        tvHourlyRate = view.findViewById(R.id.tvHourlyRate);
         tvStatus = view.findViewById(R.id.tvStatus);
         tvCompletedWorks = view.findViewById(R.id.tvCompletedWorks);
         tvRating = view.findViewById(R.id.tvRating);
@@ -150,9 +148,7 @@ public class ProfileFragment extends Fragment {
         btnSaveWorker = view.findViewById(R.id.btnSaveWorker);
         workerEditLayout = view.findViewById(R.id.workerEditLayout);
         etPrimaryCategory = view.findViewById(R.id.etPrimaryCategory);
-        etExperience = view.findViewById(R.id.etExperience);
         etSpecialization = view.findViewById(R.id.etSpecialization);
-        etHourlyRate = view.findViewById(R.id.etHourlyRate);
 
         btnChangePassword = view.findViewById(R.id.btnChangePassword);
         btnLogout = view.findViewById(R.id.btnLogout);
@@ -191,8 +187,8 @@ public class ProfileFragment extends Fragment {
 
         // Set user type with badge
         switch (userType) {
-            case "SEVAMITRA":
-                tvUserType.setText("👮 SevaMitra");
+            case "SEVASARTHI":
+                tvUserType.setText("👮 SevaSarthi");
                 tvUserType.setBackgroundResource(R.drawable.user_type_badge_officer);
                 break;
             case "WORKER":
@@ -303,7 +299,7 @@ public class ProfileFragment extends Fragment {
         sdmSection.setVisibility(View.GONE);
 
         switch (userType) {
-            case "SEVAMITRA":
+            case "SEVASARTHI":
                 setupSevaMitraSection();
                 break;
             case "WORKER":
@@ -374,20 +370,17 @@ public class ProfileFragment extends Fragment {
     private void setupWorkerSection() {
         workerSection.setVisibility(View.VISIBLE);
 
-        tvPrimaryCategory.setText(currentUser.getPrimaryCategory());
+        tvPrimaryCategory.setText(currentUser.getDepartment());
 
         // Display categories
         StringBuilder categoriesStr = new StringBuilder();
-        if (currentUser.getCategories() != null) {
-            for (String category : currentUser.getCategories()) {
+        if (currentUser.getSkills() != null) {
+            for (String category : currentUser.getSkills()) {
                 if (categoriesStr.length() > 0) categoriesStr.append(", ");
                 categoriesStr.append(category);
             }
         }
         tvCategories.setText(categoriesStr.toString());
-
-        tvExperience.setText(currentUser.getExperience() + " years");
-        tvHourlyRate.setText("₹" + currentUser.getHourlyRate() + "/hour");
 
         // Set status with color
         String status = currentUser.getIsSelected();
@@ -404,9 +397,7 @@ public class ProfileFragment extends Fragment {
         tvCompletedWorks.setText("156");
         tvRating.setText("4.8 ★");
 
-        etPrimaryCategory.setText(currentUser.getPrimaryCategory());
-        etExperience.setText(currentUser.getExperience());
-        etHourlyRate.setText(currentUser.getHourlyRate());
+        etPrimaryCategory.setText(currentUser.getDepartment());
 
         setWorkerEditable(false);
 
@@ -426,9 +417,7 @@ public class ProfileFragment extends Fragment {
 
     private void setWorkerEditable(boolean editable) {
         etPrimaryCategory.setEnabled(editable);
-        etExperience.setEnabled(editable);
         etSpecialization.setEnabled(editable);
-        etHourlyRate.setEnabled(editable);
 
         if (editable) {
             workerEditLayout.setVisibility(View.VISIBLE);
@@ -441,13 +430,9 @@ public class ProfileFragment extends Fragment {
     }
 
     private void saveWorkerInfo() {
-        currentUser.setPrimaryCategory(etPrimaryCategory.getText().toString());
-        currentUser.setExperience(etExperience.getText().toString());
-        currentUser.setHourlyRate(etHourlyRate.getText().toString());
+        currentUser.setDepartment(etPrimaryCategory.getText().toString());
 
-        tvPrimaryCategory.setText(currentUser.getPrimaryCategory());
-        tvExperience.setText(currentUser.getExperience() + " years");
-        tvHourlyRate.setText("₹" + currentUser.getHourlyRate() + "/hour");
+        tvPrimaryCategory.setText(currentUser.getDepartment());
 
         setWorkerEditable(false);
         Toast.makeText(getContext(), "Worker information saved", Toast.LENGTH_SHORT).show();

@@ -18,11 +18,8 @@ public class UserData {
     private String designation;
 
     // Worker specific
-    private ArrayList<String> categories;
-    private String primaryCategory;
+    private ArrayList<String> skills;
     private String founderId;
-    private String experience;
-    private String hourlyRate;
     private String isSelected;
 
     // Founder specific
@@ -37,7 +34,7 @@ public class UserData {
     public UserData() {
     }
 
-    public UserData(String id, String userType, String fullName, String email, String phone, String address, String state, String city, String password, String department, String designation, ArrayList<String> categories, String primaryCategory, String founderId, String experience, String hourlyRate, String isSelected, String companyName, String gstNumber, String officeAddress, String district, String division) {
+    public UserData(String id, String userType, String fullName, String email, String phone, String address, String state, String city, String password, String department, String designation, ArrayList<String> skills, String founderId, String isSelected, String companyName, String gstNumber, String officeAddress, String district, String division) {
         this.id = id;
         this.userType = userType;
         this.fullName = fullName;
@@ -49,11 +46,8 @@ public class UserData {
         this.password = password;
         this.department = department;
         this.designation = designation;
-        this.categories = categories;
-        this.primaryCategory = primaryCategory;
+        this.skills = skills;
         this.founderId = founderId;
-        this.experience = experience;
-        this.hourlyRate = hourlyRate;
         this.isSelected = isSelected;
         this.companyName = companyName;
         this.gstNumber = gstNumber;
@@ -158,20 +152,12 @@ public class UserData {
         this.designation = designation;
     }
 
-    public String getPrimaryCategory() {
-        return primaryCategory;
+    public ArrayList<String> getSkills() {
+        return skills;
     }
 
-    public void setPrimaryCategory(String primaryCategory) {
-        this.primaryCategory = primaryCategory;
-    }
-
-    public ArrayList<String> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(ArrayList<String> categories) {
-        this.categories = categories;
+    public void setSkills(ArrayList<String> skills) {
+        this.skills = skills;
     }
 
     public String getFounderId() {
@@ -188,22 +174,6 @@ public class UserData {
 
     public void setIsSelected(String isSelected) {
         this.isSelected = isSelected;
-    }
-
-    public String getExperience() {
-        return experience;
-    }
-
-    public void setExperience(String experience) {
-        this.experience = experience;
-    }
-
-    public String getHourlyRate() {
-        return hourlyRate;
-    }
-
-    public void setHourlyRate(String hourlyRate) {
-        this.hourlyRate = hourlyRate;
     }
 
     public String getCompanyName() {
@@ -248,6 +218,6 @@ public class UserData {
 
     @Override
     public String toString() {
-        return fullName + " , " + companyName + " , " + city;
+        return fullName + " , " + phone + " , " + city;
     }
 }

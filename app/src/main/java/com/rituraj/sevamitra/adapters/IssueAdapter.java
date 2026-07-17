@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.IssueModel;
+import com.rituraj.sevamitra.models.Priority;
+import com.rituraj.sevamitra.models.Status;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -107,20 +109,21 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.IssueViewHol
             tvDescription.setText(issue.getProblemDescription());
             tvLocation.setText("📍 " + issue.getLocation());
             tvProblemType.setText("📋 " + issue.getProblemType());
-            tvIssueType.setText("🔧 " + issue.getIssueType());
+            tvIssueType.setText("🔧 " + issue.getIssue());
+
 
             // Priority with color
             tvPriority.setText(issue.getPriority());
             switch (issue.getPriority()) {
-                case "Critical":
+                case Priority.CRITICAL:
                     tvPriority.setTextColor(context.getColor(R.color.logo_orange));
                     ivPriority.setColorFilter(context.getColor(R.color.logo_orange));
                     break;
-                case "High":
+                case Priority.HIGH:
                     tvPriority.setTextColor(context.getColor(R.color.logo_gold));
                     ivPriority.setColorFilter(context.getColor(R.color.logo_gold));
                     break;
-                case "Medium":
+                case Priority.MEDIUM:
                     tvPriority.setTextColor(context.getColor(R.color.logo_green));
                     ivPriority.setColorFilter(context.getColor(R.color.logo_green));
                     break;
@@ -133,19 +136,19 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.IssueViewHol
             // Status with color
             tvStatus.setText(issue.getStatus());
             switch (issue.getStatus()) {
-                case "Pending":
+                case Status.PENDING:
                     tvStatus.setTextColor(context.getColor(R.color.logo_orange));
                     ivStatus.setColorFilter(context.getColor(R.color.logo_orange));
                     break;
-                case "In Progress":
+                case Status.PROCESS:
                     tvStatus.setTextColor(context.getColor(R.color.logo_gold));
                     ivStatus.setColorFilter(context.getColor(R.color.logo_gold));
                     break;
-                case "Resolved":
+                case Status.RESOLVED:
                     tvStatus.setTextColor(context.getColor(R.color.logo_green));
                     ivStatus.setColorFilter(context.getColor(R.color.logo_green));
                     break;
-                case "Rejected":
+                case Status.REJECTED:
                     tvStatus.setTextColor(context.getColor(R.color.logo_red));
                     ivStatus.setColorFilter(context.getColor(R.color.logo_red));
                     break;
@@ -161,8 +164,13 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.IssueViewHol
                 tvAssignedTo.setText("Not Assigned Yet");
             }
 
-            if ("FOUNDER".equalsIgnoreCase(userType))
-                btnAssign.setVisibility(View.VISIBLE);
+            if (issue.getRejectTimestamp() > 0)
+                btnAssign.setVisibility(View.GONE);
+            else if ("FOUNDER".equalsIgnoreCase(userType))
+                if (issue.getWorkAssignTimestamp() == 0)
+                    btnAssign.setVisibility(View.VISIBLE);
+                else
+                    btnAssign.setVisibility(View.GONE);
 
             // Timeline - Show only if timestamps exist
             if (issue.getWorkAssignTimestamp() > 0) {
@@ -198,36 +206,15 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.IssueViewHol
                 resolutionLayout.setVisibility(View.GONE);
             }
 
-            // Show/Hide action buttons based on user type and status
-            setupActionButtons(issue);
+            btnTrack.setVisibility(View.VISIBLE);
+            if (issue.getWorkAssignTimestamp() > 0)
+                btnApprove.setVisibility(View.VISIBLE);
 
             // Click listeners
             cardView.setOnClickListener(v -> listener.onIssueClick(issue));
             btnAssign.setOnClickListener(v -> listener.onAssignClick(issue));
             btnTrack.setOnClickListener(v -> listener.onTrackClick(issue));
             btnApprove.setOnClickListener(v -> listener.onApproveClick(issue));
-        }
-
-        private void setupActionButtons(IssueModel issue) {
-            // Hide all buttons by default
-            btnAssign.setVisibility(View.GONE);
-            btnTrack.setVisibility(View.GONE);
-            btnApprove.setVisibility(View.GONE);
-
-            if ("SevaMitra".equalsIgnoreCase(userType)) {
-                btnTrack.setVisibility(View.VISIBLE);
-                if ("Pending".equals(issue.getStatus())) {
-                    btnAssign.setVisibility(View.VISIBLE);
-                }
-            } else if ("Officer".equalsIgnoreCase(userType)) {
-                btnTrack.setVisibility(View.VISIBLE);
-                if ("Resolved".equals(issue.getStatus()) && issue.getSevaMitraApprovedTimestamp() > 0) {
-                    btnApprove.setVisibility(View.VISIBLE);
-//                    btnApprove.setText("Final Approve");
-                }
-            } else {
-                btnTrack.setVisibility(View.VISIBLE);
-            }
         }
 
         private String formatTimestamp(long timestamp) {

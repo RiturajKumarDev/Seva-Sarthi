@@ -20,14 +20,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.ui.dashboard.BaseDashboardActivity;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
     // UI Components
     private TextInputEditText etEmail, etPassword;
     private TextInputLayout tilEmail, tilPassword;
-    private MaterialButton btnLogin;
-    private TextView tvForgotPassword, tvSignUp, tvError, tvAppName;
+    private MaterialButton btnLogin, btnRegister;
+    private TextView tvForgotPassword, tvSignUp, tvError, tvAppName, tvSupport;
     private ProgressBar progressBar;
     private CardView cardLogin;
     private ImageView ivShowPassword;
@@ -65,8 +66,10 @@ public class LoginActivity extends AppCompatActivity {
         tilEmail = findViewById(R.id.tilEmail);
         tilPassword = findViewById(R.id.tilPassword);
         btnLogin = findViewById(R.id.btnLogin);
+        btnRegister = findViewById(R.id.btnRegister);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         tvSignUp = findViewById(R.id.tvSignUp);
+        tvSupport = findViewById(R.id.tvSupport);
         tvError = findViewById(R.id.tvError);
         tvAppName = findViewById(R.id.tvAppName);
         progressBar = findViewById(R.id.progressBar);
@@ -92,6 +95,16 @@ public class LoginActivity extends AppCompatActivity {
 
         tvSignUp.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegistrationActivity.class);
+            startActivity(intent);
+        });
+
+        btnRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, RegistrationActivity.class);
+            startActivity(intent);
+        });
+
+        tvSupport.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, SupportActivity.class);
             startActivity(intent);
         });
 

@@ -18,6 +18,7 @@
             android:paddingBottom="80dp">
 
             <!-- Header Section -->
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardProfile"
                 android:layout_width="match_parent"
@@ -167,62 +168,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:background="@color/logo_gold_dark" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:weightSum="2">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Total Villages"
-                                android:textColor="@color/logo_gold_light"
-                                android:textSize="12sp" />
-
-                            <TextView
-                                android:id="@+id/tvTotalVillages"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="456"
-                                android:textColor="@color/logo_white"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Total Cities"
-                                android:textColor="@color/logo_gold_light"
-                                android:textSize="12sp" />
-
-                            <TextView
-                                android:id="@+id/tvTotalCities"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="12"
-                                android:textColor="@color/logo_white"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -517,91 +462,6 @@
             </androidx.cardview.widget.CardView>
 
             <!-- Officers Stats Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:orientation="horizontal">
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cardTotalOfficers"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="#1AFFFFFF"
-                    app:cardCornerRadius="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:src="@drawable/ic_officer"
-                            app:tint="@color/logo_gold" />
-
-                        <TextView
-                            android:id="@+id/tvTotalOfficers"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="0"
-                            android:textColor="@color/logo_white"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Total Officers"
-                            android:textColor="@color/logo_gold_light"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cardActiveOfficers"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="#1AFFFFFF"
-                    app:cardCornerRadius="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:src="@drawable/ic_active_officer"
-                            app:tint="@color/logo_green" />
-
-                        <TextView
-                            android:id="@+id/tvActiveOfficers"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="0"
-                            android:textColor="@color/logo_white"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Active Officers"
-                            android:textColor="@color/logo_gold_light"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-            </LinearLayout>
 
             <!-- Quick Actions Section -->
             <TextView
@@ -652,37 +512,6 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/cardAssignOfficer"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardBackgroundColor="#1AFFFFFF"
-                    app:cardCornerRadius="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@drawable/ic_assign_officer"
-                            app:tint="@color/logo_orange" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Assign Officer"
-                            android:textColor="@color/logo_white"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
                     android:id="@+id/cardTrackComplaints"
                     android:layout_width="0dp"
                     android:layout_height="100dp"
@@ -719,6 +548,7 @@
                     android:layout_height="100dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
+                    android:visibility="gone"
                     app:cardBackgroundColor="#1AFFFFFF"
                     app:cardCornerRadius="12dp">
 
@@ -750,6 +580,7 @@
                     android:layout_height="100dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
+                    android:visibility="gone"
                     app:cardBackgroundColor="#1AFFFFFF"
                     app:cardCornerRadius="12dp">
 
@@ -776,37 +607,6 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/cardRevenueReports"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardBackgroundColor="#1AFFFFFF"
-                    app:cardCornerRadius="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@drawable/ic_money"
-                            app:tint="@color/logo_green" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Revenue"
-                            android:textColor="@color/logo_white"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
                     android:id="@+id/cardEmergencyAlerts"
                     android:layout_width="0dp"
                     android:layout_height="100dp"
@@ -824,14 +624,14 @@
                         <ImageView
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@drawable/ic_alert"
+                            android:src="@drawable/ic_support"
                             app:tint="@color/logo_orange" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Emergency"
+                            android:text="Supports"
                             android:textColor="@color/logo_white"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -855,14 +655,14 @@
                         <ImageView
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@drawable/ic_announcement"
+                            android:src="@drawable/ic_worker"
                             app:tint="@color/logo_gold_light" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Announcements"
+                            android:text="Workers"
                             android:textColor="@color/logo_white"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -872,5 +672,16 @@
             <!-- Recent Complaints Section -->
 
         </LinearLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabNewIssue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_add"
+            app:backgroundTint="@color/logo_gold"
+            app:tint="@color/logo_dark_blue" />
     </RelativeLayout>
 </ScrollView>

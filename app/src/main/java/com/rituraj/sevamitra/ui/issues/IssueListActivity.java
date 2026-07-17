@@ -357,7 +357,7 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
         } else {
             String lowerCaseQuery = query.toLowerCase();
             for (IssueModel issue : issueListFull) {
-                if (issue.getProblemTitle().toLowerCase().contains(lowerCaseQuery) || issue.getProblemDescription().toLowerCase().contains(lowerCaseQuery) || issue.getLocation().toLowerCase().contains(lowerCaseQuery) || issue.getProblemType().toLowerCase().contains(lowerCaseQuery) || issue.getIssueType().toLowerCase().contains(lowerCaseQuery) || issue.getId().toLowerCase().contains(lowerCaseQuery)) {
+                if (issue.getProblemTitle().toLowerCase().contains(lowerCaseQuery) || issue.getProblemDescription().toLowerCase().contains(lowerCaseQuery) || issue.getLocation().toLowerCase().contains(lowerCaseQuery) || issue.getProblemType().toLowerCase().contains(lowerCaseQuery) || issue.getIssue().toLowerCase().contains(lowerCaseQuery) || issue.getId().toLowerCase().contains(lowerCaseQuery)) {
                     issueList.add(issue);
                 }
             }
@@ -413,7 +413,7 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
                     IssueModel issueModel = snapshot.getValue(IssueModel.class);
                     if (issueModel != null) {
                         issueModel.setId(snapshot.getKey());
-                        if (userType.equalsIgnoreCase("SEVAMITRA") && userId.equalsIgnoreCase(issueModel.getCreatedBy())) {
+                        if (userType.equalsIgnoreCase("SEVASARTHI") && userId.equalsIgnoreCase(issueModel.getCreatedBy())) {
                             issueList.add(issueModel);
                             issueListFull.add(issueModel);
                         } else if (userType.equalsIgnoreCase("WORKER") && issueModel.getAssignedTo() != null && userId.equalsIgnoreCase(issueModel.getAssignedTo())) {
@@ -508,7 +508,6 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
 
     @Override
     public void onTrackClick(IssueModel issue) {
-        Toast.makeText(this, "Track issue: " + issue.getId(), Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(IssueListActivity.this, IssueDetailsActivity.class);
         intent.putExtra("IssueId", issue.getId());
         startActivity(intent);
@@ -516,6 +515,6 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
 
     @Override
     public void onApproveClick(IssueModel issue) {
-        Toast.makeText(this, "Approve issue: " + issue.getId(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Already " + issue.getStatus(), Toast.LENGTH_SHORT).show();
     }
 }

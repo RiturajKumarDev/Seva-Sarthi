@@ -234,10 +234,11 @@
                 android:padding="16dp">
 
                 <TextView
+                    android:id="@+id/otherIfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="SevaMitra Details"
+                    android:text="SevaSarthi Details"
                     android:textColor="@color/logo_gold"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -303,7 +304,24 @@
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <!-- Skills (Multiple Selection) -->
+                <!-- Primary Category -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Select your Department"
+                    android:textColor="@color/logo_white"
+                    android:textSize="14sp" />
+
+                <Spinner
+                    android:id="@+id/spinnerWorkerCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/spinner_background"
+                    android:entries="@array/department_category" />
+
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -317,123 +335,86 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    android:orientation="vertical">
+                    android:orientation="vertical" />
 
-                    <CheckBox
-                        android:id="@+id/cbPlumber"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Plumber"
-                        android:textColor="@color/logo_white" />
-
-                    <CheckBox
-                        android:id="@+id/cbElectrician"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Electrician"
-                        android:textColor="@color/logo_white" />
-
-                    <CheckBox
-                        android:id="@+id/cbAC"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="AC Technician"
-                        android:textColor="@color/logo_white" />
-
-                    <CheckBox
-                        android:id="@+id/cbCCTV"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="CCTV Technician"
-                        android:textColor="@color/logo_white" />
-
-                    <CheckBox
-                        android:id="@+id/cbCarpenter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Carpenter"
-                        android:textColor="@color/logo_white" />
-
-                    <CheckBox
-                        android:id="@+id/cbPainter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Painter"
-                        android:textColor="@color/logo_white" />
-
-                    <CheckBox
-                        android:id="@+id/cbMechanic"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Mechanic"
-                        android:textColor="@color/logo_white" />
-                </LinearLayout>
-
-                <!-- Primary Category -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Primary Category"
-                    android:textColor="@color/logo_white"
-                    android:textSize="14sp" />
-
-                <Spinner
-                    android:id="@+id/spinnerWorkerCategory"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@drawable/spinner_background" />
-
-                <!--   Select Founder-->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:text="Select Your Founder"
                     android:textColor="@color/logo_white"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:visibility="gone" />
 
                 <Spinner
                     android:id="@+id/spinnerFounder"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginBottom="12dp"
-                    android:background="@drawable/spinner_background" />
+                    android:background="@drawable/spinner_background"
+                    android:visibility="gone" />
 
-                <!-- Experience -->
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Take a Photo of Your Aadhaar Card"
+                    android:textColor="@color/logo_white"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:hint="Experience (in years)"
-                    app:hintTextColor="@color/logo_gold_light">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etExperience"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:textColor="@color/logo_white" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                <!-- Hourly Rate -->
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:hint="Hourly Rate (₹)"
-                    app:hintTextColor="@color/logo_gold_light">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:text="Front Side"
+                            android:textColor="@color/logo_white"
+                            android:textSize="14sp" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etHourlyRate"
+                        <ImageView
+                            android:id="@+id/aadharCardFrontImg"
+                            android:layout_width="match_parent"
+                            android:layout_height="100dp"
+                            android:layout_margin="5dp"
+                            app:srcCompat="@drawable/ic_photo_camera_black_48dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:textColor="@color/logo_white" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:text="Back Side"
+                            android:textColor="@color/logo_white"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/aadharCardBackImg"
+                            android:layout_width="match_parent"
+                            android:layout_height="100dp"
+                            android:layout_margin="5dp"
+                            android:layout_weight="1"
+                            app:srcCompat="@drawable/ic_photo_camera_black_48dp" />
+                    </LinearLayout>
+                </LinearLayout>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -548,13 +529,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="12dp"
-                    android:background="@drawable/spinner_background" />
+                    android:background="@drawable/spinner_background"
+                    android:entries="@array/department_category" />
 
                 <!-- District -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
                     android:hint="District"
                     app:hintTextColor="@color/logo_gold_light">
 
