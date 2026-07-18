@@ -22,10 +22,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
+import com.rituraj.sevamitra.models.DailyItemModel;
 import com.rituraj.sevamitra.models.IssueModel;
 import com.rituraj.sevamitra.models.Priority;
 import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.ui.dailyItems.DailyItemDialog;
 
 import java.util.*;
 
@@ -54,10 +56,6 @@ public class AddIssueActivity extends AppCompatActivity {
     private String selectedPriority = "";
     private Calendar calendar;
 
-    // Select Worker
-    private LinearLayout selectWorkerBox;
-    private Spinner spinnerSelectWorker;
-
     // Submit Button
     private MaterialButton btnSubmitIssue;
     private ProgressBar progressBar;
@@ -66,6 +64,7 @@ public class AddIssueActivity extends AppCompatActivity {
     // User ID (from login)
     private String userId;
     private ArrayList<UserData> founderList = new ArrayList<>();
+    private Boolean isDaily = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +88,6 @@ public class AddIssueActivity extends AppCompatActivity {
 
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
-        selectWorkerBox = findViewById(R.id.selectWorkerBox);
 
         // Problem Details
         etProblemTitle = findViewById(R.id.etProblemTitle);
@@ -104,7 +102,6 @@ public class AddIssueActivity extends AppCompatActivity {
         spinnerProblemType = findViewById(R.id.spinnerProblemType);
         spinnerIssueType = findViewById(R.id.spinnerIssueType);
         spinnerPriority = findViewById(R.id.spinnerPriority);
-        spinnerSelectWorker = findViewById(R.id.spinnerSelectWorker);
 
         // Buttons
         btnSubmitIssue = findViewById(R.id.btnSubmitIssue);
@@ -153,12 +150,15 @@ public class AddIssueActivity extends AppCompatActivity {
     }
 
     private void setSelectedProblemType() {
-        selectWorkerBox.setVisibility(View.GONE);
+        isDaily = false;
+        DailyItemModel dailyItemModel = new DailyItemModel();
+        dailyItemModel.setCreatedBy(userId);
+        dailyItemModel.setProblemType(selectedProblemType);
         int arrayResId;
         switch (selectedProblemType) {
             case "Beauty & Personal Care":
                 arrayResId = R.array.beauty_personal_care_issues;
-                selectWorkerBox.setVisibility(View.VISIBLE);
+                isDaily = true;
                 break;
             case "Carpenter":
                 arrayResId = R.array.carpenter_issues;
@@ -171,18 +171,18 @@ public class AddIssueActivity extends AppCompatActivity {
                 break;
             case "Dairy Services":
                 arrayResId = R.array.dairy_services_issues;
-                selectWorkerBox.setVisibility(View.VISIBLE);
+                isDaily = true;
                 break;
             case "Decoration":
                 arrayResId = R.array.decoration_issues;
-                selectWorkerBox.setVisibility(View.VISIBLE);
+                isDaily = true;
                 break;
             case "Electrician":
                 arrayResId = R.array.electrician_issues;
                 break;
             case "Home Services":
                 arrayResId = R.array.home_services_issues;
-                selectWorkerBox.setVisibility(View.VISIBLE);
+                isDaily = true;
                 break;
             case "Mechanic":
                 arrayResId = R.array.mechanic_issues;
@@ -195,51 +195,26 @@ public class AddIssueActivity extends AppCompatActivity {
                 break;
             case "Sanitation":
                 arrayResId = R.array.sanitation_issues;
-                selectWorkerBox.setVisibility(View.VISIBLE);
+                isDaily = true;
                 break;
             case "Water Supply":
                 arrayResId = R.array.water_supply_issues;
-                selectWorkerBox.setVisibility(View.VISIBLE);
+                isDaily = true;
                 break;
             case "Laundry Services":
                 arrayResId = R.array.laundry_services_issues;
-                selectWorkerBox.setVisibility(View.VISIBLE);
+                isDaily = true;
                 break;
             default:
                 arrayResId = R.array.other_issues;
                 break;
         }
-        getWorkerData(selectedProblemType);
         String[] issueList = getResources().getStringArray(arrayResId);
         setSpinnerIssueType(issueList);
-    }
-
-    private void getWorkerData(String workerDepartment) {
-        reference = database.getReference().child("UserData").child("WORKER");
-        reference.keepSynced(true);
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    ArrayList<UserData> workerList = new ArrayList<>();
-                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        UserData userData = dataSnapshot.getValue(UserData.class);
-                        if (userData != null) {
-                            userData.setId(dataSnapshot.getKey());
-                            if (userData.getDepartment() != null && userData.getDepartment().equalsIgnoreCase(workerDepartment))
-                                workerList.add(userData);
-                        }
-                    }
-                    ArrayAdapter<UserData> workerAdapter = new ArrayAdapter<>(AddIssueActivity.this, android.R.layout.simple_spinner_dropdown_item, workerList);
-                    spinnerSelectWorker.setAdapter(workerAdapter);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        if (isDaily) {
+            DailyItemDialog dailyItemDialog = new DailyItemDialog(AddIssueActivity.this, firebaseUser.getPhotoUrl() != null ? String.valueOf(firebaseUser.getPhotoUrl()) : "Other", issueList, dailyItemModel);
+            dailyItemDialog.show();
+        }
     }
 
     private void setSpinnerIssueType(String[] issueList) {
@@ -290,6 +265,10 @@ public class AddIssueActivity extends AppCompatActivity {
     }
 
     private void validateAndSubmit() {
+        if (isDaily) {
+            Toast.makeText(AddIssueActivity.this, "Opp's, It's Daily Issue", Toast.LENGTH_SHORT).show();
+            return;
+        }
         // Clear previous errors
         clearErrors();
 
@@ -350,10 +329,6 @@ public class AddIssueActivity extends AppCompatActivity {
         issue.setPriority(selectedPriority);
         issue.setStatus(Status.PENDING);
         issue.setCreatedBy(userId);
-        if (selectWorkerBox.getVisibility() == View.VISIBLE) {
-            UserData userData = (UserData) spinnerSelectWorker.getSelectedItem();
-            issue.setAssignedTo(userData.getId());
-        }
 
         // Submit to Firebase
         submitIssueToFirebase(issue);

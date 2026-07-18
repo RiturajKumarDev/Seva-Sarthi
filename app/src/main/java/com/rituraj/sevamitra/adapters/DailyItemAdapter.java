@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.DailyItemModel;
+import com.rituraj.sevamitra.models.Status;
 
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class DailyItemAdapter extends RecyclerView.Adapter<DailyItemAdapter.View
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private CardView cardView;
-        private TextView tvItemName, tvCategory, tvQuantity, tvPrice, tvTotal;
+        private TextView tvItemName, tvCategory, tvQuantity, tvTotal;
         private TextView tvDate, tvStatus, tvSupplier;
         private ImageView ivStatus, ivDelete;
 
@@ -67,7 +68,6 @@ public class DailyItemAdapter extends RecyclerView.Adapter<DailyItemAdapter.View
             tvItemName = itemView.findViewById(R.id.tvItemName);
             tvCategory = itemView.findViewById(R.id.tvCategory);
             tvQuantity = itemView.findViewById(R.id.tvQuantity);
-            tvPrice = itemView.findViewById(R.id.tvPrice);
             tvTotal = itemView.findViewById(R.id.tvTotal);
             tvDate = itemView.findViewById(R.id.tvDate);
             tvStatus = itemView.findViewById(R.id.tvStatus);
@@ -80,23 +80,22 @@ public class DailyItemAdapter extends RecyclerView.Adapter<DailyItemAdapter.View
             tvItemName.setText(item.getItemName());
             tvCategory.setText(item.getCategory());
             tvQuantity.setText(item.getQuantity() + " " + item.getUnit());
-            tvPrice.setText("₹" + item.getPrice() + "/unit");
-            tvTotal.setText("Total: ₹" + item.getTotalAmount());
             tvDate.setText(item.getDate() + " " + item.getTime());
-            tvSupplier.setText("Supplier: " + (item.getSupplier() != null ? item.getSupplier() : "N/A"));
+            tvTotal.setText(item.getCreatedBy());
+            tvSupplier.setText("Supplier: " + (item.getSupplierDetail() != null ? item.getSupplierDetail() : "N/A"));
             tvStatus.setText(item.getStatus());
 
             // Set status color
             switch (item.getStatus()) {
-                case "Available":
+                case Status.ACCEPTED:
                     tvStatus.setTextColor(itemView.getContext().getColor(R.color.logo_green));
                     ivStatus.setColorFilter(itemView.getContext().getColor(R.color.logo_green));
                     break;
-                case "Out of Stock":
+                case Status.PENDING:
                     tvStatus.setTextColor(itemView.getContext().getColor(R.color.logo_orange));
                     ivStatus.setColorFilter(itemView.getContext().getColor(R.color.logo_orange));
                     break;
-                case "Expired":
+                default:
                     tvStatus.setTextColor(itemView.getContext().getColor(R.color.logo_red));
                     ivStatus.setColorFilter(itemView.getContext().getColor(R.color.logo_red));
                     break;

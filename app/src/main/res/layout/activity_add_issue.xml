@@ -130,28 +130,6 @@
                         android:layout_height="56dp"
                         android:background="@drawable/spinner_background" />
 
-                    <LinearLayout
-                        android:id="@+id/selectWorkerBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:visibility="gone">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:text="Select Worker"
-                            android:textColor="@color/logo_white"
-                            android:textSize="14sp" />
-
-                        <Spinner
-                            android:id="@+id/spinnerSelectWorker"
-                            android:layout_width="match_parent"
-                            android:layout_height="56dp"
-                            android:background="@drawable/spinner_background" />
-                    </LinearLayout>
-
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

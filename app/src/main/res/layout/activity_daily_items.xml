@@ -132,38 +132,6 @@
 
                 </androidx.cardview.widget.CardView>
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="90dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="#1AFFFFFF"
-                    app:cardCornerRadius="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/tvTotalAmount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="@color/logo_white"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Total Amount"
-                            android:textColor="@color/logo_white"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
             </LinearLayout>
 
             <!-- Search Bar -->
@@ -226,8 +194,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:hint="Date"
+                        android:textColorHint="@android:color/white"
+                        app:boxBackgroundColor="@color/avatar_color_4"
                         app:boxStrokeColor="@color/logo_gold"
-                        app:hintTextColor="@color/logo_gold_light">
+                        app:hintTextColor="@color/white">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etCalender"
@@ -316,13 +286,4 @@
     </ScrollView>
 
     <!-- FAB -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_add"
-        app:backgroundTint="@color/logo_gold"
-        app:tint="@color/logo_dark_blue" />
 </LinearLayout>

@@ -26,6 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.IssueModel;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.ui.dailyItems.DailyItemsActivity;
 import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
@@ -55,7 +56,7 @@ public class SevaSarthiHomeFragment extends Fragment {
     private CardView cardTotalWorkers, cardAvailableWorkers, cardAvgResolution, cardSatisfaction;
 
     // Quick Actions
-    private CardView cardCreateIssue, cardTrackIssues, cardWorkerList;
+    private CardView cardCreateIssue, cardTrackDailyIssues, cardTrackIssues, cardWorkerList;
     private CardView cardSettings;
 
     // Floating Action Button
@@ -117,6 +118,7 @@ public class SevaSarthiHomeFragment extends Fragment {
         // Quick Actions
         cardCreateIssue = view.findViewById(R.id.cardCreateIssue);
         cardTrackIssues = view.findViewById(R.id.cardTrackIssues);
+        cardTrackDailyIssues = view.findViewById(R.id.cardTrackDailyIssues);
         cardWorkerList = view.findViewById(R.id.cardWorkerList);
         cardSettings = view.findViewById(R.id.cardSettings);
 
@@ -171,6 +173,10 @@ public class SevaSarthiHomeFragment extends Fragment {
 
         cardTrackIssues.setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), IssueListActivity.class));
+        });
+
+        cardTrackDailyIssues.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), DailyItemsActivity.class));
         });
 
         cardWorkerList.setOnClickListener(v -> startActivity(new Intent(requireContext(), WorkerListActivity.class)));

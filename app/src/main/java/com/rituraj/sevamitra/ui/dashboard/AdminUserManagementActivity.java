@@ -229,6 +229,18 @@ public class AdminUserManagementActivity extends AppCompatActivity {
             }
         });
 
+        spinnerFounder.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                setSelectedProblemType(departmentList[i]);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         // Status Spinner
         String[] statuses = {"Select Status", Status.ACTIVE, Status.INACTIVE, Status.SUSPENDED};
         ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, statuses);
@@ -680,7 +692,7 @@ public class AdminUserManagementActivity extends AppCompatActivity {
                 break;
             case "WORKER":
                 editingUser.setSkills(getSelectedSkills());
-                editingUser.setFounderId(spinnerFounder.getSelectedItem().toString());
+                editingUser.setDepartment(spinnerFounder.getSelectedItem().toString());
                 break;
             case "FOUNDER":
                 editingUser.setCompanyName(etCompanyName.getText().toString().trim());

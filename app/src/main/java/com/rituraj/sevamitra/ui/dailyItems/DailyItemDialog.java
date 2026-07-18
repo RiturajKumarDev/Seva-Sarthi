@@ -1,5 +1,6 @@
 package com.rituraj.sevamitra.ui.dailyItems;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
@@ -16,36 +17,45 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.DailyItemModel;
 import com.rituraj.sevamitra.models.Status;
+import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
 public class DailyItemDialog extends Dialog {
-    private String userId;
     private DatabaseReference reference;
     private Context context;
+    private Activity activity;
     private DailyItemModel dailyItemModel;
     private Calendar calendar;
-    private TextInputEditText itemName, etQuantity, itemPrice, etSupplier, itemDescription, etDate, etTime, etStatus;
-    private Spinner spinnerCategory, spinnerUnit;
-    private Button btnSaveItem, btnUpdateItem, btnCloseItem;
+    private TextInputEditText itemName, etQuantity, itemDescription, etDate, etTime, etStatus;
+    private Spinner spinnerCategory, spinnerSupplier, spinnerUnit;
+    private Button btnUpdateItem, btnCloseItem;
+    private String[] issueList;
+    private String userType;
 
-    public DailyItemDialog(@NonNull Context context, String userId, DailyItemModel dailyItemModel) {
+    public DailyItemDialog(@NonNull Context context, String userType, String[] issueList, DailyItemModel dailyItemModel) {
         super(context);
-        this.userId = userId;
         this.context = context;
-        if (dailyItemModel == null) dailyItemModel = new DailyItemModel();
-        else updateRestrict();
+        this.activity = (Activity) context;
+        this.userType = userType;
         this.dailyItemModel = dailyItemModel;
         calendar = Calendar.getInstance();
+        this.issueList = issueList;
         reference = FirebaseDatabase.getInstance().getReference();
     }
 
@@ -69,15 +79,14 @@ public class DailyItemDialog extends Dialog {
         spinnerCategory = findViewById(R.id.spinnerCategory);
         etQuantity = findViewById(R.id.etQuantity);
         spinnerUnit = findViewById(R.id.spinnerUnit);
-        itemPrice = findViewById(R.id.etPrice);
-        etSupplier = findViewById(R.id.etSupplier);
-        etStatus = findViewById(R.id.etStatus);
+        spinnerSupplier = findViewById(R.id.spinnerSupplier);
         itemDescription = findViewById(R.id.etNotes);
+        etStatus = findViewById(R.id.etStatus);
+        etStatus.setText(Status.PENDING);
 
         etDate = findViewById(R.id.imgCalender);
         etTime = findViewById(R.id.etTime);
 
-        btnSaveItem = findViewById(R.id.btnSaveItem);
         btnUpdateItem = findViewById(R.id.btnUpdateItem);
         btnCloseItem = findViewById(R.id.btnCloseItem);
 
@@ -86,40 +95,27 @@ public class DailyItemDialog extends Dialog {
 
         itemName.setText(dailyItemModel.getItemName());
         etQuantity.setText(dailyItemModel.getQuantity());
-        itemPrice.setText(dailyItemModel.getPrice());
-        etSupplier.setText(dailyItemModel.getSupplier());
         etDate.setText(dailyItemModel.getDate());
         etTime.setText(dailyItemModel.getTime());
         etStatus.setText(dailyItemModel.getStatus());
         itemDescription.setText(dailyItemModel.getNotes());
-        setSpinnerSelection(spinnerUnit, dailyItemModel.getUnit() + "");
-        setSpinnerSelection(spinnerCategory, dailyItemModel.getCategory() + "");
+        setSpinnerSelection(spinnerUnit, String.valueOf(dailyItemModel.getUnit()));
+        setSpinnerSelection(spinnerCategory, String.valueOf(dailyItemModel.getCategory()));
 
 
         btnCloseItem.setOnClickListener(v -> dismiss());
-        btnUpdateItem.setOnClickListener(v -> updateValidateForm());
-        btnSaveItem.setOnClickListener(v -> uploadItem());
-    }
-
-    private void setSpinnerSelection(Spinner spinner, String value) {
-        value = value.trim();
-        ArrayAdapter adapter = (ArrayAdapter) spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equalsIgnoreCase(value)) {
-                spinner.setSelection(i);
-                return;
-            }
-        }
+        btnUpdateItem.setOnClickListener(v -> uploadItem());
     }
 
     private void setupSpinners() {
-        String[] categories = {"Select Category", "Milk", "Water", "Other"};
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, categories);
-        spinnerCategory.setAdapter(categoryAdapter);
+        // Issue Type Spinner
+        ArrayAdapter<String> issueAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, issueList);
+        issueAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(issueAdapter);
         spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                dailyItemModel.setCategory(position == 0 ? "" : categories[position]);
+                dailyItemModel.setCategory(position == 0 ? "" : issueList[position]);
             }
 
             @Override
@@ -136,6 +132,46 @@ public class DailyItemDialog extends Dialog {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+        getWorkerData(dailyItemModel.getProblemType());
+    }
+
+    private void getWorkerData(String workerDepartment) {
+        reference = FirebaseDatabase.getInstance().getReference().child("UserData").child("WORKER");
+        reference.keepSynced(true);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    ArrayList<UserData> workerList = new ArrayList<>();
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        UserData userData = dataSnapshot.getValue(UserData.class);
+                        if (userData != null) {
+                            userData.setId(dataSnapshot.getKey());
+                            if (userData.getDepartment() != null && userData.getDepartment().equalsIgnoreCase(workerDepartment))
+                                workerList.add(userData);
+                        }
+                    }
+                    ArrayAdapter<UserData> workerAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, workerList);
+                    spinnerSupplier.setAdapter(workerAdapter);
+                    setSpinnerSelection(spinnerSupplier, String.valueOf(dailyItemModel.getSupplierDetail()));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
+
+    private void setSpinnerSelection(Spinner spinner, String value) {
+        value = value.trim();
+        ArrayAdapter adapter = (ArrayAdapter) spinner.getAdapter();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).toString().equalsIgnoreCase(value)) {
+                spinner.setSelection(i);
+                return;
+            }
+        }
     }
 
     private void setupDateAndTime() {
@@ -181,14 +217,6 @@ public class DailyItemDialog extends Dialog {
         etTime.setText(sdf.format(calendar.getTime()));
     }
 
-    private void updateRestrict() {
-//        itemName.set(false);
-//        spinnerCategory.setEnabled(false);
-//        spinnerUnit.setEnabled(false);
-//        etSupplier.setEnabled(false);
-//        etStatus.setEnabled(false);
-    }
-
     private boolean validateForm() {
         if (itemName.getText().toString().trim().isEmpty()) {
             itemName.setError("Item name is required");
@@ -201,15 +229,17 @@ public class DailyItemDialog extends Dialog {
             return false;
         }
 
+        if (dailyItemModel.getUnit() != null && dailyItemModel.getUnit().isEmpty()) {
+            Toast.makeText(context, "Please select unit", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (spinnerSupplier.getSelectedItem() == null || spinnerSupplier.getSelectedItem().toString().isEmpty()) {
+            Toast.makeText(context, "Please select supplier", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (etQuantity.getText().toString().trim().isEmpty()) {
             etQuantity.setError("Quantity is required");
             etQuantity.requestFocus();
-            return false;
-        }
-
-        if (itemPrice.getText().toString().trim().isEmpty()) {
-            itemPrice.setError("Price is required");
-            itemPrice.requestFocus();
             return false;
         }
 
@@ -217,37 +247,77 @@ public class DailyItemDialog extends Dialog {
             Toast.makeText(context, "Please select status", Toast.LENGTH_SHORT).show();
             return false;
         }
-        double totle = Integer.parseInt(itemPrice.getText().toString()) * Integer.parseInt(etQuantity.getText().toString());
+        if (etDate.getText().toString().trim().isEmpty()) {
+            etDate.setError("Date is required");
+            etDate.requestFocus();
+            return false;
+        }
+        if (etTime.getText().toString().trim().isEmpty()) {
+            etTime.setError("Time is required");
+            etTime.requestFocus();
+            return false;
+        }
+        if (itemDescription.getText().toString().trim().isEmpty()) {
+            itemDescription.setError("Description is required");
+            itemDescription.requestFocus();
+            return false;
+        }
+        if (spinnerCategory.getSelectedItem().toString().isEmpty() || spinnerCategory.getSelectedItem().toString().startsWith("Select")) {
+            Toast.makeText(context, "Please select Issue", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (spinnerUnit.getSelectedItem().toString().isEmpty() || spinnerUnit.getSelectedItem().toString().startsWith("Select")) {
+            Toast.makeText(context, "Please select unit", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        dailyItemModel.setSupplierId(((UserData) spinnerSupplier.getSelectedItem()).getId());
+        dailyItemModel.setSupplierDetail(spinnerSupplier.getSelectedItem().toString());
         dailyItemModel.setCategory(spinnerCategory.getSelectedItem().toString());
         dailyItemModel.setUnit(spinnerUnit.getSelectedItem().toString());
         dailyItemModel.setItemName(itemName.getText().toString());
         dailyItemModel.setQuantity(etQuantity.getText().toString());
-        dailyItemModel.setPrice(itemPrice.getText().toString());
-        dailyItemModel.setTotalAmount(String.valueOf(totle));
         dailyItemModel.setDate(etDate.getText().toString());
         dailyItemModel.setTime(etTime.getText().toString());
-        dailyItemModel.setCreatedBy(userId);
+        dailyItemModel.setCreatedBy(dailyItemModel.getCreatedBy());
         dailyItemModel.setStatus(Status.PENDING);
         dailyItemModel.setNotes(itemDescription.getText().toString());
         return true;
     }
 
-    private Boolean updateValidateForm() {
-        if (etSupplier.getText().toString().isEmpty())
-            return false;
-
-        return true;
-    }
-
     private void uploadItem() {
         if (!validateForm()) return;
-        btnSaveItem.setEnabled(false);
+        btnUpdateItem.setEnabled(false);
+        reference = FirebaseDatabase.getInstance().getReference();
+        if (userType.equalsIgnoreCase("WORKER")) {
+            reference.child("DailyWorks").child(String.valueOf(dailyItemModel.getId())).child("status").setValue(Status.ACCEPTED).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    Toast.makeText(context, "Item updated successfully", Toast.LENGTH_SHORT).show();
+                    dismiss();
+                    activity.finish();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(context, "Failed to update item", Toast.LENGTH_SHORT).show();
+                }
+            });
+            return;
+        }
         long timestamp = System.currentTimeMillis();
         dailyItemModel.setTimestamp(timestamp);
         reference.child("DailyWorks").child(String.valueOf(timestamp)).setValue(dailyItemModel).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
+                Toast.makeText(context, "Item updated successfully", Toast.LENGTH_SHORT).show();
                 dismiss();
+                activity.finish();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context, "Failed to update item", Toast.LENGTH_SHORT).show();
             }
         });
     }

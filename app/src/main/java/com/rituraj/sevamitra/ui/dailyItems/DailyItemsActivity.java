@@ -44,6 +44,7 @@ import com.rituraj.sevamitra.adapters.DailyItemAdapter;
 import com.rituraj.sevamitra.models.DailyItemModel;
 import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
 
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -55,7 +56,7 @@ public class DailyItemsActivity extends AppCompatActivity {
     private Toolbar toolbar;
 
     // Stats Views
-    private TextView tvTotalItems, tvTotalMilk, tvTotalWater, tvTotalAmount;
+    private TextView tvTotalItems, tvTotalMilk, tvTotalWater;
     private LinearLayout cardStats;
     private TextInputEditText etCalender;
     private Calendar calendar;
@@ -87,7 +88,6 @@ public class DailyItemsActivity extends AppCompatActivity {
 
     // Filter
     private String currentCategoryFilter = "all";
-    private FloatingActionButton fabAddItem;
     private int currentMonthFilter, currentYearFilter;
 
     @Override
@@ -123,10 +123,8 @@ public class DailyItemsActivity extends AppCompatActivity {
         tvTotalItems = findViewById(R.id.tvTotalItems);
         tvTotalMilk = findViewById(R.id.tvTotalMilk);
         tvTotalWater = findViewById(R.id.tvTotalWater);
-        tvTotalAmount = findViewById(R.id.tvTotalAmount);
         cardStats = findViewById(R.id.cardStats);
 
-        fabAddItem = findViewById(R.id.fabAddItem);
         etCalender = findViewById(R.id.etCalender);
 
         // Search
@@ -157,8 +155,7 @@ public class DailyItemsActivity extends AppCompatActivity {
         itemAdapter = new DailyItemAdapter(itemList, new DailyItemAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(DailyItemModel item) {
-                DailyItemDialog dialog = new DailyItemDialog(DailyItemsActivity.this, userId, item);
-                dialog.show();
+                setSelectedProblemType(item);
             }
 
             @Override
@@ -169,11 +166,41 @@ public class DailyItemsActivity extends AppCompatActivity {
         rvItems.setAdapter(itemAdapter);
     }
 
+    private void setSelectedProblemType(DailyItemModel dailyItemModel) {
+        dailyItemModel.setCreatedBy(userId);
+        int arrayResId;
+        switch (dailyItemModel.getProblemType()) {
+            case "Beauty & Personal Care":
+                arrayResId = R.array.beauty_personal_care_issues;
+                break;
+            case "Dairy Services":
+                arrayResId = R.array.dairy_services_issues;
+                break;
+            case "Decoration":
+                arrayResId = R.array.decoration_issues;
+                break;
+            case "Home Services":
+                arrayResId = R.array.home_services_issues;
+                break;
+            case "Sanitation":
+                arrayResId = R.array.sanitation_issues;
+                break;
+            case "Water Supply":
+                arrayResId = R.array.water_supply_issues;
+                break;
+            case "Laundry Services":
+                arrayResId = R.array.laundry_services_issues;
+                break;
+            default:
+                arrayResId = R.array.other_issues;
+                break;
+        }
+        String[] issueList = getResources().getStringArray(arrayResId);
+        DailyItemDialog dailyItemDialog = new DailyItemDialog(DailyItemsActivity.this, userType, issueList, dailyItemModel);
+        dailyItemDialog.show();
+    }
+
     private void setupClickListeners() {
-        fabAddItem.setOnClickListener((v) -> {
-            DailyItemDialog dialog = new DailyItemDialog(DailyItemsActivity.this, userId, null);
-            dialog.show();
-        });
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -241,7 +268,7 @@ public class DailyItemsActivity extends AppCompatActivity {
             if ("all".equals(currentCategoryFilter)) {
                 categoryMatch = true;
             } else {
-                categoryMatch = currentCategoryFilter.equalsIgnoreCase(item.getCategory());
+                categoryMatch = item.getCategory().contains(currentCategoryFilter);
             }
 
             String[] date = item.getDate().trim().split("/");
@@ -274,7 +301,7 @@ public class DailyItemsActivity extends AppCompatActivity {
             for (DailyItemModel item : itemList) {
                 if (item.getItemName().toLowerCase().contains(lowerCaseQuery) ||
                         item.getCategory().toLowerCase().contains(lowerCaseQuery) ||
-                        item.getSupplier().toLowerCase().contains(lowerCaseQuery) ||
+                        item.getSupplierDetail().toLowerCase().contains(lowerCaseQuery) ||
                         item.getDate().contains(lowerCaseQuery)) {
                     filteredList.add(item);
                 }
@@ -297,6 +324,18 @@ public class DailyItemsActivity extends AppCompatActivity {
                     if (dailyItemModel != null) {
                         dailyItemModel.setId(snapshot.getKey());
                         if (dailyItemModel.getCreatedBy().equalsIgnoreCase(userId)) {
+                            itemList.add(dailyItemModel);
+                            itemAdapter.updateList(itemList);
+                            updateNoDataVisibility(itemList.isEmpty());
+                            updateStatistics();
+                        } else if (userType.equalsIgnoreCase("WORKER")) {
+                            if (dailyItemModel.getSupplierId().equalsIgnoreCase(userId)) {
+                                itemList.add(dailyItemModel);
+                                itemAdapter.updateList(itemList);
+                                updateNoDataVisibility(itemList.isEmpty());
+                                updateStatistics();
+                            }
+                        } else if (userType.equalsIgnoreCase("FOUNDER")) {
                             itemList.add(dailyItemModel);
                             itemAdapter.updateList(itemList);
                             updateNoDataVisibility(itemList.isEmpty());
@@ -327,21 +366,15 @@ public class DailyItemsActivity extends AppCompatActivity {
     private void updateStatistics() {
         int total = itemList.size();
         int milkCount = 0, waterCount = 0;
-        double totalAmount = 0;
 
         for (DailyItemModel item : itemList) {
-            if ("Milk".equalsIgnoreCase(item.getCategory())) milkCount++;
-            if ("Water".equalsIgnoreCase(item.getCategory())) waterCount++;
-            try {
-                totalAmount += Double.parseDouble(item.getTotalAmount());
-            } catch (NumberFormatException e) {
-            }
+            if (item.getCategory().contains("Milk")) milkCount++;
+            if (item.getCategory().contains("Water")) waterCount++;
         }
 
         tvTotalItems.setText(String.valueOf(total));
         tvTotalMilk.setText(String.valueOf(milkCount));
         tvTotalWater.setText(String.valueOf(waterCount));
-        tvTotalAmount.setText(String.valueOf(totalAmount));
     }
 
     private void updateNoDataVisibility(boolean isEmpty) {

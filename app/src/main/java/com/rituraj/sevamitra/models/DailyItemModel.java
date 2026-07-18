@@ -2,17 +2,17 @@ package com.rituraj.sevamitra.models;
 
 public class DailyItemModel {
     private String id;
+    private String problemType;
     private String itemName;
     private String category;
     private String quantity;
     private String unit;
-    private String price;
-    private String totalAmount;
     private String date;
     private String time;
     private long timestamp;
     private String supplierId;
-    private String status;
+    private String supplierDetail;
+    private String status = Status.PENDING;
     private String notes;
 
     // Audit Fields
@@ -26,8 +26,7 @@ public class DailyItemModel {
 
     // Parameterized constructor
     public DailyItemModel(String id, String itemName, String category,
-                          String quantity, String unit, String price,
-                          String totalAmount, String date, String time,
+                          String quantity, String unit, String date, String time,
                           long timestamp, String supplierId, String status,
                           String notes, String createdBy,
                           String lastUpdatedBy, long lastUpdatedTimestamp) {
@@ -37,8 +36,6 @@ public class DailyItemModel {
         this.category = category;
         this.quantity = quantity;
         this.unit = unit;
-        this.price = price;
-        this.totalAmount = totalAmount;
         this.date = date;
         this.time = time;
         this.timestamp = timestamp;
@@ -58,12 +55,28 @@ public class DailyItemModel {
         this.id = id;
     }
 
+    public String getSupplierDetail() {
+        return supplierDetail;
+    }
+
+    public void setSupplierDetail(String supplierDetail) {
+        this.supplierDetail = supplierDetail;
+    }
+
     public String getSupplierId() {
         return supplierId;
     }
 
     public void setSupplierId(String supplierId) {
         this.supplierId = supplierId;
+    }
+
+    public String getProblemType() {
+        return problemType;
+    }
+
+    public void setProblemType(String problemType) {
+        this.problemType = problemType;
     }
 
     public String getItemName() {
@@ -98,22 +111,6 @@ public class DailyItemModel {
         this.unit = unit;
     }
 
-    public String getPrice() {
-        return price;
-    }
-
-    public void setPrice(String price) {
-        this.price = price;
-    }
-
-    public String getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(String totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
     public String getDate() {
         return date;
     }
@@ -136,14 +133,6 @@ public class DailyItemModel {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public String getSupplier() {
-        return supplierId;
-    }
-
-    public void setSupplier(String supplierId) {
-        this.supplierId = supplierId;
     }
 
     public String getStatus() {

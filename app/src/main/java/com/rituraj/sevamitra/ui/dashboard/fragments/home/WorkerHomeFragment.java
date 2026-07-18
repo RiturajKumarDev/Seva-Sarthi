@@ -24,6 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.ui.dailyItems.DailyItemsActivity;
 import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
@@ -48,7 +49,7 @@ public class WorkerHomeFragment extends Fragment {
     private CardView cardAvailability;
 
     // Quick Actions
-    private CardView cardAvailableWork, cardMyTasks, cardCompletedWork;
+    private CardView cardAvailableWork, cardMyTasks, cardCompletedWork, cardMyDailyTasks;
     private CardView cardAttendance, cardLeaveRequest, cardSupport;
 
     // Floating Action Button
@@ -93,6 +94,7 @@ public class WorkerHomeFragment extends Fragment {
         // Quick Actions
         cardAvailableWork = view.findViewById(R.id.cardAvailableWork);
         cardMyTasks = view.findViewById(R.id.cardMyTasks);
+        cardMyDailyTasks = view.findViewById(R.id.cardMyDailyTasks);
         cardCompletedWork = view.findViewById(R.id.cardCompletedWork);
         cardAttendance = view.findViewById(R.id.cardAttendance);
         cardLeaveRequest = view.findViewById(R.id.cardLeaveRequest);
@@ -131,6 +133,9 @@ public class WorkerHomeFragment extends Fragment {
 
         cardCompletedWork.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), IssueListActivity.class)));
+
+        cardMyDailyTasks.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), DailyItemsActivity.class)));
 
         cardAttendance.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Mark attendance", Toast.LENGTH_SHORT).show());

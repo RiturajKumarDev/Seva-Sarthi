@@ -562,14 +562,14 @@
                         <ImageView
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@drawable/ic_settings"
+                            android:src="@drawable/ic_knowledge"
                             app:tint="@color/logo_gold_light" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Settings"
+                            android:text="Track Daily Issue"
                             android:textColor="@color/logo_white"
                             android:textSize="12sp" />
                     </LinearLayout>
