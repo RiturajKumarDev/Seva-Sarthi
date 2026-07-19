@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -74,10 +75,7 @@ public class FounderHomeFragment extends Fragment {
 
     // Floating Action Button
     private FloatingActionButton fabAddWorker;
-
-    // Data
-    private List<UserData> recentWorkers;
-    private WorkerAdapter workerAdapter;
+    private SwipeRefreshLayout swipeRefresh;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -98,6 +96,7 @@ public class FounderHomeFragment extends Fragment {
     }
 
     private void initViews(View view) {
+        swipeRefresh = view.findViewById(R.id.swipeRefresh);
         // Header
         tvGreeting = view.findViewById(R.id.tvGreeting);
         vtProfileLetter = view.findViewById(R.id.vtProfileLetter);
@@ -210,6 +209,7 @@ public class FounderHomeFragment extends Fragment {
     }
 
     private void setupClickListeners() {
+        swipeRefresh.setOnRefreshListener(this::loadStatistics);
         // Statistics Cards
         cardTotalWorkers.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), WorkerListActivity.class)));
@@ -310,6 +310,16 @@ public class FounderHomeFragment extends Fragment {
         completedIssueModels.clear();
         reference = database.getReference().child("Issues");
         reference.keepSynced(true);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                swipeRefresh.setRefreshing(false);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
         reference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {

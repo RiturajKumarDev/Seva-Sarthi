@@ -20,6 +20,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
 import com.google.android.material.button.MaterialButton;
@@ -36,6 +37,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -89,6 +91,7 @@ public class DailyItemsActivity extends AppCompatActivity {
     // Filter
     private String currentCategoryFilter = "all";
     private int currentMonthFilter, currentYearFilter;
+    private SwipeRefreshLayout swipeRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +121,7 @@ public class DailyItemsActivity extends AppCompatActivity {
 
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
+        swipeRefresh = findViewById(R.id.swipeRefresh);
 
         // Stats
         tvTotalItems = findViewById(R.id.tvTotalItems);
@@ -201,6 +205,7 @@ public class DailyItemsActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
+        swipeRefresh.setOnRefreshListener(DailyItemsActivity.this::loadItemsFromFirebase);
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -316,6 +321,17 @@ public class DailyItemsActivity extends AppCompatActivity {
         itemList.clear();
         reference = database.getReference().child("DailyWorks");
         reference.keepSynced(true);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                swipeRefresh.setRefreshing(false);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         reference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {

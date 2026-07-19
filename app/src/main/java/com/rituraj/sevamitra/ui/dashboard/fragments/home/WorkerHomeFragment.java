@@ -23,6 +23,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
+import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.ui.dailyItems.DailyItemsActivity;
 import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
@@ -182,13 +183,13 @@ public class WorkerHomeFragment extends Fragment {
     private void getUserData() {
         reference = database.getReference().child("UserData").child("WORKER").child(firebaseUser.getUid());
         reference.keepSynced(true);
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+        reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     UserData worker = snapshot.getValue(UserData.class);
                     if (worker != null)
-                        if ("Pending".equalsIgnoreCase(worker.getIsSelected())) {
+                        if (Status.PENDING.equalsIgnoreCase(worker.getIsSelected())) {
                             tvAvailabilityStatus.setText("Waiting for Founder Approval");
                         } else {
                             tvAvailabilityStatus.setText("Available for Work");

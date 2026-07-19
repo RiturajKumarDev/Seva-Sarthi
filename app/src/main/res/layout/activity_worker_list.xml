@@ -420,13 +420,19 @@
         android:textSize="16sp"
         android:visibility="gone" />
 
-    <!-- Workers RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvWorkers"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingHorizontal="16dp"
-        android:visibility="gone" />
+        android:id="@+id/swipeRefresh"
+        android:layout_height="wrap_content">
+
+        <!-- Workers RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvWorkers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp"
+            android:visibility="gone" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </LinearLayout>

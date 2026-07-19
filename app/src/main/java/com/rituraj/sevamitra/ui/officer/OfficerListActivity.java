@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -61,6 +62,7 @@ public class OfficerListActivity extends AppCompatActivity implements OfficerAda
     // Firebase
     private FirebaseDatabase database;
     private DatabaseReference reference;
+    private SwipeRefreshLayout swipeRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +81,7 @@ public class OfficerListActivity extends AppCompatActivity implements OfficerAda
     }
 
     private void initViews() {
+        swipeRefresh = findViewById(R.id.swipeRefresh);
         toolbar = findViewById(R.id.toolbar);
         rvOfficers = findViewById(R.id.rvOfficers);
         progressBar = findViewById(R.id.progressBar);
@@ -137,6 +140,7 @@ public class OfficerListActivity extends AppCompatActivity implements OfficerAda
     }
 
     private void setupSortAndFilter() {
+        swipeRefresh.setOnRefreshListener(OfficerListActivity.this::loadOfficersFromFirebase);
         // Sort button click
         ivSort.setOnClickListener(v -> {
             if (sortOptionsLayout.getVisibility() == View.VISIBLE) {
@@ -328,6 +332,7 @@ public class OfficerListActivity extends AppCompatActivity implements OfficerAda
         reference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                swipeRefresh.setRefreshing(false);
                 if (snapshot.exists()) {
                     UserData officer = snapshot.getValue(UserData.class);
                     if (officer != null) {

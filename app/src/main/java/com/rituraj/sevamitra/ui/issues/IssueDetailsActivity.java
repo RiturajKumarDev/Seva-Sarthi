@@ -219,7 +219,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
 
         reference = database.getReference().child("Issues").child(issueId);
         reference.keepSynced(true);
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+        reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 progressBar.setVisibility(View.GONE);
@@ -350,12 +350,13 @@ public class IssueDetailsActivity extends AppCompatActivity {
         if (issue.getCreatedBy() != null && !issue.getCreatedBy().isEmpty()) {
             reference = database.getReference().child("UserData").child("SEVASARTHI").child(issue.getCreatedBy());
             reference.keepSynced(true);
-            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            reference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
                         UserData user = snapshot.getValue(UserData.class);
-                        displayCreatedByUser(user);
+                        if (user != null)
+                            displayCreatedByUser(user);
                     }
                 }
 
@@ -370,12 +371,13 @@ public class IssueDetailsActivity extends AppCompatActivity {
             cardAssignedWorker.setVisibility(View.VISIBLE);
             reference = database.getReference().child("UserData").child("WORKER").child(issue.getAssignedTo());
             reference.keepSynced(true);
-            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            reference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
                         UserData worker = snapshot.getValue(UserData.class);
-                        displayAssignedWorker(worker);
+                        if (worker != null)
+                            displayAssignedWorker(worker);
                     }
                 }
 
@@ -392,12 +394,13 @@ public class IssueDetailsActivity extends AppCompatActivity {
             cardFounder.setVisibility(View.VISIBLE);
             reference = database.getReference().child("UserData").child("FOUNDER").child(issue.getFounderId());
             reference.keepSynced(true);
-            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            reference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
                         UserData founder = snapshot.getValue(UserData.class);
-                        displayFounder(founder);
+                        if (founder != null)
+                            displayFounder(founder);
                     }
                 }
 
@@ -414,12 +417,13 @@ public class IssueDetailsActivity extends AppCompatActivity {
             cardOfficer.setVisibility(View.VISIBLE);
             reference = database.getReference().child("UserData").child("OFFICER").child(issue.getApprovedBy());
             reference.keepSynced(true);
-            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            reference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
                         UserData officer = snapshot.getValue(UserData.class);
-                        displayOfficer(officer);
+                        if (officer != null)
+                            displayOfficer(officer);
                     }
                 }
 

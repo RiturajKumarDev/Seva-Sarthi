@@ -14,6 +14,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
@@ -66,6 +67,7 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
     private String userId;
     private String userType;
     private UserData officer;
+    private SwipeRefreshLayout swipeRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +118,7 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
     }
 
     private void initViews() {
+        swipeRefresh = findViewById(R.id.swipeRefresh);
         toolbar = findViewById(R.id.toolbar);
         rvIssues = findViewById(R.id.rvIssues);
         progressBar = findViewById(R.id.progressBar);
@@ -174,6 +177,7 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
     }
 
     private void setupSortAndFilter() {
+        swipeRefresh.setOnRefreshListener(IssueListActivity.this::loadIssuesFromFirebase);
         // Sort button click
         ivSort.setOnClickListener(v -> {
             if (sortOptionsLayout.getVisibility() == View.VISIBLE) {
@@ -410,6 +414,7 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 if (snapshot.exists()) {
+                    swipeRefresh.setRefreshing(false);
                     IssueModel issueModel = snapshot.getValue(IssueModel.class);
                     if (issueModel != null) {
                         issueModel.setId(snapshot.getKey());

@@ -237,7 +237,7 @@ public class AddIssueActivity extends AppCompatActivity {
     private void getFounders() {
         reference = database.getReference().child("UserData").child("FOUNDER");
         reference.keepSynced(true);
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+        reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -323,7 +323,7 @@ public class AddIssueActivity extends AppCompatActivity {
         issue.setProblemTitle(problemTitle);
         issue.setProblemDescription(problemDescription);
         issue.setLocation(location);
-        issue.setFounderId(founderList.get(spinnerFounder.getSelectedItemPosition()).getId());
+        issue.setFounderId("8X1ffJpBZmSftPyvww2fJxzBliD2");
         issue.setProblemType(selectedProblemType);
         issue.setIssue(selectedIssueType);
         issue.setPriority(selectedPriority);

@@ -15,6 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
@@ -60,6 +61,7 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
     private String currentCategoryFilter = "all";
     private String currentSort = "name_asc";
     private String issueId;
+    private SwipeRefreshLayout swipeRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,7 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
     }
 
     private void initViews() {
+        swipeRefresh = findViewById(R.id.swipeRefresh);
         toolbar = findViewById(R.id.toolbar);
         rvWorkers = findViewById(R.id.rvWorkers);
         progressBar = findViewById(R.id.progressBar);
@@ -135,6 +138,7 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
     }
 
     private void setupSortAndFilter() {
+        swipeRefresh.setOnRefreshListener(WorkerListActivity.this::loadWorkersFromFirebase);
         // Sort button click
         ivSort.setOnClickListener(v -> {
             if (sortOptionsLayout.getVisibility() == View.VISIBLE) {
@@ -364,6 +368,7 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
         reference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                swipeRefresh.setRefreshing(false);
                 if (snapshot.exists()) {
                     progressBar.setVisibility(View.GONE);
                     tvNoData.setVisibility(View.GONE);

@@ -13,8 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.listitem.SwipeableListItem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -65,6 +67,7 @@ public class SevaSarthiHomeFragment extends Fragment {
 
     // Data
     private UserData currentUser = new UserData();
+    private SwipeRefreshLayout swipeRefresh;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,6 +89,7 @@ public class SevaSarthiHomeFragment extends Fragment {
     }
 
     private void initViews(View view) {
+        swipeRefresh = view.findViewById(R.id.swipeRefresh);
         // Header
         tvGreeting = view.findViewById(R.id.tvGreeting);
         vtProfileLetter = view.findViewById(R.id.vtProfileLetter);
@@ -153,6 +157,7 @@ public class SevaSarthiHomeFragment extends Fragment {
     }
 
     private void setupClickListeners() {
+        swipeRefresh.setOnRefreshListener(this::loadStatistics);
         // Statistics Cards
         cardTotalIssues.setOnClickListener(v -> startActivity(new Intent(requireContext(), IssueListActivity.class)));
 
@@ -217,6 +222,17 @@ public class SevaSarthiHomeFragment extends Fragment {
         totalIssues = pendingIssues = progressIssues = resolvedIssues = 0;
         DatabaseReference myRef = database.getReference().child("Issues");
         myRef.keepSynced(true);
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                swipeRefresh.setRefreshing(false);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         myRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {

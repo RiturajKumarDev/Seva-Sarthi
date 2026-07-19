@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
@@ -76,6 +77,7 @@ public class OfficerHomeFragment extends Fragment {
     // Data
     private UserData currentUser = new UserData();
     private long totalIssues = 0, resolvedIssues = 0, pendingIssues = 0, progressIssues = 0;
+    private SwipeRefreshLayout swipeRefresh;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -98,6 +100,7 @@ public class OfficerHomeFragment extends Fragment {
     }
 
     private void initViews(View view) {
+        swipeRefresh = view.findViewById(R.id.swipeRefresh);
         // Header
         tvGreeting = view.findViewById(R.id.tvGreeting);
         vtProfileLetter = view.findViewById(R.id.vtProfileLetter);
@@ -157,6 +160,10 @@ public class OfficerHomeFragment extends Fragment {
     }
 
     private void setupClickListeners() {
+        swipeRefresh.setOnRefreshListener(() -> {
+            getUserData();
+            getTotalWorkers();
+        });
         // Statistics Cards
         cardTotalComplaints.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), IssueListActivity.class)));

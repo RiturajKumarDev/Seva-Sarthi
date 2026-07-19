@@ -11,8 +11,8 @@ android {
         applicationId = "com.rituraj.sevamitra"
         minSdk = 26
         targetSdk = 36
-        versionCode = 7
-        versionName = "2.0.3"
+        versionCode = 8
+        versionName = "2.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -49,6 +49,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
+
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     // Firebase BOM (versions automatic handle)
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))

@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -59,6 +60,7 @@ public class SevaSarthiListActivity extends AppCompatActivity implements SevaSar
     // Firebase
     private FirebaseDatabase database;
     private DatabaseReference reference;
+    private SwipeRefreshLayout swipeRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,7 @@ public class SevaSarthiListActivity extends AppCompatActivity implements SevaSar
     }
 
     private void initViews() {
+        swipeRefresh = findViewById(R.id.swipeRefresh);
         toolbar = findViewById(R.id.toolbar);
         rvSevaMitra = findViewById(R.id.rvSevaMitra);
         progressBar = findViewById(R.id.progressBar);
@@ -135,6 +138,7 @@ public class SevaSarthiListActivity extends AppCompatActivity implements SevaSar
     }
 
     private void setupSortAndFilter() {
+        swipeRefresh.setOnRefreshListener(SevaSarthiListActivity.this::loadSevaMitraFromFirebase);
         // Sort button click
         ivSort.setOnClickListener(v -> {
             if (sortOptionsLayout.getVisibility() == View.VISIBLE) {
@@ -326,6 +330,7 @@ public class SevaSarthiListActivity extends AppCompatActivity implements SevaSar
         reference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                swipeRefresh.setRefreshing(false);
                 if (snapshot.exists()) {
                     UserData officer = snapshot.getValue(UserData.class);
                     if (officer != null) {

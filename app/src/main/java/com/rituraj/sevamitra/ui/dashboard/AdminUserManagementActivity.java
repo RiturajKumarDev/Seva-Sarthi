@@ -711,7 +711,6 @@ public class AdminUserManagementActivity extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
             Toast.makeText(this, "User updated successfully!", Toast.LENGTH_SHORT).show();
             hideForm();
-            loadUsersFromFirebase();
         }).addOnFailureListener(e -> {
             progressBar.setVisibility(View.GONE);
             Toast.makeText(this, "Failed to update user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -724,7 +723,6 @@ public class AdminUserManagementActivity extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
             Toast.makeText(this, "User Delete successfully!", Toast.LENGTH_SHORT).show();
             hideForm();
-            loadUsersFromFirebase();
         }).addOnFailureListener(e -> {
             progressBar.setVisibility(View.GONE);
             Toast.makeText(this, "Failed to Delete user: " + e.getMessage(), Toast.LENGTH_SHORT).show();

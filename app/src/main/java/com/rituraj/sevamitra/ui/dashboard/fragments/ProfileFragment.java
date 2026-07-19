@@ -567,7 +567,7 @@ public class ProfileFragment extends Fragment {
         String userType = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "FOUNDER";
         reference = database.getReference().child("UserData").child(userType).child(user.getUid());
         reference.keepSynced(true);
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+        reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
