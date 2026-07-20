@@ -1,6 +1,8 @@
 package com.rituraj.sevamitra.ui.auth;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.method.HideReturnsTransformationMethod;
@@ -19,12 +21,14 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.rituraj.sevamitra.R;
+import com.rituraj.sevamitra.models.LanguageModel;
 import com.rituraj.sevamitra.ui.dashboard.BaseDashboardActivity;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
     // UI Components
+    private Spinner spinnerLanguage;
     private TextInputEditText etEmail, etPassword;
     private TextInputLayout tilEmail, tilPassword;
     private MaterialButton btnLogin, btnRegister;
@@ -61,6 +65,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        spinnerLanguage = findViewById(R.id.spinnerLanguage);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         tilEmail = findViewById(R.id.tilEmail);
@@ -75,6 +80,19 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         cardLogin = findViewById(R.id.cardLogin);
         ivShowPassword = findViewById(R.id.ivShowPassword);
+
+        ArrayAdapter<LanguageModel> arrayAdapter = new ArrayAdapter<>(LoginActivity.this, android.R.layout.simple_list_item_1, LanguageModel.getLanguageModelArrayList());
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerLanguage.setAdapter(arrayAdapter);
+    }
+
+    private void saveLanguage(Context context, LanguageModel language) {
+        SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("language_name", language.name);
+        editor.putString("language_code", language.code);
+        editor.apply();
     }
 
     private void loadAnimations() {
@@ -87,7 +105,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        btnLogin.setOnClickListener(v -> loginUser());
+        btnLogin.setOnClickListener(v -> {
+            saveLanguage(LoginActivity.this, (LanguageModel) spinnerLanguage.getSelectedItem());
+            loginUser();
+        });
 
         tvForgotPassword.setOnClickListener(v -> {
             Toast.makeText(this, "Forgot Password? Contact Admin", Toast.LENGTH_SHORT).show();
@@ -141,21 +162,20 @@ public class LoginActivity extends AppCompatActivity {
         tvError.setVisibility(View.GONE);
 
         // Login with Firebase
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    setLoading(false);
-                    if (task.isSuccessful()) {
-                        // Login success
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            navigateToDashboard();
-                        }
-                    } else {
-                        // Login failed
-                        String errorMessage = task.getException() != null ? task.getException().getMessage() : "Authentication failed";
-                        showError(errorMessage);
-                    }
-                });
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+            setLoading(false);
+            if (task.isSuccessful()) {
+                // Login success
+                FirebaseUser user = mAuth.getCurrentUser();
+                if (user != null) {
+                    navigateToDashboard();
+                }
+            } else {
+                // Login failed
+                String errorMessage = task.getException() != null ? task.getException().getMessage() : "Authentication failed";
+                showError(errorMessage);
+            }
+        });
     }
 
     private void navigateToDashboard() {

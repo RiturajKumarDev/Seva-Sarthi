@@ -138,12 +138,20 @@
                         android:textSize="12sp"
                         android:visibility="gone" />
 
+                    <Spinner
+                        android:id="@+id/spinnerLanguage"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/spinner_background" />
+
                     <!-- Email Field -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilEmail"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
                         android:hint="Email Address"
                         app:boxStrokeColor="@color/logo_gold"
                         app:errorTextColor="@color/logo_orange"

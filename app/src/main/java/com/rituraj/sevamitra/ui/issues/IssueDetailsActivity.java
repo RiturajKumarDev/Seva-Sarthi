@@ -1,6 +1,8 @@
 package com.rituraj.sevamitra.ui.issues;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
@@ -21,9 +23,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.IssueModel;
+import com.rituraj.sevamitra.models.LanguageModel;
 import com.rituraj.sevamitra.models.Priority;
 import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 import com.rituraj.sevamitra.ui.auth.LoginActivity;
 
 import java.text.SimpleDateFormat;
@@ -199,6 +203,20 @@ public class IssueDetailsActivity extends AppCompatActivity {
         btnReject = findViewById(R.id.btnReject);
         btnMarkComplete = findViewById(R.id.btnMarkComplete);
         progressBar = findViewById(R.id.progressBar);
+        translationViews();
+    }
+
+    private LanguageModel getSavedLanguage(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+
+        String name = prefs.getString("language_name", "English");
+        String code = prefs.getString("language_code", "en");
+
+        return new LanguageModel(name, code);
+    }
+
+    private void translationViews() {
+        LanguageManager.init(getSavedLanguage(this).code, () -> LanguageManager.translateView(getWindow().getDecorView()));
     }
 
     private void setupToolbar() {

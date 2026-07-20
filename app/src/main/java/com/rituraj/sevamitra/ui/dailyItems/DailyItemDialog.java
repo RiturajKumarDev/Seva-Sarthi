@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +28,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.DailyItemModel;
+import com.rituraj.sevamitra.models.LanguageModel;
 import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
 
 import java.text.SimpleDateFormat;
@@ -105,6 +108,20 @@ public class DailyItemDialog extends Dialog {
 
         btnCloseItem.setOnClickListener(v -> dismiss());
         btnUpdateItem.setOnClickListener(v -> uploadItem());
+        translationViews();
+    }
+
+    private LanguageModel getSavedLanguage(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+
+        String name = prefs.getString("language_name", "English");
+        String code = prefs.getString("language_code", "en");
+
+        return new LanguageModel(name, code);
+    }
+
+    private void translationViews() {
+        LanguageManager.init(getSavedLanguage(context).code, () -> LanguageManager.translateView(getWindow().getDecorView()));
     }
 
     private void setupSpinners() {

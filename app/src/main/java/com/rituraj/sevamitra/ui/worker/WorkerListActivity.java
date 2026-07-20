@@ -1,5 +1,7 @@
 package com.rituraj.sevamitra.ui.worker;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -27,8 +29,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.adapters.WorkerAdapter;
+import com.rituraj.sevamitra.models.LanguageModel;
 import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +107,20 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
         sortOptionsLayout = findViewById(R.id.sortOptionsLayout);
         cardFilter = findViewById(R.id.cardFilter);
         btnClearFilters = findViewById(R.id.btnClearFilters);
+        translationViews();
+    }
+
+    private LanguageModel getSavedLanguage(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+
+        String name = prefs.getString("language_name", "English");
+        String code = prefs.getString("language_code", "en");
+
+        return new LanguageModel(name, code);
+    }
+
+    private void translationViews() {
+        LanguageManager.init(getSavedLanguage(this).code, () -> LanguageManager.translateView(getWindow().getDecorView()));
     }
 
     private void setupToolbar() {

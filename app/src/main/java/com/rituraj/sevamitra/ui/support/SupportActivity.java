@@ -1,7 +1,9 @@
 package com.rituraj.sevamitra.ui.support;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -18,7 +20,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.rituraj.sevamitra.R;
+import com.rituraj.sevamitra.models.LanguageModel;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 
 import java.util.*;
 
@@ -73,6 +77,20 @@ public class SupportActivity extends AppCompatActivity {
         btnEmail = findViewById(R.id.btnEmail);
         btnCall = findViewById(R.id.btnCall);
         btnWebsite = findViewById(R.id.btnWebsite);
+        translationViews();
+    }
+
+    private LanguageModel getSavedLanguage(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+
+        String name = prefs.getString("language_name", "English");
+        String code = prefs.getString("language_code", "en");
+
+        return new LanguageModel(name, code);
+    }
+
+    private void translationViews() {
+        LanguageManager.init(getSavedLanguage(this).code, () -> LanguageManager.translateView(getWindow().getDecorView()));
     }
 
     private void setupToolbar() {

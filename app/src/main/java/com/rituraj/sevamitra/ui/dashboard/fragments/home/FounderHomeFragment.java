@@ -2,6 +2,7 @@ package com.rituraj.sevamitra.ui.dashboard.fragments.home;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +34,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.adapters.WorkerAdapter;
 import com.rituraj.sevamitra.models.IssueModel;
+import com.rituraj.sevamitra.models.LanguageModel;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 import com.rituraj.sevamitra.ui.auth.RegistrationActivity;
 import com.rituraj.sevamitra.ui.dailyItems.DailyItemsActivity;
 import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
@@ -134,6 +137,20 @@ public class FounderHomeFragment extends Fragment {
 
         // FAB
         fabAddWorker = view.findViewById(R.id.fabAddWorker);
+        translationViews(view);
+    }
+
+    private LanguageModel getSavedLanguage(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+
+        String name = prefs.getString("language_name", "English");
+        String code = prefs.getString("language_code", "en");
+
+        return new LanguageModel(name, code);
+    }
+
+    private void translationViews(View rootView) {
+        LanguageManager.init(getSavedLanguage(requireContext()).code, () -> LanguageManager.translateView(rootView));
     }
 
     private void setupHeader() {

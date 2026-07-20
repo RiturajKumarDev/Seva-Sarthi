@@ -1,5 +1,7 @@
 package com.rituraj.sevamitra.ui.officer;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,7 +28,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.adapters.OfficerAdapter;
+import com.rituraj.sevamitra.models.LanguageModel;
 import com.rituraj.sevamitra.models.UserData;
+import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +109,20 @@ public class OfficerListActivity extends AppCompatActivity implements OfficerAda
         cardTotal = findViewById(R.id.cardTotal);
         cardActive = findViewById(R.id.cardActive);
         cardInactive = findViewById(R.id.cardInactive);
+        translationViews();
+    }
+
+    private LanguageModel getSavedLanguage(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+
+        String name = prefs.getString("language_name", "English");
+        String code = prefs.getString("language_code", "en");
+
+        return new LanguageModel(name, code);
+    }
+
+    private void translationViews() {
+        LanguageManager.init(getSavedLanguage(this).code, () -> LanguageManager.translateView(getWindow().getDecorView()));
     }
 
     private void setupToolbar() {
