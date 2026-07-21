@@ -30,4 +30,8 @@
     <color name="avatar_color_3">#2196F3</color>
     <color name="avatar_color_4">#9C27B0</color>
     <color name="avatar_color_5">#FF9800</color>
+
+    <!-- Department Card Colors -->
+    <color name="card_bg_default">#1AFFFFFF</color>
+    <color name="card_bg_selected">#33E8C44B</color>
 </resources>

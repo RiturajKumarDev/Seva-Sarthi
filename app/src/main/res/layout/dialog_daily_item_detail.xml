@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bar_gradient_gold"
+    android:background="@drawable/splash_gradient_bg"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="16dp">
@@ -35,26 +35,11 @@
         </LinearLayout>
 
         <!-- Item Name -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Item Name"
-            app:boxStrokeColor="@color/logo_gold"
-            app:hintTextColor="@color/logo_gold_light">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etItemName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/logo_white" />
-        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Category -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             android:layout_marginBottom="4dp"
             android:text="Select Issue"
             android:textColor="@color/logo_white"
@@ -67,6 +52,22 @@
             android:background="@drawable/spinner_background" />
 
         <!-- Quantity and Unit Row -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Item Name"
+            app:boxStrokeColor="@color/logo_gold"
+            app:hintTextColor="@color/logo_gold_light">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etItemName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/logo_white" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -208,9 +209,9 @@
                 android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:text="Update"
+                android:text="Update Issue"
                 android:textColor="@color/logo_dark_blue"
-                app:backgroundTint="@color/logo_green"
+                app:backgroundTint="@color/logo_gold"
                 app:cornerRadius="24dp" />
 
             <com.google.android.material.button.MaterialButton

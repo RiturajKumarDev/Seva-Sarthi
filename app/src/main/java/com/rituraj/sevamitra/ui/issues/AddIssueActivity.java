@@ -48,7 +48,7 @@ public class AddIssueActivity extends AppCompatActivity {
     private TextInputLayout tilProblemTitle, tilProblemDescription, tilLocation;
 
     // Problem Type Spinner
-    private Spinner spinnerProblemType, spinnerFounder;
+    private Spinner spinnerFounder;
     private String selectedProblemType = "";
 
     // Issue Type Spinner
@@ -68,7 +68,6 @@ public class AddIssueActivity extends AppCompatActivity {
     // User ID (from login)
     private String userId;
     private ArrayList<UserData> founderList = new ArrayList<>();
-    private Boolean isDaily = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,12 +80,16 @@ public class AddIssueActivity extends AppCompatActivity {
         reference = database.getReference();
         userId = firebaseUser.getUid();
 
+        if (getIntent().hasExtra("REQUEST_DEPARTMENT"))
+            selectedProblemType = getIntent().getStringExtra("REQUEST_DEPARTMENT");
+
         // Initialize Firebase
         calendar = Calendar.getInstance();
 
         initViews();
         setupToolbar();
         setupSpinners();
+        setSelectedProblemType();
         setupClickListeners();
     }
 
@@ -103,7 +106,6 @@ public class AddIssueActivity extends AppCompatActivity {
 
         // Spinners
         spinnerFounder = findViewById(R.id.spinnerFounder);
-        spinnerProblemType = findViewById(R.id.spinnerProblemType);
         spinnerIssueType = findViewById(R.id.spinnerIssueType);
         spinnerPriority = findViewById(R.id.spinnerPriority);
 
@@ -137,19 +139,6 @@ public class AddIssueActivity extends AppCompatActivity {
     }
 
     private void setupSpinners() {
-        // Problem Type Spinner
-        spinnerProblemType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedProblemType = position == 0 ? "" : String.valueOf(spinnerProblemType.getSelectedItem());
-                setSelectedProblemType();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
         // Priority Spinner
         String[] priorities = {"Select Priority", Priority.CRITICAL, Priority.HIGH, Priority.MEDIUM, Priority.LOW};
         ArrayAdapter<String> priorityAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, priorities);
@@ -168,7 +157,6 @@ public class AddIssueActivity extends AppCompatActivity {
     }
 
     private void setSelectedProblemType() {
-        isDaily = false;
         DailyItemModel dailyItemModel = new DailyItemModel();
         dailyItemModel.setCreatedBy(userId);
         dailyItemModel.setProblemType(selectedProblemType);
@@ -176,7 +164,6 @@ public class AddIssueActivity extends AppCompatActivity {
         switch (selectedProblemType) {
             case "Beauty & Personal Care":
                 arrayResId = R.array.beauty_personal_care_issues;
-                isDaily = true;
                 break;
             case "Carpenter":
                 arrayResId = R.array.carpenter_issues;
@@ -189,18 +176,15 @@ public class AddIssueActivity extends AppCompatActivity {
                 break;
             case "Dairy Services":
                 arrayResId = R.array.dairy_services_issues;
-                isDaily = true;
                 break;
             case "Decoration":
                 arrayResId = R.array.decoration_issues;
-                isDaily = true;
                 break;
             case "Electrician":
                 arrayResId = R.array.electrician_issues;
                 break;
             case "Home Services":
                 arrayResId = R.array.home_services_issues;
-                isDaily = true;
                 break;
             case "Mechanic":
                 arrayResId = R.array.mechanic_issues;
@@ -213,15 +197,12 @@ public class AddIssueActivity extends AppCompatActivity {
                 break;
             case "Sanitation":
                 arrayResId = R.array.sanitation_issues;
-                isDaily = true;
                 break;
             case "Water Supply":
                 arrayResId = R.array.water_supply_issues;
-                isDaily = true;
                 break;
             case "Laundry Services":
                 arrayResId = R.array.laundry_services_issues;
-                isDaily = true;
                 break;
             default:
                 arrayResId = R.array.other_issues;
@@ -229,10 +210,6 @@ public class AddIssueActivity extends AppCompatActivity {
         }
         String[] issueList = getResources().getStringArray(arrayResId);
         setSpinnerIssueType(issueList);
-        if (isDaily) {
-            DailyItemDialog dailyItemDialog = new DailyItemDialog(AddIssueActivity.this, firebaseUser.getPhotoUrl() != null ? String.valueOf(firebaseUser.getPhotoUrl()) : "Other", issueList, dailyItemModel);
-            dailyItemDialog.show();
-        }
     }
 
     private void setSpinnerIssueType(String[] issueList) {
@@ -283,10 +260,6 @@ public class AddIssueActivity extends AppCompatActivity {
     }
 
     private void validateAndSubmit() {
-        if (isDaily) {
-            Toast.makeText(AddIssueActivity.this, "Opp's, It's Daily Issue", Toast.LENGTH_SHORT).show();
-            return;
-        }
         // Clear previous errors
         clearErrors();
 

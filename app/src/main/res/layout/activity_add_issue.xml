@@ -83,21 +83,6 @@
                         android:textStyle="bold" />
 
                     <!-- Problem Type -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="Problem Type"
-                        android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
-
-                    <Spinner
-                        android:id="@+id/spinnerProblemType"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:layout_marginBottom="12dp"
-                        android:background="@drawable/spinner_background"
-                        android:entries="@array/department_category" />
 
                     <!-- Issue Type -->
                     <TextView

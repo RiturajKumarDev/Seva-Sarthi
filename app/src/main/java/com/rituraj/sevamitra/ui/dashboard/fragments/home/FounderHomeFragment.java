@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +42,7 @@ import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 import com.rituraj.sevamitra.ui.auth.RegistrationActivity;
 import com.rituraj.sevamitra.ui.dailyItems.DailyItemsActivity;
 import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
+import com.rituraj.sevamitra.ui.issues.DepartmentSelectionActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
 import com.rituraj.sevamitra.ui.officer.OfficerListActivity;
 import com.rituraj.sevamitra.ui.sevaSarthi.SevaSarthiListActivity;
@@ -98,6 +101,14 @@ public class FounderHomeFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Sometimes need slight delay for all views to render
+        new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 50);
+    }
+
     private void initViews(View view) {
         swipeRefresh = view.findViewById(R.id.swipeRefresh);
         // Header
@@ -137,7 +148,6 @@ public class FounderHomeFragment extends Fragment {
 
         // FAB
         fabAddWorker = view.findViewById(R.id.fabAddWorker);
-        translationViews(view);
     }
 
     private LanguageModel getSavedLanguage(Context context) {
@@ -149,8 +159,8 @@ public class FounderHomeFragment extends Fragment {
         return new LanguageModel(name, code);
     }
 
-    private void translationViews(View rootView) {
-        LanguageManager.init(getSavedLanguage(requireContext()).code, () -> LanguageManager.translateView(rootView));
+    private void translationViews() {
+        LanguageManager.init(getSavedLanguage(requireContext()).code, () -> LanguageManager.translateView(view));
     }
 
     private void setupHeader() {
@@ -269,7 +279,7 @@ public class FounderHomeFragment extends Fragment {
                 startActivity(new Intent(requireContext(), RegistrationActivity.class)));
 
         fabAddWorker.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), AddIssueActivity.class)));
+                startActivity(new Intent(requireContext(), DepartmentSelectionActivity.class)));
     }
 
     private void setUserData() {

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
@@ -30,6 +33,7 @@ import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 import com.rituraj.sevamitra.ui.dailyItems.DailyItemsActivity;
 import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
+import com.rituraj.sevamitra.ui.issues.DepartmentSelectionActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
 
@@ -78,6 +82,14 @@ public class WorkerHomeFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Sometimes need slight delay for all views to render
+        new Handler(Looper.getMainLooper()).postDelayed(() -> translationViews(view), 50);
+    }
+
     private void initViews(View view) {
         // Header
         tvGreeting = view.findViewById(R.id.tvGreeting);
@@ -106,8 +118,6 @@ public class WorkerHomeFragment extends Fragment {
 
         // FAB
         fabMarkAttendance = view.findViewById(R.id.fabMarkAttendance);
-
-        translationViews(view);
     }
 
     private LanguageModel getSavedLanguage(Context context) {
@@ -167,7 +177,7 @@ public class WorkerHomeFragment extends Fragment {
 
         // FAB
         fabMarkAttendance.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), AddIssueActivity.class)));
+                startActivity(new Intent(requireContext(), DepartmentSelectionActivity.class)));
     }
 
     private void setUserData() {

@@ -179,7 +179,6 @@ public class ProfileFragment extends Fragment {
         etDistrict = view.findViewById(R.id.etDistrict);
         etDivision = view.findViewById(R.id.etDivision);
         etGovtId = view.findViewById(R.id.etGovtId);
-        translationViews(view);
     }
 
     private LanguageModel getSavedLanguage(Context context) {
@@ -191,8 +190,8 @@ public class ProfileFragment extends Fragment {
         return new LanguageModel(name, code);
     }
 
-    private void translationViews(View rootView) {
-        LanguageManager.init(getSavedLanguage(requireContext()).code, () -> LanguageManager.translateView(rootView));
+    private void translationViews() {
+        LanguageManager.init(getSavedLanguage(requireContext()).code, () -> LanguageManager.translateView(view));
     }
 
     private void setupHeader() {
@@ -594,6 +593,7 @@ public class ProfileFragment extends Fragment {
                         setupHeader();
                         setupPersonalInfo();
                         setupTypeSpecificSections();
+                        translationViews();
                     }
                 }
             }

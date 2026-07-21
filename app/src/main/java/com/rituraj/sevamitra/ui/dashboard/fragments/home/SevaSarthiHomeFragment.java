@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,7 @@ import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 import com.rituraj.sevamitra.ui.dailyItems.DailyItemsActivity;
 import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
+import com.rituraj.sevamitra.ui.issues.DepartmentSelectionActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.rituraj.sevamitra.ui.worker.WorkerListActivity;
@@ -91,6 +94,14 @@ public class SevaSarthiHomeFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Sometimes need slight delay for all views to render
+        new Handler(Looper.getMainLooper()).postDelayed(() -> translationViews(view), 50);
+    }
+
     private void initViews(View view) {
         swipeRefresh = view.findViewById(R.id.swipeRefresh);
         // Header
@@ -131,7 +142,6 @@ public class SevaSarthiHomeFragment extends Fragment {
 
         // FAB
         fabNewIssue = view.findViewById(R.id.fabNewIssue);
-        translationViews(view);
     }
 
     private LanguageModel getSavedLanguage(Context context) {
@@ -206,7 +216,7 @@ public class SevaSarthiHomeFragment extends Fragment {
         cardSettings.setOnClickListener(v -> startActivity(new Intent(requireContext(), SupportActivity.class)));
 
         // FAB
-        fabNewIssue.setOnClickListener(v -> startActivity(new Intent(requireContext(), AddIssueActivity.class)));
+        fabNewIssue.setOnClickListener(v -> startActivity(new Intent(requireContext(), DepartmentSelectionActivity.class)));
     }
 
     private void setUserData() {

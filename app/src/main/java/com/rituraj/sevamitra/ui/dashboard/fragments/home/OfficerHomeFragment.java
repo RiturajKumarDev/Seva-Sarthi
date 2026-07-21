@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +40,7 @@ import com.rituraj.sevamitra.models.User;
 import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
+import com.rituraj.sevamitra.ui.issues.DepartmentSelectionActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.rituraj.sevamitra.ui.worker.WorkerListActivity;
@@ -102,6 +105,14 @@ public class OfficerHomeFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Sometimes need slight delay for all views to render
+        new Handler(Looper.getMainLooper()).postDelayed(() -> translationViews(view), 50);
+    }
+
     private void initViews(View view) {
         swipeRefresh = view.findViewById(R.id.swipeRefresh);
         // Header
@@ -143,7 +154,6 @@ public class OfficerHomeFragment extends Fragment {
 
         // Charts
         pieChartComplaints = view.findViewById(R.id.pieChartComplaints);
-        translationViews(view);
     }
 
     private LanguageModel getSavedLanguage(Context context) {
@@ -220,7 +230,7 @@ public class OfficerHomeFragment extends Fragment {
                 startActivity(new Intent(requireContext(), WorkerListActivity.class)));
 
         fabNewIssue.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), AddIssueActivity.class)));
+                startActivity(new Intent(requireContext(), DepartmentSelectionActivity.class)));
     }
 
     private void setUserData() {
