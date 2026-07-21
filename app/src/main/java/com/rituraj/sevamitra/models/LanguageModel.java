@@ -38,6 +38,7 @@ public class LanguageModel {
     public static ArrayList<LanguageModel> getLanguageModelArrayList() {
         ArrayList<LanguageModel> languages = new ArrayList<>();
         languages.add(new LanguageModel("English", "en"));
+        languages.add(new LanguageModel("Hindi", "hi"));
         languages.add(new LanguageModel("Afrikaans", "af"));
         languages.add(new LanguageModel("Albanian", "sq"));
         languages.add(new LanguageModel("Arabic", "ar"));
@@ -61,7 +62,6 @@ public class LanguageModel {
         languages.add(new LanguageModel("Gujarati", "gu"));
         languages.add(new LanguageModel("Haitian Creole", "ht"));
         languages.add(new LanguageModel("Hebrew", "he"));
-        languages.add(new LanguageModel("Hindi", "hi"));
         languages.add(new LanguageModel("Hungarian", "hu"));
         languages.add(new LanguageModel("Icelandic", "is"));
         languages.add(new LanguageModel("Indonesian", "id"));
