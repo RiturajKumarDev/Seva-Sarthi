@@ -166,11 +166,12 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.IssueViewHol
 
             if (issue.getRejectTimestamp() > 0)
                 btnAssign.setVisibility(View.GONE);
-            else if ("FOUNDER".equalsIgnoreCase(userType))
+            else if ("FOUNDER".equalsIgnoreCase(userType)) {
                 if (issue.getWorkAssignTimestamp() == 0)
                     btnAssign.setVisibility(View.VISIBLE);
                 else
                     btnAssign.setVisibility(View.GONE);
+            }
 
             // Timeline - Show only if timestamps exist
             if (issue.getWorkAssignTimestamp() > 0) {

@@ -11,7 +11,7 @@ android {
         applicationId = "com.rituraj.sevamitra"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
+        versionCode = 12
         versionName = "2.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
