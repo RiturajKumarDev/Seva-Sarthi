@@ -203,7 +203,6 @@ public class IssueDetailsActivity extends AppCompatActivity {
         btnReject = findViewById(R.id.btnReject);
         btnMarkComplete = findViewById(R.id.btnMarkComplete);
         progressBar = findViewById(R.id.progressBar);
-        translationViews();
     }
 
     private LanguageModel getSavedLanguage(Context context) {
@@ -366,7 +365,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
     private void loadUserData() {
         // Load Created By User (SevaMitra)
         if (issue.getCreatedBy() != null && !issue.getCreatedBy().isEmpty()) {
-            reference = database.getReference().child("UserData").child("SEVASARTHI").child(issue.getCreatedBy());
+            reference = database.getReference().child("UserData").child(issue.getUserType()).child(issue.getCreatedBy());
             reference.keepSynced(true);
             reference.addValueEventListener(new ValueEventListener() {
                 @Override
@@ -376,6 +375,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
                         if (user != null)
                             displayCreatedByUser(user);
                     }
+                    translationViews();
                 }
 
                 @Override
