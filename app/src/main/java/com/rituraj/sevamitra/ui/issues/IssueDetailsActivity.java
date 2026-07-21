@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.*;
 
@@ -123,6 +125,7 @@ public class IssueDetailsActivity extends AppCompatActivity {
         initViews();
         setupToolbar();
         loadIssueData();
+        new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
     private void initViews() {
@@ -375,7 +378,6 @@ public class IssueDetailsActivity extends AppCompatActivity {
                         if (user != null)
                             displayCreatedByUser(user);
                     }
-                    translationViews();
                 }
 
                 @Override

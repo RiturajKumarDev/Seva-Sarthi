@@ -91,6 +91,7 @@ public class AddIssueActivity extends AppCompatActivity {
         setupSpinners();
         setSelectedProblemType();
         setupClickListeners();
+        translationViews();
     }
 
     private void initViews() {
@@ -113,7 +114,6 @@ public class AddIssueActivity extends AppCompatActivity {
         btnSubmitIssue = findViewById(R.id.btnSubmitIssue);
         progressBar = findViewById(R.id.progressBar);
         tvError = findViewById(R.id.tvError);
-        translationViews();
     }
 
     private LanguageModel getSavedLanguage(Context context) {

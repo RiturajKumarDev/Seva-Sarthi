@@ -34,10 +34,10 @@ public class DepartmentSelectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_department_selection);
 
         initViews();
-        translationViews();
         setupToolbar();
         setupDepartmentIcons();
         setupDepartmentGrid();
+        translationViews();
     }
 
     private void initViews() {

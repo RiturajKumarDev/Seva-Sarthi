@@ -3,6 +3,8 @@ package com.rituraj.sevamitra.ui.sevaSarthi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -80,6 +82,7 @@ public class SevaSarthiListActivity extends AppCompatActivity implements SevaSar
         setupSearch();
         setupSortAndFilter();
         loadSevaMitraFromFirebase();
+        new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
     private void initViews() {
@@ -107,7 +110,6 @@ public class SevaSarthiListActivity extends AppCompatActivity implements SevaSar
         cardTotal = findViewById(R.id.cardTotal);
         cardActive = findViewById(R.id.cardActive);
         cardInactive = findViewById(R.id.cardInactive);
-        translationViews();
     }
 
     private LanguageModel getSavedLanguage(Context context) {

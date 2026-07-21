@@ -3,6 +3,8 @@ package com.rituraj.sevamitra.ui.worker;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -86,6 +88,7 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
         setupSearch();
         setupSortAndFilter();
         loadWorkersFromFirebase();
+        new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
     private void initViews() {
@@ -107,7 +110,6 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
         sortOptionsLayout = findViewById(R.id.sortOptionsLayout);
         cardFilter = findViewById(R.id.cardFilter);
         btnClearFilters = findViewById(R.id.btnClearFilters);
-        translationViews();
     }
 
     private LanguageModel getSavedLanguage(Context context) {

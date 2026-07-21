@@ -3,6 +3,8 @@ package com.rituraj.sevamitra.ui.dashboard;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -101,6 +103,7 @@ public class AdminUserManagementActivity extends AppCompatActivity {
         setupSearchAndFilter();
         loadUsersFromFirebase();
         setupClickListeners();
+        new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
     private void initViews() {
@@ -162,7 +165,6 @@ public class AdminUserManagementActivity extends AppCompatActivity {
         tvUserId = findViewById(R.id.tvUserId);
         tvCreatedDate = findViewById(R.id.tvCreatedDate);
         departmentList = getResources().getStringArray(R.array.department_category);
-        translationViews();
     }
 
     private LanguageModel getSavedLanguage(Context context) {

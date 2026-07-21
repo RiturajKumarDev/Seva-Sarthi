@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -121,6 +123,7 @@ public class DailyItemsActivity extends AppCompatActivity {
         setupRecyclerView();
         loadItemsFromFirebase();
         setupClickListeners();
+        new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
     private void initViews() {
@@ -148,7 +151,6 @@ public class DailyItemsActivity extends AppCompatActivity {
         // RecyclerView
         rvItems = findViewById(R.id.rvItems);
         tvNoData = findViewById(R.id.tvNoData);
-        translationViews();
     }
 
     private LanguageModel getSavedLanguage(Context context) {

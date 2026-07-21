@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -97,6 +99,7 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
         setupSortAndFilter();
         if (userType.equalsIgnoreCase("OFFICER")) getOfficerData();
         else loadIssuesFromFirebase();
+        new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
     private void getOfficerData() {
@@ -146,7 +149,6 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
         tvPendingCount = findViewById(R.id.tvPendingCount);
         tvInProgressCount = findViewById(R.id.tvInProgressCount);
         tvResolvedCount = findViewById(R.id.tvResolvedCount);
-        translationViews();
     }
 
     private LanguageModel getSavedLanguage(Context context) {

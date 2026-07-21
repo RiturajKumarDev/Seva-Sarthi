@@ -5,6 +5,8 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -83,6 +85,7 @@ public class AddDailyIssueActivity extends AppCompatActivity {
         calendar = Calendar.getInstance();
         initViews();
         setupToolbar();
+        new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
     private void initViews() {
@@ -108,7 +111,6 @@ public class AddDailyIssueActivity extends AppCompatActivity {
         setupDateAndTime();
 
         btnUpdateItem.setOnClickListener(v -> uploadItem());
-        translationViews();
     }
 
     private LanguageModel getSavedLanguage(Context context) {
