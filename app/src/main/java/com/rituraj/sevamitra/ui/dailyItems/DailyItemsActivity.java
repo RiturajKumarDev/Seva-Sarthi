@@ -1,6 +1,7 @@
 package com.rituraj.sevamitra.ui.dailyItems;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -179,7 +180,11 @@ public class DailyItemsActivity extends AppCompatActivity {
         itemAdapter = new DailyItemAdapter(itemList, new DailyItemAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(DailyItemModel item) {
-                setSelectedProblemType(item);
+                if (item != null && item.getId() != null) {
+                    Intent intent = new Intent(DailyItemsActivity.this, DailyItemDetailsActivity.class);
+                    intent.putExtra("ITEM_ID", item.getId());
+                    startActivity(intent);
+                }
             }
 
             @Override
@@ -188,40 +193,6 @@ public class DailyItemsActivity extends AppCompatActivity {
         });
         rvItems.setLayoutManager(new LinearLayoutManager(this));
         rvItems.setAdapter(itemAdapter);
-    }
-
-    private void setSelectedProblemType(DailyItemModel dailyItemModel) {
-        dailyItemModel.setCreatedBy(userId);
-        int arrayResId;
-        switch (dailyItemModel.getProblemType()) {
-            case "Beauty & Personal Care":
-                arrayResId = R.array.beauty_personal_care_issues;
-                break;
-            case "Dairy Services":
-                arrayResId = R.array.dairy_services_issues;
-                break;
-            case "Decoration":
-                arrayResId = R.array.decoration_issues;
-                break;
-            case "Home Services":
-                arrayResId = R.array.home_services_issues;
-                break;
-            case "Sanitation":
-                arrayResId = R.array.sanitation_issues;
-                break;
-            case "Water Supply":
-                arrayResId = R.array.water_supply_issues;
-                break;
-            case "Laundry Services":
-                arrayResId = R.array.laundry_services_issues;
-                break;
-            default:
-                arrayResId = R.array.other_issues;
-                break;
-        }
-        String[] issueList = getResources().getStringArray(arrayResId);
-        DailyItemDialog dailyItemDialog = new DailyItemDialog(DailyItemsActivity.this, userType, issueList, dailyItemModel);
-        dailyItemDialog.show();
     }
 
     private void setupClickListeners() {

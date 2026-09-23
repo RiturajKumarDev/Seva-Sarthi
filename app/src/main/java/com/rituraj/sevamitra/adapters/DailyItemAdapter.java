@@ -79,7 +79,14 @@ public class DailyItemAdapter extends RecyclerView.Adapter<DailyItemAdapter.View
         public void bind(DailyItemModel item) {
             tvItemName.setText(item.getItemName());
             tvCategory.setText(item.getCategory());
-            tvQuantity.setText(item.getQuantity() + " " + item.getUnit());
+
+            String quantityStr = item.getQuantity() + " " + item.getUnit();
+            if (item.getNumberOfDays() != null && !item.getNumberOfDays().isEmpty() &&
+                    item.getItemsPerDay() != null && !item.getItemsPerDay().isEmpty()) {
+                quantityStr += " (" + item.getNumberOfDays() + " days, " + item.getItemsPerDay() + "/day)";
+            }
+            tvQuantity.setText(quantityStr);
+
             tvDate.setText(item.getDate() + " " + item.getTime());
             tvTotal.setText(item.getCreatedBy());
             tvSupplier.setText("Supplier: " + (item.getSupplierDetail() != null ? item.getSupplierDetail() : "N/A"));

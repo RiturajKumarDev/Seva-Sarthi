@@ -230,15 +230,15 @@
     <!-- Water Supply -->
     <string-array name="water_supply_issues">
         <item>Select Issue / समस्या चुनें</item>
-        <item>No Water Supply / पानी की आपूर्ति नहीं</item>
-        <item>Low Water Pressure / कम पानी का दबाव</item>
-        <item>Dirty Water / गंदा पानी</item>
-        <item>Water Leakage / पानी का रिसाव</item>
-        <item>Pipeline Damage / पाइपलाइन क्षतिग्रस्त</item>
-        <item>Water Tank Overflow / पानी की टंकी ओवरफ्लो</item>
+        <!--        <item>No Water Supply / पानी की आपूर्ति नहीं</item>-->
+        <!--        <item>Low Water Pressure / कम पानी का दबाव</item>-->
+        <!--        <item>Dirty Water / गंदा पानी</item>-->
+        <!--        <item>Water Leakage / पानी का रिसाव</item>-->
+        <!--        <item>Pipeline Damage / पाइपलाइन क्षतिग्रस्त</item>-->
+        <!--        <item>Water Tank Overflow / पानी की टंकी ओवरफ्लो</item>-->
         <item>Order Water / पानी ऑर्डर करें</item>
         <item>New Water Connection / नया पानी कनेक्शन</item>
-        <item>Water Bill Issue / पानी का बिल समस्या</item>
+        <!--        <item>Water Bill Issue / पानी का बिल समस्या</item>-->
         <item>Other / अन्य</item>
     </string-array>
 
@@ -254,40 +254,138 @@
     </string-array>
 
     <string-array name="measurement_units">
-        <item>Select Unit</item>
-        <item>Piece (pcs)</item>
-        <item>Kilogram (kg)</item>
-        <item>Gram (g)</item>
-        <item>Milligram (mg)</item>
-        <item>Quintal (qtl)</item>
-        <item>Tonne (t)</item>
 
-        <item>Liter (L)</item>
-        <item>Milliliter (mL)</item>
+        <!-- DEFAULT -->
+        <item>Select Unit (इकाई चुनें)</item>
 
-        <item>Packet</item>
-        <item>Box</item>
-        <item>Bottles</item>
-        <item>Can</item>
-        <item>Jar</item>
-        <item>Bag</item>
-        <item>Sack</item>
+        <!-- ==================== QUANTITY ==================== -->
+        <item>──────── QUANTITY / मात्रा ────────</item>
+        <item>Piece (pcs) - नग</item>
+        <item>Unit (unit) - इकाई</item>
+        <item>Dozen (doz) - दर्जन</item>
+        <item>Pair (pair) - जोड़ी</item>
+        <item>Score - बीस का समूह</item>
+        <item>Gross - 144 का समूह</item>
 
-        <item>Dozen</item>
-        <item>Pair</item>
-        <item>Roll</item>
-        <item>Bundle</item>
-        <item>Set</item>
 
-        <item>Meter (m)</item>
-        <item>Centimeter (cm)</item>
-        <item>Millimeter (mm)</item>
-        <item>Foot (ft)</item>
-        <item>Inch (in)</item>
+        <!-- ==================== WEIGHT ==================== -->
+        <item>──────── WEIGHT / वजन ────────</item>
+        <item>Milligram (mg) - मिलीग्राम</item>
+        <item>Gram (g) - ग्राम</item>
+        <item>Kilogram (kg) - किलोग्राम</item>
+        <item>Quintal (qtl) - क्विंटल</item>
+        <item>Tonne (t) - टन</item>
 
-        <item>Tray</item>
-        <item>Carton</item>
-        <item>Tin</item>
-        <item>Cup</item>
+
+        <!-- ==================== LIQUID / VOLUME ==================== -->
+        <!-- ==================== LIQUID / VOLUME ==================== -->
+        <item>──────── LIQUID / तरल ────────</item>
+
+        <!-- Measurement -->
+        <item>Milliliter (mL) - मिलीलीटर</item>
+        <item>Centiliter (cL) - सेंटीलीटर</item>
+        <item>Deciliter (dL) - डेसीलीटर</item>
+        <item>Liter (L) - लीटर</item>
+        <item>Kiloliter (kL) - किलोलीटर</item>
+
+        <!-- Liquid Containers -->
+        <item>Bottle - बोतल</item>
+        <item>Jar - जार</item>
+        <item>Can - कैन</item>
+        <item>Tin - टिन</item>
+        <item>Pouch - पाउच</item>
+        <item>Sachet - सैशे</item>
+        <item>Tube - ट्यूब</item>
+        <item>Container - कंटेनर</item>
+        <item>Drum - ड्रम</item>
+        <item>Barrel - बैरल</item>
+        <item>Tank - टैंक</item>
+        <item>Bucket - बाल्टी</item>
+        <item>Vial - शीशी</item>
+        <item>Ampoule - एम्प्यूल</item>
+        <item>Cartridge - कार्ट्रिज</item>
+
+
+        <!-- ==================== LENGTH ==================== -->
+        <item>──────── LENGTH / लंबाई ────────</item>
+        <item>Millimeter (mm) - मिलीमीटर</item>
+        <item>Centimeter (cm) - सेंटीमीटर</item>
+        <item>Meter (m) - मीटर</item>
+        <item>Kilometer (km) - किलोमीटर</item>
+        <item>Inch (in) - इंच</item>
+        <item>Foot (ft) - फुट</item>
+        <item>Yard (yd) - गज</item>
+        <item>Mile (mi) - मील</item>
+
+
+        <!-- ==================== AREA ==================== -->
+        <item>──────── AREA / क्षेत्रफल ────────</item>
+        <item>Square Centimeter (cm²) - वर्ग सेंटीमीटर</item>
+        <item>Square Meter (m²) - वर्ग मीटर</item>
+        <item>Square Foot (sq ft) - वर्ग फुट</item>
+        <item>Square Yard (sq yd) - वर्ग गज</item>
+        <item>Acre - एकड़</item>
+        <item>Hectare (ha) - हेक्टेयर</item>
+
+
+        <!-- ==================== PACKAGING ==================== -->
+        <item>──────── PACKAGING / पैकेजिंग ────────</item>
+        <item>Packet (pkt) - पैकेट</item>
+        <item>Pack - पैक</item>
+        <item>Pouch - पाउच</item>
+        <item>Box - डिब्बा</item>
+        <item>Carton - कार्टन</item>
+        <item>Bottle - बोतल</item>
+        <item>Can - कैन</item>
+        <item>Jar - जार</item>
+        <item>Tin - टिन</item>
+        <item>Tube - ट्यूब</item>
+        <item>Bag - बैग</item>
+        <item>Sack - बोरी</item>
+        <item>Container - कंटेनर</item>
+
+
+        <!-- ==================== GROUPING ==================== -->
+        <item>──────── GROUPING / समूह ────────</item>
+        <item>Bundle - गट्ठर</item>
+        <item>Bunch - गुच्छा</item>
+        <item>Set - सेट</item>
+        <item>Kit - किट</item>
+        <item>Roll - रोल</item>
+        <item>Strip - स्ट्रिप</item>
+        <item>Sheet - शीट</item>
+        <item>Ream - रिम</item>
+
+
+        <!-- ==================== FOOD / SERVING ==================== -->
+        <item>──────── FOOD / खाद्य ────────</item>
+        <item>Cup - कप</item>
+        <item>Glass - गिलास</item>
+        <item>Tray - ट्रे</item>
+        <item>Slice - टुकड़ा</item>
+        <item>Loaf - पाव</item>
+
+
+        <!-- ==================== ELECTRICAL / TECHNICAL ==================== -->
+        <item>──────── ELECTRICAL / TECHNICAL ────────</item>
+        <item>Watt (W) - वाट</item>
+        <item>Kilowatt (kW) - किलोवाट</item>
+        <item>Volt (V) - वोल्ट</item>
+        <item>Ampere (A) - एम्पियर</item>
+        <item>Ohm (Ω) - ओम</item>
+
+
+        <!-- ==================== TEMPERATURE ==================== -->
+        <item>──────── TEMPERATURE / तापमान ────────</item>
+        <item>Celsius (°C) - सेल्सियस</item>
+        <item>Fahrenheit (°F) - फारेनहाइट</item>
+
+
+        <!-- ==================== TIME ==================== -->
+        <item>──────── TIME / समय ────────</item>
+        <item>Second (sec) - सेकंड</item>
+        <item>Minute (min) - मिनट</item>
+        <item>Hour (hr) - घंटा</item>
+        <item>Day - दिन</item>
     </string-array>
 </resources>

@@ -195,14 +195,12 @@
 
                         <com.google.android.material.textfield.TextInputLayout
                             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                            android:layout_width="100dp"
+                            android:layout_width="110dp"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
                             android:hint="Date"
-                            android:textColorHint="@android:color/white"
-                            app:boxBackgroundColor="@color/avatar_color_4"
                             app:boxStrokeColor="@color/logo_gold"
-                            app:hintTextColor="@color/white">
+                            app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etCalender"
@@ -210,25 +208,28 @@
                                 android:layout_height="wrap_content"
                                 android:focusable="false"
                                 android:textColor="@color/logo_white"
-                                android:textSize="16sp" />
+                                android:textSize="13sp" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.chip.ChipGroup
                             android:id="@+id/chipGroup"
                             android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
                             app:chipSpacing="8dp"
-                            app:singleLine="true">
+                            app:singleLine="true"
+                            app:singleSelection="true">
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipAll"
                                 style="@style/Widget.MaterialComponents.Chip.Filter"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:checked="true"
                                 android:text="All"
-                                android:textColor="@color/logo_white"
+                                android:textColor="@color/chip_text_selector"
                                 app:chipBackgroundColor="@drawable/chip_background"
-                                app:chipMinHeight="32dp"
+                                app:chipMinHeight="36dp"
                                 app:chipStrokeColor="@null" />
 
                             <com.google.android.material.chip.Chip
@@ -237,9 +238,9 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="🥛 Milk"
-                                android:textColor="@color/logo_white"
+                                android:textColor="@color/chip_text_selector"
                                 app:chipBackgroundColor="@drawable/chip_background"
-                                app:chipMinHeight="32dp"
+                                app:chipMinHeight="36dp"
                                 app:chipStrokeColor="@null" />
 
                             <com.google.android.material.chip.Chip
@@ -248,9 +249,9 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="💧 Water"
-                                android:textColor="@color/logo_white"
+                                android:textColor="@color/chip_text_selector"
                                 app:chipBackgroundColor="@drawable/chip_background"
-                                app:chipMinHeight="32dp"
+                                app:chipMinHeight="36dp"
                                 app:chipStrokeColor="@null" />
 
                         </com.google.android.material.chip.ChipGroup>

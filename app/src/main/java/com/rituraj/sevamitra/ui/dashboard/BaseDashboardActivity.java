@@ -20,8 +20,9 @@ import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 import com.rituraj.sevamitra.ui.auth.LoginActivity;
 import com.rituraj.sevamitra.ui.dashboard.fragments.ProfileFragment;
 import com.rituraj.sevamitra.ui.dashboard.fragments.home.FounderHomeFragment;
-import com.rituraj.sevamitra.ui.dashboard.fragments.home.SevaSarthiHomeFragment;
 import com.rituraj.sevamitra.ui.dashboard.fragments.home.OfficerHomeFragment;
+import com.rituraj.sevamitra.ui.dashboard.fragments.home.SevaSarthiHomeFragment;
+import com.rituraj.sevamitra.ui.dashboard.fragments.home.VendorHomeFragment;
 import com.rituraj.sevamitra.ui.dashboard.fragments.home.WorkerHomeFragment;
 
 public class BaseDashboardActivity extends AppCompatActivity {
@@ -91,6 +92,7 @@ public class BaseDashboardActivity extends AppCompatActivity {
     protected Fragment getHomeFragment() {
         if (userType.equalsIgnoreCase("FOUNDER")) return new FounderHomeFragment();
         else if (userType.equalsIgnoreCase("WORKER")) return new WorkerHomeFragment();
+        else if (userType.equalsIgnoreCase("VENDOR") || userType.equalsIgnoreCase("WATER VENDOR")) return new VendorHomeFragment();
         else if (userType.equalsIgnoreCase("OFFICER")) return new OfficerHomeFragment();
         else return new SevaSarthiHomeFragment();
     }

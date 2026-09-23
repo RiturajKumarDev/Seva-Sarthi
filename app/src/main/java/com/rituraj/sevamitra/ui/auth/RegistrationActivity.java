@@ -84,7 +84,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private Map<String, String[]> stateCityMap = new HashMap<>();
 
     // User Types Array
-    private String[] userTypes = {"Select User Type", "SevaSarthi", "Worker", "Officer", "Other"};
+    private String[] userTypes = {"Select User Type", "SevaSarthi", "Worker", "Vendor", "Officer", "Other"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +97,7 @@ public class RegistrationActivity extends AppCompatActivity {
         reference = database.getReference();
 
         if (mAuth.getCurrentUser() != null)
-            userTypes = new String[]{"Select User Type", "SevaSarthi", "Worker", "Founder", "Officer", "Other"};
+            userTypes = new String[]{"Select User Type", "SevaSarthi", "Worker", "Vendor", "Founder", "Officer", "Other"};
 
         initViews();
         setupStateCityMap();
@@ -352,6 +352,10 @@ public class RegistrationActivity extends AppCompatActivity {
                         selectedUserType = "WORKER";
                         cardWorkerFields.setVisibility(View.VISIBLE);
                         break;
+                    case "Vendor":
+                        selectedUserType = "VENDOR";
+                        cardWorkerFields.setVisibility(View.VISIBLE);
+                        break;
                     case "Founder":
                         selectedUserType = "FOUNDER";
                         cardFounderFields.setVisibility(View.VISIBLE);
@@ -470,6 +474,7 @@ public class RegistrationActivity extends AppCompatActivity {
         // Type specific validation and data
         switch (selectedUserType) {
             case "WORKER":
+            case "VENDOR":
                 if (!validateWorkerData(userData)) return;
                 break;
             case "FOUNDER":

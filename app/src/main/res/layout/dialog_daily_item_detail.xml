@@ -8,7 +8,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-
     <LinearLayout
         android:id="@+id/formLayout"
         android:layout_width="match_parent"
@@ -34,8 +33,6 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Item Name -->
-
         <!-- Category -->
         <TextView
             android:layout_width="wrap_content"
@@ -51,7 +48,7 @@
             android:layout_height="48dp"
             android:background="@drawable/spinner_background" />
 
-        <!-- Quantity and Unit Row -->
+        <!-- Item Name -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -68,6 +65,53 @@
                 android:textColor="@color/logo_white" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Water Supply Specific Fields -->
+        <LinearLayout
+            android:id="@+id/layoutWaterSupplyFields"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:hint="Number of Days"
+                app:boxStrokeColor="@color/logo_gold"
+                app:hintTextColor="@color/logo_gold_light">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNumberOfDays"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:textColor="@color/logo_white" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:hint="Items Per Day"
+                app:boxStrokeColor="@color/logo_gold"
+                app:hintTextColor="@color/logo_gold_light">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etItemsPerDay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:textColor="@color/logo_white" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <!-- Quantity and Unit Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

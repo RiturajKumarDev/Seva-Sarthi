@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -55,6 +57,8 @@ public class AddDailyIssueActivity extends AppCompatActivity {
     private Calendar calendar;
 
     private TextInputEditText itemName, etQuantity, itemDescription, etDate, etTime, etStatus;
+    private View layoutWaterSupplyFields;
+    private TextInputEditText etNumberOfDays, etItemsPerDay;
     private Spinner spinnerCategory, spinnerSupplier, spinnerUnit;
     private Button btnUpdateItem;
     private String[] issueList;
@@ -92,6 +96,9 @@ public class AddDailyIssueActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
 
         itemName = findViewById(R.id.etItemName);
+        layoutWaterSupplyFields = findViewById(R.id.layoutWaterSupplyFields);
+        etNumberOfDays = findViewById(R.id.etNumberOfDays);
+        etItemsPerDay = findViewById(R.id.etItemsPerDay);
         spinnerCategory = findViewById(R.id.spinnerCategory);
         etQuantity = findViewById(R.id.etQuantity);
         spinnerUnit = findViewById(R.id.spinnerUnit);
@@ -106,11 +113,56 @@ public class AddDailyIssueActivity extends AppCompatActivity {
         btnUpdateItem = findViewById(R.id.btnUpdateItem);
         findViewById(R.id.btnCloseItem).setVisibility(View.GONE);
 
+        if (dailyItemModel.getProblemType() != null && dailyItemModel.getProblemType().equalsIgnoreCase("Water Supply")) {
+            layoutWaterSupplyFields.setVisibility(View.VISIBLE);
+            setupWaterSupplyCalculation();
+        } else {
+            layoutWaterSupplyFields.setVisibility(View.GONE);
+        }
+
         setSelectedProblemType();
         setupSpinners();
         setupDateAndTime();
 
         btnUpdateItem.setOnClickListener(v -> uploadItem());
+    }
+
+    private void setupWaterSupplyCalculation() {
+        TextWatcher watcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                calculateTotalQuantity();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        etNumberOfDays.addTextChangedListener(watcher);
+        etItemsPerDay.addTextChangedListener(watcher);
+    }
+
+    private void calculateTotalQuantity() {
+        if (etNumberOfDays == null || etItemsPerDay == null || etQuantity == null) return;
+        String daysStr = etNumberOfDays.getText() != null ? etNumberOfDays.getText().toString().trim() : "";
+        String itemsStr = etItemsPerDay.getText() != null ? etItemsPerDay.getText().toString().trim() : "";
+        if (!daysStr.isEmpty() && !itemsStr.isEmpty()) {
+            try {
+                double days = Double.parseDouble(daysStr);
+                double itemsPerDay = Double.parseDouble(itemsStr);
+                double total = days * itemsPerDay;
+                if (total == (long) total) {
+                    etQuantity.setText(String.valueOf((long) total));
+                } else {
+                    etQuantity.setText(String.valueOf(total));
+                }
+            } catch (NumberFormatException ignored) {
+            }
+        }
     }
 
     private LanguageModel getSavedLanguage(Context context) {
@@ -195,11 +247,41 @@ public class AddDailyIssueActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        getWorkerData(dailyItemModel.getProblemType());
+        if (dailyItemModel.getProblemType().equalsIgnoreCase("Water Supply"))
+            getWaterVendorData(dailyItemModel.getProblemType());
+        else
+            getWorkerData(dailyItemModel.getProblemType());
     }
 
     private void getWorkerData(String workerDepartment) {
         reference = FirebaseDatabase.getInstance().getReference().child("UserData").child("WORKER");
+        reference.keepSynced(true);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    ArrayList<UserData> workerList = new ArrayList<>();
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        UserData userData = dataSnapshot.getValue(UserData.class);
+                        if (userData != null) {
+                            userData.setId(dataSnapshot.getKey());
+                            if (userData.getDepartment() != null && userData.getDepartment().equalsIgnoreCase(workerDepartment))
+                                workerList.add(userData);
+                        }
+                    }
+                    ArrayAdapter<UserData> workerAdapter = new ArrayAdapter<>(AddDailyIssueActivity.this, android.R.layout.simple_spinner_dropdown_item, workerList);
+                    spinnerSupplier.setAdapter(workerAdapter);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
+
+    private void getWaterVendorData(String workerDepartment) {
+        reference = FirebaseDatabase.getInstance().getReference().child("UserData").child("VENDOR");
         reference.keepSynced(true);
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -320,6 +402,21 @@ public class AddDailyIssueActivity extends AppCompatActivity {
         if (spinnerUnit.getSelectedItem().toString().isEmpty() || spinnerUnit.getSelectedItem().toString().startsWith("Select")) {
             Toast.makeText(this, "Please select unit", Toast.LENGTH_SHORT).show();
             return false;
+        }
+
+        if (dailyItemModel.getProblemType() != null && dailyItemModel.getProblemType().equalsIgnoreCase("Water Supply")) {
+            if (etNumberOfDays.getText() == null || etNumberOfDays.getText().toString().trim().isEmpty()) {
+                etNumberOfDays.setError("Number of days is required");
+                etNumberOfDays.requestFocus();
+                return false;
+            }
+            if (etItemsPerDay.getText() == null || etItemsPerDay.getText().toString().trim().isEmpty()) {
+                etItemsPerDay.setError("Items per day is required");
+                etItemsPerDay.requestFocus();
+                return false;
+            }
+            dailyItemModel.setNumberOfDays(etNumberOfDays.getText().toString().trim());
+            dailyItemModel.setItemsPerDay(etItemsPerDay.getText().toString().trim());
         }
 
         dailyItemModel.setSupplierId(((UserData) spinnerSupplier.getSelectedItem()).getId());

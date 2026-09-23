@@ -1,5 +1,7 @@
 package com.rituraj.sevamitra.models;
 
+import java.util.Map;
+
 public class DailyItemModel {
     private String id;
     private String problemType;
@@ -9,11 +11,14 @@ public class DailyItemModel {
     private String unit;
     private String date;
     private String time;
+    private Map<String, Long> dailyReceivedTimestamps;
     private long timestamp;
     private String supplierId;
     private String supplierDetail;
     private String status = Status.PENDING;
     private String notes;
+    private String numberOfDays;
+    private String itemsPerDay;
 
     // Audit Fields
     private String createdBy;
@@ -149,6 +154,30 @@ public class DailyItemModel {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getNumberOfDays() {
+        return numberOfDays;
+    }
+
+    public void setNumberOfDays(String numberOfDays) {
+        this.numberOfDays = numberOfDays;
+    }
+
+    public String getItemsPerDay() {
+        return itemsPerDay;
+    }
+
+    public void setItemsPerDay(String itemsPerDay) {
+        this.itemsPerDay = itemsPerDay;
+    }
+
+    public Map<String, Long> getDailyReceivedTimestamps() {
+        return dailyReceivedTimestamps;
+    }
+
+    public void setDailyReceivedTimestamps(Map<String, Long> dailyReceivedTimestamps) {
+        this.dailyReceivedTimestamps = dailyReceivedTimestamps;
     }
 
     public String getCreatedBy() {

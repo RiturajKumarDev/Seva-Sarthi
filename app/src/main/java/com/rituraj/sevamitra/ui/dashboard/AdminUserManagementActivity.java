@@ -1,5 +1,6 @@
 package com.rituraj.sevamitra.ui.dashboard;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -45,8 +46,8 @@ public class AdminUserManagementActivity extends AppCompatActivity {
     private Toolbar toolbar;
 
     // Statistics
-    private TextView tvTotalUsers, tvSevaMitraCount, tvWorkerCount, tvFounderCount, tvOfficerCount;
-    private CardView cardTotal, cardSevaMitra, cardWorker, cardFounder, cardOfficer;
+    private TextView tvTotalUsers, tvSevaMitraCount, tvWorkerCount, tvVendorCount, tvFounderCount, tvOfficerCount, tvOtherCount;
+    private CardView cardTotal, cardSevaMitra, cardWorker, cardVendor, cardFounder, cardOfficer, cardOther;
 
     // Search and Filter
     private EditText etSearch;
@@ -76,6 +77,13 @@ public class AdminUserManagementActivity extends AppCompatActivity {
     // Data
     private List<UserData> userList = new ArrayList<>();
     private List<UserData> userListFull = new ArrayList<>();
+    private Map<String, UserData> sevaSarthiMap = new HashMap<>();
+    private Map<String, UserData> founderMap = new HashMap<>();
+    private Map<String, UserData> workerMap = new HashMap<>();
+    private Map<String, UserData> vendorMap = new HashMap<>();
+    private Map<String, UserData> officerMap = new HashMap<>();
+    private Map<String, UserData> otherMap = new HashMap<>();
+
     private UserAdapter userAdapter;
     private UserData editingUser = null;
     private ArrayList<String> selectedSkills = new ArrayList<>();
@@ -113,13 +121,18 @@ public class AdminUserManagementActivity extends AppCompatActivity {
         tvTotalUsers = findViewById(R.id.tvTotalUsers);
         tvSevaMitraCount = findViewById(R.id.tvSevaMitraCount);
         tvWorkerCount = findViewById(R.id.tvWorkerCount);
+        tvVendorCount = findViewById(R.id.tvVendorCount);
         tvFounderCount = findViewById(R.id.tvFounderCount);
         tvOfficerCount = findViewById(R.id.tvOfficerCount);
+        tvOtherCount = findViewById(R.id.tvOtherCount);
+
         cardTotal = findViewById(R.id.cardTotal);
         cardSevaMitra = findViewById(R.id.cardSevaMitra);
         cardWorker = findViewById(R.id.cardWorker);
+        cardVendor = findViewById(R.id.cardVendor);
         cardFounder = findViewById(R.id.cardFounder);
         cardOfficer = findViewById(R.id.cardOfficer);
+        cardOther = findViewById(R.id.cardOther);
 
         // Search and Filter
         etSearch = findViewById(R.id.etSearch);
@@ -212,7 +225,7 @@ public class AdminUserManagementActivity extends AppCompatActivity {
 
     private void setupSpinners() {
         // User Type Filter Spinner
-        String[] userTypes = {"All Users", "SevaSarthi", "Worker", "Founder", "Officer", "Other"};
+        String[] userTypes = {"All Users", "SevaSarthi", "Worker", "Vendor", "Founder", "Officer", "Other"};
         ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, userTypes);
         spinnerUserTypeFilter.setAdapter(filterAdapter);
         spinnerUserTypeFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -232,7 +245,7 @@ public class AdminUserManagementActivity extends AppCompatActivity {
         });
 
         // User Type Spinner (Edit Form)
-        String[] editUserTypes = {"Select User Type", "SEVASARTHI", "WORKER", "FOUNDER", "OFFICER", "OTHER"};
+        String[] editUserTypes = {"Select User Type", "SEVASARTHI", "WORKER", "VENDOR", "FOUNDER", "OFFICER", "OTHER"};
         ArrayAdapter<String> editAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, editUserTypes);
         spinnerUserType.setAdapter(editAdapter);
         spinnerUserType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -290,10 +303,14 @@ public class AdminUserManagementActivity extends AppCompatActivity {
         for (UserData user : userListFull) {
             boolean typeMatch = false;
 
-            if ("all".equals(selectedUserTypeFilter)) {
+            if ("all".equalsIgnoreCase(selectedUserTypeFilter)) {
                 typeMatch = true;
-            } else {
-                typeMatch = selectedUserTypeFilter.equalsIgnoreCase(user.getUserType());
+            } else if (user.getUserType() != null) {
+                if (selectedUserTypeFilter.equalsIgnoreCase("VENDOR") && (user.getUserType().equalsIgnoreCase("VENDOR") || user.getUserType().equalsIgnoreCase("WATER VENDOR"))) {
+                    typeMatch = true;
+                } else if (selectedUserTypeFilter.equalsIgnoreCase(user.getUserType())) {
+                    typeMatch = true;
+                }
             }
 
             if (typeMatch) {
@@ -330,23 +347,21 @@ public class AdminUserManagementActivity extends AppCompatActivity {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                sevaSarthiMap.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         UserData userData = dataSnapshot.getValue(UserData.class);
                         if (userData != null) {
                             userData.setId(dataSnapshot.getKey());
-                            userList.add(userData);
-                            userListFull.add(userData);
+                            sevaSarthiMap.put(dataSnapshot.getKey(), userData);
                         }
                     }
-                    updateStatistics();
                 }
+                rebuildUserListAndStatistics();
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
@@ -356,23 +371,21 @@ public class AdminUserManagementActivity extends AppCompatActivity {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                founderMap.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         UserData userData = dataSnapshot.getValue(UserData.class);
                         if (userData != null) {
                             userData.setId(dataSnapshot.getKey());
-                            userList.add(userData);
-                            userListFull.add(userData);
+                            founderMap.put(dataSnapshot.getKey(), userData);
                         }
                     }
-                    updateStatistics();
                 }
+                rebuildUserListAndStatistics();
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
@@ -382,22 +395,45 @@ public class AdminUserManagementActivity extends AppCompatActivity {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                workerMap.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         UserData userData = dataSnapshot.getValue(UserData.class);
                         if (userData != null) {
                             userData.setId(dataSnapshot.getKey());
-                            userList.add(userData);
-                            userListFull.add(userData);
+                            workerMap.put(dataSnapshot.getKey(), userData);
                         }
                     }
-                    updateStatistics();
                 }
+                rebuildUserListAndStatistics();
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    private void getVendorData() {
+        DatabaseReference reference = database.getReference().child("UserData").child("VENDOR");
+        reference.keepSynced(true);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                vendorMap.clear();
+                if (snapshot.exists()) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        UserData userData = dataSnapshot.getValue(UserData.class);
+                        if (userData != null) {
+                            userData.setId(dataSnapshot.getKey());
+                            vendorMap.put(dataSnapshot.getKey(), userData);
+                        }
+                    }
+                }
+                rebuildUserListAndStatistics();
             }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
@@ -407,22 +443,21 @@ public class AdminUserManagementActivity extends AppCompatActivity {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                officerMap.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         UserData userData = dataSnapshot.getValue(UserData.class);
                         if (userData != null) {
                             userData.setId(dataSnapshot.getKey());
-                            userList.add(userData);
-                            userListFull.add(userData);
+                            officerMap.put(dataSnapshot.getKey(), userData);
                         }
                     }
-                    updateStatistics();
                 }
+                rebuildUserListAndStatistics();
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
@@ -432,61 +467,61 @@ public class AdminUserManagementActivity extends AppCompatActivity {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                otherMap.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         UserData userData = dataSnapshot.getValue(UserData.class);
                         if (userData != null) {
                             userData.setId(dataSnapshot.getKey());
-                            userList.add(userData);
-                            userListFull.add(userData);
+                            otherMap.put(dataSnapshot.getKey(), userData);
                         }
                     }
-                    updateStatistics();
                 }
+                rebuildUserListAndStatistics();
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
-    private void loadUsersFromFirebase() {
-        userList.clear();
+    private void rebuildUserListAndStatistics() {
         userListFull.clear();
+        userListFull.addAll(sevaSarthiMap.values());
+        userListFull.addAll(founderMap.values());
+        userListFull.addAll(workerMap.values());
+        userListFull.addAll(vendorMap.values());
+        userListFull.addAll(officerMap.values());
+        userListFull.addAll(otherMap.values());
+
+        updateStatistics();
+        applyFilters();
+    }
+
+    private void loadUsersFromFirebase() {
+        sevaSarthiMap.clear();
+        founderMap.clear();
+        workerMap.clear();
+        vendorMap.clear();
+        officerMap.clear();
+        otherMap.clear();
+
         getSevaSarthiData();
         getFounderData();
         getWorkerData();
+        getVendorData();
         getOfficerData();
         getOtherUserData();
     }
 
     private void updateStatistics() {
-        int total = userListFull.size();
-        int sevaMitraCount = 0, workerCount = 0, founderCount = 0, officerCount = 0;
-
-        for (UserData user : userListFull) {
-            switch (user.getUserType()) {
-                case "SEVASARTHI":
-                    sevaMitraCount++;
-                    break;
-                case "WORKER":
-                    workerCount++;
-                    break;
-                case "FOUNDER":
-                    founderCount++;
-                    break;
-                case "OFFICER":
-                    officerCount++;
-                    break;
-            }
-        }
-
-        tvTotalUsers.setText(String.valueOf(total));
-        tvSevaMitraCount.setText(String.valueOf(sevaMitraCount));
-        tvWorkerCount.setText(String.valueOf(workerCount));
-        tvFounderCount.setText(String.valueOf(founderCount));
-        tvOfficerCount.setText(String.valueOf(officerCount));
+        tvTotalUsers.setText(String.valueOf(userListFull.size()));
+        tvSevaMitraCount.setText(String.valueOf(sevaSarthiMap.size()));
+        tvWorkerCount.setText(String.valueOf(workerMap.size()));
+        if (tvVendorCount != null) tvVendorCount.setText(String.valueOf(vendorMap.size()));
+        tvFounderCount.setText(String.valueOf(founderMap.size()));
+        tvOfficerCount.setText(String.valueOf(officerMap.size()));
+        if (tvOtherCount != null) tvOtherCount.setText(String.valueOf(otherMap.size()));
     }
 
     private void updateNoDataVisibility() {
@@ -667,12 +702,14 @@ public class AdminUserManagementActivity extends AppCompatActivity {
         findViewById(R.id.founderFields).setVisibility(View.GONE);
         findViewById(R.id.officerFields).setVisibility(View.GONE);
 
+        if (userType == null) return;
         // Show relevant fields based on user type
-        switch (userType) {
+        switch (userType.toUpperCase()) {
             case "SEVASARTHI":
                 findViewById(R.id.sevaMitraFields).setVisibility(View.VISIBLE);
                 break;
             case "WORKER":
+            case "VENDOR":
                 findViewById(R.id.workerFields).setVisibility(View.VISIBLE);
                 break;
             case "FOUNDER":
@@ -687,8 +724,7 @@ public class AdminUserManagementActivity extends AppCompatActivity {
     private ArrayList<String> getSelectedSkills() {
         ArrayList<String> skills = new ArrayList<>();
         for (CheckBox skill : skillCheckBoxes) {
-            if (skill.isChecked())
-                skills.add(skill.getText().toString());
+            if (skill.isChecked()) skills.add(skill.getText().toString());
         }
         return skills;
     }
@@ -750,7 +786,7 @@ public class AdminUserManagementActivity extends AppCompatActivity {
     }
 
     private void showDeleteConfirmation(UserData user) {
-        new android.app.AlertDialog.Builder(this).setTitle("Delete User").setMessage("Are you sure you want to delete " + user.getFullName() + "?").setPositiveButton("Delete", (dialog, which) -> deleteUser(user)).setNegativeButton("Cancel", null).show();
+        new AlertDialog.Builder(this).setTitle("Delete User").setMessage("Are you sure you want to delete " + user.getFullName() + "?").setPositiveButton("Delete", (dialog, which) -> deleteUser(user)).setNegativeButton("Cancel", null).show();
     }
 
     private boolean validateForm() {
@@ -859,17 +895,18 @@ public class AdminUserManagementActivity extends AppCompatActivity {
             }
 
             public void bind(UserData user) {
-                tvName.setText(user.getFullName());
-                tvEmail.setText(user.getEmail());
-                tvPhone.setText(user.getPhone());
+                tvName.setText(user.getFullName() != null ? user.getFullName() : "User Name");
+                tvEmail.setText(user.getEmail() != null ? user.getEmail() : "N/A");
+                tvPhone.setText(user.getPhone() != null ? user.getPhone() : "N/A");
                 tvLocation.setText((user.getCity() != null ? user.getCity() : "") + (user.getState() != null ? ", " + user.getState() : ""));
 
-                switch (user.getUserType()) {
+                String type = user.getUserType() != null ? user.getUserType().toUpperCase() : "OTHER";
+                switch (type) {
                     case "SEVASARTHI":
                         tvUserType.setText("🌟 SevaSarthi");
                         tvUserType.setTextColor(itemView.getContext().getColor(R.color.logo_gold));
                         ivUserType.setImageResource(R.drawable.ic_sevamitra);
-                        tvDetails.setText(user.getDepartment() + " | " + user.getDesignation());
+                        tvDetails.setText((user.getDepartment() != null ? user.getDepartment() : "") + " | " + (user.getDesignation() != null ? user.getDesignation() : ""));
                         break;
                     case "WORKER":
                         tvUserType.setText("🔧 Worker");
@@ -878,17 +915,30 @@ public class AdminUserManagementActivity extends AppCompatActivity {
                         String skills = user.getSkills() != null ? TextUtils.join(", ", user.getSkills()) : "No skills";
                         tvDetails.setText(skills);
                         break;
+                    case "VENDOR":
+                    case "WATER VENDOR":
+                        tvUserType.setText("🏪 Vendor");
+                        tvUserType.setTextColor(itemView.getContext().getColor(R.color.logo_gold));
+                        ivUserType.setImageResource(R.drawable.ic_business);
+                        tvDetails.setText((user.getDepartment() != null ? user.getDepartment() : "Supply Vendor") + " | " + (user.getCity() != null ? user.getCity() : ""));
+                        break;
                     case "FOUNDER":
                         tvUserType.setText("👔 Founder");
                         tvUserType.setTextColor(itemView.getContext().getColor(R.color.logo_orange));
                         ivUserType.setImageResource(R.drawable.ic_founder);
-                        tvDetails.setText(user.getCompanyName());
+                        tvDetails.setText(user.getCompanyName() != null ? user.getCompanyName() : "Founder");
                         break;
                     case "OFFICER":
                         tvUserType.setText("📋 Officer");
                         tvUserType.setTextColor(itemView.getContext().getColor(R.color.logo_gold_light));
                         ivUserType.setImageResource(R.drawable.ic_officer);
-                        tvDetails.setText(user.getDepartment() + " | " + user.getDistrict());
+                        tvDetails.setText((user.getDepartment() != null ? user.getDepartment() : "") + " | " + (user.getDistrict() != null ? user.getDistrict() : ""));
+                        break;
+                    default:
+                        tvUserType.setText("👤 Other");
+                        tvUserType.setTextColor(itemView.getContext().getColor(R.color.logo_gold_light));
+                        ivUserType.setImageResource(R.drawable.ic_profile);
+                        tvDetails.setText(user.getEmail() != null ? user.getEmail() : "Other User");
                         break;
                 }
                 cardView.setOnClickListener(v -> listener.onUserClick(user));

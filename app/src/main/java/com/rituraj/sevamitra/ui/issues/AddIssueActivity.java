@@ -31,7 +31,6 @@ import com.rituraj.sevamitra.models.Priority;
 import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.translationLanguage.LanguageManager;
-import com.rituraj.sevamitra.ui.dailyItems.DailyItemDialog;
 
 import java.util.*;
 
