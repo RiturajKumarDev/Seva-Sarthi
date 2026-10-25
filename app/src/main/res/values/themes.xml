@@ -7,6 +7,7 @@
         <item name="colorOnSecondary">@color/logo_dark_blue</item>
         <item name="android:statusBarColor">@color/logo_dark_blue</item>
         <item name="android:navigationBarColor">@color/logo_dark_blue</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
     </style>
 
@@ -25,5 +26,24 @@
         <item name="android:activityOpenExitAnimation">@anim/slide_out_left</item>
         <item name="android:activityCloseEnterAnimation">@anim/slide_in_left</item>
         <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
+    </style>
+
+    <!-- Bottom Navigation Text Styles -->
+    <style name="BottomNavActiveText">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/logo_gold</item>
+    </style>
+
+    <style name="BottomNavInactiveText">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">@color/logo_white</item>
+    </style>
+
+    <!-- Active Indicator Style -->
+    <style name="CustomActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">#33E8C44B</item>
+        <item name="android:width">52dp</item>
+        <item name="android:height">28dp</item>
     </style>
 </resources>

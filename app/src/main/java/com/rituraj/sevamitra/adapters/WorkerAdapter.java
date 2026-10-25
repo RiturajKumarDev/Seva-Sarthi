@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,6 +11,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseUser;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.Status;
@@ -67,7 +67,7 @@ public class WorkerAdapter extends RecyclerView.Adapter<WorkerAdapter.WorkerView
         private ImageView ivProfile, ivStatus;
         private TextView tvName, tvCategory;
         private TextView tvEmail, tvPhone, tvAddress, tvCityState, tvSkills;
-        private LinearLayout btnContact, btnManage, btnAssign;
+        private MaterialButton btnContact, btnManage, btnAssign;
 
         public WorkerViewHolder(@NonNull View itemView) {
             super(itemView);

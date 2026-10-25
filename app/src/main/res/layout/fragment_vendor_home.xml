@@ -5,8 +5,8 @@
     android:id="@+id/swipeRefresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login_gradient_bg"
-    tools:context=".ui.dashboard.fragments.home.VendorHomeFragment">
+    android:background="@drawable/dashboard_gradient_bg"
+    tools:context=".ui.vendor.VendorHomeFragment">
 
     <ScrollView
         android:layout_width="match_parent"

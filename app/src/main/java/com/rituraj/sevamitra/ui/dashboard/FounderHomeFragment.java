@@ -1,4 +1,4 @@
-package com.rituraj.sevamitra.ui.dashboard.fragments.home;
+package com.rituraj.sevamitra.ui.dashboard;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,21 +28,19 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rituraj.sevamitra.R;
-import com.rituraj.sevamitra.adapters.WorkerAdapter;
 import com.rituraj.sevamitra.models.IssueModel;
 import com.rituraj.sevamitra.models.LanguageModel;
+import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 import com.rituraj.sevamitra.ui.auth.RegistrationActivity;
 import com.rituraj.sevamitra.ui.dailyItems.DailyItemsActivity;
-import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
 import com.rituraj.sevamitra.ui.issues.DepartmentSelectionActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
 import com.rituraj.sevamitra.ui.officer.OfficerListActivity;
@@ -51,11 +50,13 @@ import com.rituraj.sevamitra.ui.worker.WorkerListActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
-import java.util.Random;
+import java.util.Date;
 
 public class FounderHomeFragment extends Fragment {
+
     private View view;
+    private SwipeRefreshLayout swipeRefresh;
+
     private FirebaseAuth auth;
     private FirebaseUser firebaseUser;
     private FirebaseDatabase database;
@@ -63,25 +64,34 @@ public class FounderHomeFragment extends Fragment {
 
     // Header Views
     private TextView tvGreeting, tvFounderName, tvCompanyName, vtProfileLetter;
+    private ImageView ivOnlineStatus;
     private CardView ivProfile;
 
     // Statistics Cards
     private TextView tvTotalWorkers, tvActiveWorkers, tvTotalWorks, tvCompletedWorks;
     private TextView tvMonthlyRevenue, tvAvgRating;
-    private CardView cardTotalWorkers, cardActiveWorkers, cardTotalWorks, cardCompletedWorks, cardAddUser, cardSupport;
+    private CardView cardTotalWorkers, cardActiveWorkers, cardTotalWorks, cardCompletedWorks;
     private CardView cardMonthlyRevenue, cardRating;
 
     // Charts
     private BarChart barChartWorks;
-    private ArrayList<IssueModel> totalIssueModels = new ArrayList<>(), completedIssueModels = new ArrayList<>();
+    private ArrayList<IssueModel> totalIssueModels = new ArrayList<>();
+    private ArrayList<IssueModel> completedIssueModels = new ArrayList<>();
 
     // Management Cards
     private CardView cardManageWorkers, cardAssignWork, cardTrackWorks;
-    private CardView cardOfficers, cardSevaSarthi, cardSettings;
+    private CardView cardOfficers, cardSevaSarthi, cardSettings, cardAddUser, cardSupport;
 
     // Floating Action Button
     private FloatingActionButton fabAddWorker;
-    private SwipeRefreshLayout swipeRefresh;
+
+    public FounderHomeFragment() {
+        // Required empty constructor
+    }
+
+    public static FounderHomeFragment newInstance() {
+        return new FounderHomeFragment();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -90,7 +100,6 @@ public class FounderHomeFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
-        reference = database.getReference();
 
         initViews(view);
         setUserData();
@@ -104,19 +113,19 @@ public class FounderHomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // Sometimes need slight delay for all views to render
         new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 50);
     }
 
     private void initViews(View view) {
         swipeRefresh = view.findViewById(R.id.swipeRefresh);
+
         // Header
         tvGreeting = view.findViewById(R.id.tvGreeting);
         vtProfileLetter = view.findViewById(R.id.vtProfileLetter);
         tvFounderName = view.findViewById(R.id.tvFounderName);
         tvCompanyName = view.findViewById(R.id.tvCompanyName);
         ivProfile = view.findViewById(R.id.ivProfile);
+        ivOnlineStatus = view.findViewById(R.id.ivOnlineStatus);
 
         // Statistics
         tvTotalWorkers = view.findViewById(R.id.tvTotalWorkers);
@@ -152,19 +161,19 @@ public class FounderHomeFragment extends Fragment {
 
     private LanguageModel getSavedLanguage(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
-
         String name = prefs.getString("language_name", "English");
         String code = prefs.getString("language_code", "en");
-
         return new LanguageModel(name, code);
     }
 
     private void translationViews() {
-        LanguageManager.init(getSavedLanguage(requireContext()).code, () -> LanguageManager.translateView(view));
+        if (isAdded() && getContext() != null && view != null) {
+            LanguageManager.init(getSavedLanguage(requireContext()).code, () -> LanguageManager.translateView(view));
+        }
     }
 
     private void setupHeader() {
-        int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         if (hour < 12) {
             tvGreeting.setText("Good Morning");
         } else if (hour < 16) {
@@ -172,50 +181,81 @@ public class FounderHomeFragment extends Fragment {
         } else {
             tvGreeting.setText("Good Evening");
         }
+        if (ivOnlineStatus != null && getContext() != null) {
+            ivOnlineStatus.setColorFilter(requireContext().getColor(R.color.logo_green));
+        }
     }
 
     private void loadStatistics() {
         getTotalWorkers();
         getTotalWork();
+        getFounderProfileData();
         tvMonthlyRevenue.setText("₹2,35,000");
-        tvAvgRating.setText("4.8");
+        tvAvgRating.setText("4.8 ★");
+    }
+
+    private void getFounderProfileData() {
+        if (firebaseUser == null) return;
+        DatabaseReference founderRef = database.getReference().child("UserData").child("FOUNDER").child(firebaseUser.getUid());
+        founderRef.keepSynced(true);
+        founderRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    UserData founder = snapshot.getValue(UserData.class);
+                    if (founder != null) {
+                        if (founder.getFullName() != null && !founder.getFullName().isEmpty()) {
+                            tvFounderName.setText(founder.getFullName());
+                            setAvatarColor(founder.getFullName());
+                        }
+                        if (founder.getCompanyName() != null && !founder.getCompanyName().isEmpty()) {
+                            tvCompanyName.setText(founder.getCompanyName());
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
     }
 
     private void setupCharts() {
-        setupWorksChart();
-    }
+        if (barChartWorks == null || getContext() == null) return;
 
-    private void setupWorksChart() {
         ArrayList<BarEntry> entries = new ArrayList<>();
         int[] months = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         for (IssueModel issueModel : completedIssueModels) {
             int month = getMonth(issueModel.getWorkCompleteTimestamp());
-            months[month]++;
+            if (month >= 0 && month < 12) {
+                months[month]++;
+            }
         }
 
         for (int i = 0; i < months.length; i++) {
             entries.add(new BarEntry(i, months[i]));
         }
 
-        BarDataSet dataSet = new BarDataSet(entries, "Works Completed");
-        dataSet.setColor(getResources().getColor(R.color.logo_gold));
-        dataSet.setValueTextColor(getResources().getColor(R.color.logo_white));
+        BarDataSet dataSet = new BarDataSet(entries, "Completed Works");
+        dataSet.setColor(requireContext().getColor(R.color.logo_gold));
+        dataSet.setValueTextColor(requireContext().getColor(R.color.logo_white));
         dataSet.setValueTextSize(10f);
 
         BarData barData = new BarData(dataSet);
         barChartWorks.setData(barData);
 
         // Customize chart
-        barChartWorks.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        barChartWorks.setBackgroundColor(requireContext().getColor(android.R.color.transparent));
         barChartWorks.setDescription(null);
         barChartWorks.setDrawGridBackground(false);
         barChartWorks.setDrawBorders(false);
         barChartWorks.setPinchZoom(false);
         barChartWorks.setScaleEnabled(false);
-        barChartWorks.getAxisLeft().setTextColor(getResources().getColor(R.color.logo_white));
-        barChartWorks.getAxisRight().setTextColor(getResources().getColor(R.color.logo_white));
-        barChartWorks.getXAxis().setTextColor(getResources().getColor(R.color.logo_white));
-        barChartWorks.getLegend().setTextColor(getResources().getColor(R.color.logo_white));
+        barChartWorks.getAxisLeft().setTextColor(requireContext().getColor(R.color.logo_white));
+        barChartWorks.getAxisRight().setTextColor(requireContext().getColor(R.color.logo_white));
+        barChartWorks.getXAxis().setTextColor(requireContext().getColor(R.color.logo_white));
+        barChartWorks.getLegend().setTextColor(requireContext().getColor(R.color.logo_white));
 
         String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
         barChartWorks.getXAxis().setValueFormatter(new IndexAxisValueFormatter(monthNames));
@@ -236,7 +276,10 @@ public class FounderHomeFragment extends Fragment {
     }
 
     private void setupClickListeners() {
-        swipeRefresh.setOnRefreshListener(this::loadStatistics);
+        if (swipeRefresh != null) {
+            swipeRefresh.setOnRefreshListener(this::loadStatistics);
+        }
+
         // Statistics Cards
         cardTotalWorkers.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), WorkerListActivity.class)));
@@ -251,7 +294,10 @@ public class FounderHomeFragment extends Fragment {
                 startActivity(new Intent(requireContext(), IssueListActivity.class)));
 
         cardMonthlyRevenue.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View monthly revenue", Toast.LENGTH_SHORT).show());
+                Toast.makeText(getContext(), "Monthly Revenue Report", Toast.LENGTH_SHORT).show());
+
+        cardRating.setOnClickListener(v ->
+                Toast.makeText(getContext(), "Founder Rating & Reviews", Toast.LENGTH_SHORT).show());
 
         // Management Cards
         cardManageWorkers.setOnClickListener(v ->
@@ -283,20 +329,22 @@ public class FounderHomeFragment extends Fragment {
     }
 
     private void setUserData() {
+        if (firebaseUser == null) return;
         String displayName = firebaseUser.getDisplayName();
         String email = firebaseUser.getEmail();
 
-        tvFounderName.setText(displayName != null ? displayName : "User");
-        tvCompanyName.setText(email != null ? email : "No Email");
-        setAvatarColor(displayName != null && !displayName.isEmpty() ? displayName : "User");
+        tvFounderName.setText(displayName != null && !displayName.isEmpty() ? displayName : "Founder");
+        tvCompanyName.setText(email != null && !email.isEmpty() ? email : "Founder Account");
+        setAvatarColor(displayName != null && !displayName.isEmpty() ? displayName : "Founder");
     }
 
     private void setAvatarColor(String name) {
+        if (getContext() == null || name == null || name.isEmpty()) return;
         Context context = getContext();
-        if (context == null || name == null || name.isEmpty()) return;
-        int color;
         char firstChar = Character.toUpperCase(name.charAt(0));
         vtProfileLetter.setText(String.valueOf(firstChar));
+
+        int color;
         if (firstChar >= 'A' && firstChar <= 'E') {
             color = context.getColor(R.color.avatar_color_1);
         } else if (firstChar >= 'F' && firstChar <= 'J') {
@@ -319,10 +367,15 @@ public class FounderHomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     long total = snapshot.getChildrenCount();
+                    long active = 0;
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        UserData worker = child.getValue(UserData.class);
+                        if (worker != null && Status.ACTIVE.equalsIgnoreCase(worker.getIsSelected())) {
+                            active++;
+                        }
+                    }
                     tvTotalWorkers.setText(String.valueOf(total));
-                    long min = Math.max(0, total - 10);
-                    long active = total > 0 ? new Random().nextInt((int) (total - min + 1)) + min : 0;
-                    tvActiveWorkers.setText(String.valueOf(active));
+                    tvActiveWorkers.setText(String.valueOf(active > 0 ? active : (total > 0 ? total : 0)));
                 }
             }
 
@@ -333,52 +386,42 @@ public class FounderHomeFragment extends Fragment {
     }
 
     private void getTotalWork() {
-        totalIssueModels.clear();
-        completedIssueModels.clear();
         reference = database.getReference().child("Issues");
         reference.keepSynced(true);
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                swipeRefresh.setRefreshing(false);
-            }
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
+                totalIssueModels.clear();
+                completedIssueModels.clear();
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-        reference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 if (snapshot.exists()) {
-                    IssueModel issueModel = snapshot.getValue(IssueModel.class);
-                    if (issueModel != null) {
-                        issueModel.setId(snapshot.getKey());
-                        totalIssueModels.add(issueModel);
-                        if (issueModel.getStatus().equalsIgnoreCase("Resolved"))
-                            completedIssueModels.add(issueModel);
-
-                        tvTotalWorks.setText(String.valueOf(totalIssueModels.size()));
-                        tvCompletedWorks.setText(String.valueOf(completedIssueModels.size()));
-                        setupCharts();
+                    for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                        IssueModel issueModel = childSnapshot.getValue(IssueModel.class);
+                        if (issueModel != null) {
+                            issueModel.setId(childSnapshot.getKey());
+                            totalIssueModels.add(issueModel);
+                            if (issueModel.getStatus() != null &&
+                                    (issueModel.getStatus().equalsIgnoreCase("Resolved") ||
+                                            issueModel.getStatus().equalsIgnoreCase("Completed"))) {
+                                completedIssueModels.add(issueModel);
+                            }
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                tvTotalWorks.setText(String.valueOf(totalIssueModels.size()));
+                tvCompletedWorks.setText(String.valueOf(completedIssueModels.size()));
+                setupCharts();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
             }
         });
     }

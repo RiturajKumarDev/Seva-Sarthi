@@ -1,21 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login_gradient_bg"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true"
+    android:background="@drawable/dashboard_gradient_bg"
+    android:orientation="vertical"
+    tools:context=".ui.dashboard.AdminUserManagementActivity">
 
-    <!-- Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <!-- Professional Top App Bar -->
+    <RelativeLayout
+        android:id="@+id/cardTopBar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/logo_dark_blue"
-        app:navigationIcon="@drawable/ic_arrow_back"
-        app:titleTextColor="@color/logo_white" />
+        android:layout_height="64dp"
+        android:background="@color/logo_dark_blue">
 
-    <ScrollView
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
+
+            <!-- Back Button -->
+            <ImageView
+                android:id="@+id/ivBack"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="@color/logo_white" />
+
+            <!-- App Logo / Icon -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                app:cardBackgroundColor="@color/logo_dark_blue"
+                app:cardCornerRadius="19dp"
+                app:cardElevation="0dp">
+
+                <ImageView
+                    android:id="@+id/ivTopLogo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/app_logo"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/app_logo" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Title & Subtitle -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTopTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Admin User Management"
+                    android:textColor="@color/logo_white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTopSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Manage 7 user roles &amp; permissions"
+                    android:textColor="@color/logo_gold_light"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- Support Action Icon -->
+            <ImageView
+                android:id="@+id/ivSupport"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="#1AFFFFFF"
+                android:padding="8dp"
+                android:src="@drawable/ic_support"
+                app:tint="@color/logo_gold_light" />
+        </LinearLayout>
+
+        <!-- Bottom Accent Gold Border Line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1.5dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/logo_gold" />
+    </RelativeLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
@@ -24,14 +109,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp"
+            android:padding="16dp"
             android:paddingBottom="80dp">
 
-            <!-- Statistics Row -->
+            <!-- KPI Statistics Row (7 User Roles) -->
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="14dp"
                 android:scrollbars="none">
 
                 <LinearLayout
@@ -42,51 +127,58 @@
                     <!-- Total Users -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cardTotal"
-                        android:layout_width="90dp"
-                        android:layout_height="80dp"
+                        android:layout_width="96dp"
+                        android:layout_height="88dp"
                         android:layout_marginEnd="8dp"
-                        app:cardBackgroundColor="#1AFFFFFF"
-                        app:cardCornerRadius="10dp">
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="3dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:background="@drawable/card_bg_gold_accent"
                             android:gravity="center"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="8dp">
 
                             <TextView
                                 android:id="@+id/tvTotalUsers"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/logo_gold"
-                                android:textSize="20sp"
+                                android:textColor="@color/logo_white"
+                                android:textSize="22sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="Total"
-                                android:textColor="@color/logo_white"
-                                android:textSize="11sp" />
+                                android:text="Total Users"
+                                android:textColor="@color/logo_gold_light"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
                     <!-- SevaSarthi -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cardSevaMitra"
-                        android:layout_width="90dp"
-                        android:layout_height="80dp"
+                        android:layout_width="96dp"
+                        android:layout_height="88dp"
                         android:layout_marginEnd="8dp"
-                        app:cardBackgroundColor="#1AFFFFFF"
-                        app:cardCornerRadius="10dp">
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="3dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:background="@drawable/card_bg_gold_accent"
                             android:gravity="center"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="8dp">
 
                             <TextView
                                 android:id="@+id/tvSevaMitraCount"
@@ -94,7 +186,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textColor="@color/logo_gold"
-                                android:textSize="20sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -102,25 +194,29 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="SevaSarthi"
-                                android:textColor="@color/logo_white"
-                                android:textSize="11sp" />
+                                android:textColor="@color/logo_gold_light"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
                     <!-- Workers -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cardWorker"
-                        android:layout_width="90dp"
-                        android:layout_height="80dp"
+                        android:layout_width="96dp"
+                        android:layout_height="88dp"
                         android:layout_marginEnd="8dp"
-                        app:cardBackgroundColor="#1AFFFFFF"
-                        app:cardCornerRadius="10dp">
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="3dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:background="@drawable/card_bg_green_accent"
                             android:gravity="center"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="8dp">
 
                             <TextView
                                 android:id="@+id/tvWorkerCount"
@@ -128,7 +224,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textColor="@color/logo_green"
-                                android:textSize="20sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -136,33 +232,37 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Workers"
-                                android:textColor="@color/logo_white"
-                                android:textSize="11sp" />
+                                android:textColor="@color/logo_gold_light"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
                     <!-- Vendors -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cardVendor"
-                        android:layout_width="90dp"
-                        android:layout_height="80dp"
+                        android:layout_width="96dp"
+                        android:layout_height="88dp"
                         android:layout_marginEnd="8dp"
-                        app:cardBackgroundColor="#1AFFFFFF"
-                        app:cardCornerRadius="10dp">
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="3dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:background="@drawable/card_bg_orange_accent"
                             android:gravity="center"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="8dp">
 
                             <TextView
                                 android:id="@+id/tvVendorCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/logo_gold"
-                                android:textSize="20sp"
+                                android:textColor="@color/logo_orange"
+                                android:textSize="22sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -170,33 +270,37 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Vendors"
-                                android:textColor="@color/logo_white"
-                                android:textSize="11sp" />
+                                android:textColor="@color/logo_gold_light"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
                     <!-- Founders -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cardFounder"
-                        android:layout_width="90dp"
-                        android:layout_height="80dp"
+                        android:layout_width="96dp"
+                        android:layout_height="88dp"
                         android:layout_marginEnd="8dp"
-                        app:cardBackgroundColor="#1AFFFFFF"
-                        app:cardCornerRadius="10dp">
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="3dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:background="@drawable/card_bg_gold_accent"
                             android:gravity="center"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="8dp">
 
                             <TextView
                                 android:id="@+id/tvFounderCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/logo_orange"
-                                android:textSize="20sp"
+                                android:textColor="@color/logo_gold"
+                                android:textSize="22sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -204,25 +308,29 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Founders"
-                                android:textColor="@color/logo_white"
-                                android:textSize="11sp" />
+                                android:textColor="@color/logo_gold_light"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
                     <!-- Officers -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cardOfficer"
-                        android:layout_width="90dp"
-                        android:layout_height="80dp"
+                        android:layout_width="96dp"
+                        android:layout_height="88dp"
                         android:layout_marginEnd="8dp"
-                        app:cardBackgroundColor="#1AFFFFFF"
-                        app:cardCornerRadius="10dp">
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="3dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:background="@drawable/card_bg_gold_accent"
                             android:gravity="center"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="8dp">
 
                             <TextView
                                 android:id="@+id/tvOfficerCount"
@@ -230,7 +338,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textColor="@color/logo_gold_light"
-                                android:textSize="20sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -238,24 +346,28 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Officers"
-                                android:textColor="@color/logo_white"
-                                android:textSize="11sp" />
+                                android:textColor="@color/logo_gold_light"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
                     <!-- Others -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cardOther"
-                        android:layout_width="90dp"
-                        android:layout_height="80dp"
-                        app:cardBackgroundColor="#1AFFFFFF"
-                        app:cardCornerRadius="10dp">
+                        android:layout_width="96dp"
+                        android:layout_height="88dp"
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="3dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:background="@drawable/card_bg_gold_accent"
                             android:gravity="center"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="8dp">
 
                             <TextView
                                 android:id="@+id/tvOtherCount"
@@ -263,7 +375,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textColor="@color/logo_gold_light"
-                                android:textSize="20sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -271,50 +383,53 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Others"
-                                android:textColor="@color/logo_white"
-                                android:textSize="11sp" />
+                                android:textColor="@color/logo_gold_light"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <!-- Search and Filter -->
+            <!-- Search and Filter Bar -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="#1AFFFFFF"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                android:layout_marginBottom="14dp"
+                app:cardBackgroundColor="#26FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="3dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="12dp">
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="4dp">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:src="@drawable/ic_search"
-                        android:tint="@color/logo_gold_light" />
+                        app:tint="@color/logo_gold" />
 
                     <EditText
                         android:id="@+id/etSearch"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
                         android:layout_weight="1"
                         android:background="@null"
-                        android:hint="Search users..."
+                        android:hint="Search users by name, email, phone..."
                         android:inputType="text"
                         android:textColor="@color/logo_white"
-                        android:textColorHint="@color/logo_gold_light" />
+                        android:textColorHint="@color/logo_gold_light"
+                        android:textSize="13sp" />
 
                     <Spinner
                         android:id="@+id/spinnerUserTypeFilter"
-                        android:layout_width="120dp"
+                        android:layout_width="128dp"
                         android:layout_height="40dp"
                         android:background="@drawable/spinner_background" />
                 </LinearLayout>
@@ -337,8 +452,9 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="32dp"
                 android:text="No users found"
-                android:textColor="@color/logo_white"
+                android:textColor="@color/logo_gold_light"
                 android:textSize="16sp"
+                android:textStyle="bold"
                 android:visibility="gone" />
 
             <!-- Users RecyclerView -->
@@ -346,7 +462,9 @@
                 android:id="@+id/rvUsers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone" />
+                android:nestedScrollingEnabled="false"
+                android:visibility="visible"
+                tools:listitem="@layout/item_admin_user" />
 
             <!-- Edit User Form -->
             <androidx.cardview.widget.CardView
@@ -355,16 +473,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:visibility="gone"
-                app:cardBackgroundColor="#1AFFFFFF"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="6dp">
 
                 <LinearLayout
                     android:id="@+id/formLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/card_bg_gold_accent"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="18dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -372,6 +491,12 @@
                         android:layout_marginBottom="12dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="4dp"
+                            android:layout_height="18dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/logo_gold" />
 
                         <TextView
                             android:id="@+id/tvFormTitle"
@@ -385,9 +510,10 @@
 
                         <Button
                             android:id="@+id/btnCloseForm"
-                            android:layout_width="wrap_content"
-                            android:layout_height="32dp"
-                            android:background="@drawable/edit_button_bg"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/gold_button_bg"
+                            android:padding="0dp"
                             android:text="✕"
                             android:textColor="@color/logo_white"
                             android:textSize="16sp" />
@@ -433,6 +559,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="Email"
+                        app:boxStrokeColor="@color/logo_gold"
                         app:hintTextColor="@color/logo_gold_light">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -449,6 +576,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="Phone"
+                        app:boxStrokeColor="@color/logo_gold"
                         app:hintTextColor="@color/logo_gold_light">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -465,6 +593,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="Address"
+                        app:boxStrokeColor="@color/logo_gold"
                         app:hintTextColor="@color/logo_gold_light">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -487,6 +616,7 @@
                             android:layout_marginEnd="8dp"
                             android:layout_weight="1"
                             android:hint="State"
+                            app:boxStrokeColor="@color/logo_gold"
                             app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -503,6 +633,7 @@
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
                             android:hint="City"
+                            app:boxStrokeColor="@color/logo_gold"
                             app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -558,6 +689,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:hint="Department"
+                            app:boxStrokeColor="@color/logo_gold"
                             app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -573,6 +705,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:hint="Designation"
+                            app:boxStrokeColor="@color/logo_gold"
                             app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -584,7 +717,6 @@
                     </LinearLayout>
 
                     <!-- Worker Fields -->
-
                     <LinearLayout
                         android:id="@+id/workerFields"
                         android:layout_width="match_parent"
@@ -672,7 +804,6 @@
                                 android:text="Mechanic"
                                 android:textColor="@color/logo_white" />
                         </LinearLayout>
-
                     </LinearLayout>
 
                     <!-- Founder Fields -->
@@ -689,6 +820,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:hint="Company Name"
+                            app:boxStrokeColor="@color/logo_gold"
                             app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -704,6 +836,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:hint="GST Number"
+                            app:boxStrokeColor="@color/logo_gold"
                             app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -719,6 +852,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:hint="Office Address"
+                            app:boxStrokeColor="@color/logo_gold"
                             app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -759,6 +893,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:hint="District"
+                            app:boxStrokeColor="@color/logo_gold"
                             app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -774,6 +909,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:hint="Division"
+                            app:boxStrokeColor="@color/logo_gold"
                             app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -788,7 +924,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="18dp"
                         android:orientation="horizontal">
 
                         <com.google.android.material.button.MaterialButton
@@ -797,27 +933,29 @@
                             android:layout_height="48dp"
                             android:layout_marginEnd="8dp"
                             android:layout_weight="1"
-                            android:text="Update"
-                            android:textColor="@color/logo_white"
+                            android:text="Update User"
+                            android:textColor="@color/logo_dark_blue"
+                            android:textStyle="bold"
                             android:visibility="gone"
-                            app:backgroundTint="@color/logo_green"
-                            app:cornerRadius="24dp" />
+                            app:backgroundTint="@color/logo_gold"
+                            app:cornerRadius="12dp" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnDeleteUser"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
-                            android:layout_marginEnd="8dp"
+                            android:layout_marginStart="8dp"
                             android:layout_weight="1"
-                            android:text="Delete"
+                            android:text="Delete User"
                             android:textColor="@color/logo_white"
+                            android:textStyle="bold"
                             android:visibility="gone"
-                            app:backgroundTint="@color/logo_orange"
-                            app:cornerRadius="24dp" />
+                            app:backgroundTint="#DC2626"
+                            app:cornerRadius="12dp" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

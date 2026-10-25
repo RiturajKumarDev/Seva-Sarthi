@@ -1,8 +1,9 @@
-package com.rituraj.sevamitra.ui.worker;
+package com.rituraj.sevamitra.ui.vendor;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,8 +12,11 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -51,12 +57,18 @@ public class DailyOrderListActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private EditText etSearch;
+    private ImageView ivClearSearch;
     private ChipGroup chipGroup;
     private Chip chipAll, chipPending, chipAccepted, chipCompleted;
     private TextView tvTotalOrdersCount, tvActiveOrdersCount, tvCompletedOrdersCount;
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView rvOrders;
-    private TextView tvNoData;
+
+    // Empty State Views
+    private LinearLayout llEmptyState;
+    private ImageView ivEmptyIcon;
+    private TextView tvEmptyTitle, tvEmptySubtitle;
+    private MaterialButton btnResetFilters;
 
     private FirebaseAuth auth;
     private FirebaseUser firebaseUser;
@@ -85,6 +97,7 @@ public class DailyOrderListActivity extends AppCompatActivity {
         vendorUserId = firebaseUser.getUid();
         database = FirebaseDatabase.getInstance();
 
+        setupStatusBar();
         initViews();
         setupToolbar();
         setupRecyclerView();
@@ -94,9 +107,24 @@ public class DailyOrderListActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+    }
+
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         etSearch = findViewById(R.id.etSearch);
+        ivClearSearch = findViewById(R.id.ivClearSearch);
         chipGroup = findViewById(R.id.chipGroup);
         chipAll = findViewById(R.id.chipAll);
         chipPending = findViewById(R.id.chipPending);
@@ -109,7 +137,12 @@ public class DailyOrderListActivity extends AppCompatActivity {
 
         swipeRefresh = findViewById(R.id.swipeRefresh);
         rvOrders = findViewById(R.id.rvOrders);
-        tvNoData = findViewById(R.id.tvNoData);
+
+        llEmptyState = findViewById(R.id.llEmptyState);
+        ivEmptyIcon = findViewById(R.id.ivEmptyIcon);
+        tvEmptyTitle = findViewById(R.id.tvEmptyTitle);
+        tvEmptySubtitle = findViewById(R.id.tvEmptySubtitle);
+        btnResetFilters = findViewById(R.id.btnResetFilters);
     }
 
     private void setupToolbar() {
@@ -145,6 +178,16 @@ public class DailyOrderListActivity extends AppCompatActivity {
             public void onAcceptClick(DailyItemModel item) {
                 acceptOrderInFirebase(item);
             }
+
+            @Override
+            public void onCallClick(String phone) {
+                callCustomer(phone);
+            }
+
+            @Override
+            public void onWhatsAppClick(String phone) {
+                openWhatsApp(phone);
+            }
         });
         rvOrders.setLayoutManager(new LinearLayoutManager(this));
         rvOrders.setAdapter(adapter);
@@ -159,11 +202,25 @@ public class DailyOrderListActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s != null && s.length() > 0) {
+                    ivClearSearch.setVisibility(View.VISIBLE);
+                } else {
+                    ivClearSearch.setVisibility(View.GONE);
+                }
                 applyFilters();
             }
 
             @Override
             public void afterTextChanged(Editable s) {}
+        });
+
+        ivClearSearch.setOnClickListener(v -> etSearch.setText(""));
+
+        btnResetFilters.setOnClickListener(v -> {
+            etSearch.setText("");
+            updateChipSelection(chipAll);
+            currentStatusFilter = "ALL";
+            applyFilters();
         });
 
         chipAll.setOnClickListener(v -> {
@@ -239,8 +296,9 @@ public class DailyOrderListActivity extends AppCompatActivity {
                 masterOrderList.clear();
 
                 int total = 0;
-                int active = 0;
-                int completed = 0;
+                int pendingCount = 0;
+                int acceptedCount = 0;
+                int completedCount = 0;
 
                 if (snapshot.exists()) {
                     for (DataSnapshot child : snapshot.getChildren()) {
@@ -254,19 +312,29 @@ public class DailyOrderListActivity extends AppCompatActivity {
                             if (isMyVendorOrder) {
                                 masterOrderList.add(item);
                                 total++;
-                                if (Status.PENDING.equalsIgnoreCase(item.getStatus()) || Status.ACCEPTED.equalsIgnoreCase(item.getStatus())) {
-                                    active++;
-                                } else if ("COMPLETED".equalsIgnoreCase(item.getStatus())) {
-                                    completed++;
+                                String st = item.getStatus();
+                                if (Status.PENDING.equalsIgnoreCase(st)) {
+                                    pendingCount++;
+                                } else if (Status.ACCEPTED.equalsIgnoreCase(st)) {
+                                    acceptedCount++;
+                                } else if ("COMPLETED".equalsIgnoreCase(st) || Status.RESOLVED.equalsIgnoreCase(st)) {
+                                    completedCount++;
                                 }
                             }
                         }
                     }
                 }
 
+                int activeTotal = pendingCount + acceptedCount;
                 tvTotalOrdersCount.setText(String.valueOf(total));
-                tvActiveOrdersCount.setText(String.valueOf(active));
-                tvCompletedOrdersCount.setText(String.valueOf(completed));
+                tvActiveOrdersCount.setText(String.valueOf(activeTotal));
+                tvCompletedOrdersCount.setText(String.valueOf(completedCount));
+
+                // Dynamic Chip text counters
+                chipAll.setText("All (" + total + ")");
+                chipPending.setText("Pending (" + pendingCount + ")");
+                chipAccepted.setText("Accepted (" + acceptedCount + ")");
+                chipCompleted.setText("Completed (" + completedCount + ")");
 
                 applyFilters();
             }
@@ -294,11 +362,12 @@ public class DailyOrderListActivity extends AppCompatActivity {
             if (!query.isEmpty()) {
                 UserData customer = customerUserMap.get(item.getCreatedBy());
                 String custName = customer != null && customer.getFullName() != null ? customer.getFullName().toLowerCase() : "";
+                String custPhone = customer != null && customer.getPhone() != null ? customer.getPhone().toLowerCase() : "";
                 String itemName = item.getItemName() != null ? item.getItemName().toLowerCase() : "";
                 String category = item.getCategory() != null ? item.getCategory().toLowerCase() : "";
                 String date = item.getDate() != null ? item.getDate().toLowerCase() : "";
 
-                searchMatch = custName.contains(query) || itemName.contains(query) || category.contains(query) || date.contains(query);
+                searchMatch = custName.contains(query) || custPhone.contains(query) || itemName.contains(query) || category.contains(query) || date.contains(query);
             }
 
             if (statusMatch && searchMatch) {
@@ -309,10 +378,21 @@ public class DailyOrderListActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         if (filteredOrderList.isEmpty()) {
-            tvNoData.setVisibility(View.VISIBLE);
+            llEmptyState.setVisibility(View.VISIBLE);
             rvOrders.setVisibility(View.GONE);
+
+            if (!query.isEmpty()) {
+                tvEmptyTitle.setText("No Matches Found");
+                tvEmptySubtitle.setText("No vendor orders match '" + query + "'. Try searching with a different term.");
+            } else if (!"ALL".equalsIgnoreCase(currentStatusFilter)) {
+                tvEmptyTitle.setText("No " + currentStatusFilter + " Orders");
+                tvEmptySubtitle.setText("There are no daily orders with status '" + currentStatusFilter + "' right now.");
+            } else {
+                tvEmptyTitle.setText("No Orders Found");
+                tvEmptySubtitle.setText("No daily vendor orders assigned to or created by you.");
+            }
         } else {
-            tvNoData.setVisibility(View.GONE);
+            llEmptyState.setVisibility(View.GONE);
             rvOrders.setVisibility(View.VISIBLE);
         }
     }
@@ -325,6 +405,39 @@ public class DailyOrderListActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> Toast.makeText(DailyOrderListActivity.this, "Failed to accept order", Toast.LENGTH_SHORT).show());
     }
 
+    private void callCustomer(String phone) {
+        if (phone == null || phone.trim().isEmpty() || "N/A".equalsIgnoreCase(phone)) {
+            Toast.makeText(this, "Customer phone number not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:" + phone.trim()));
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(this, "Unable to make phone call", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void openWhatsApp(String phone) {
+        if (phone == null || phone.trim().isEmpty() || "N/A".equalsIgnoreCase(phone)) {
+            Toast.makeText(this, "Customer phone number not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            String cleanNumber = phone.replaceAll("[^0-9]", "");
+            if (!cleanNumber.startsWith("91") && cleanNumber.length() == 10) {
+                cleanNumber = "91" + cleanNumber;
+            }
+            String url = "https://wa.me/" + cleanNumber + "?text=" + Uri.encode("Hi, regarding your daily order on SevaMitra.");
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(url));
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(this, "WhatsApp not installed or invalid number", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     // RecyclerView Adapter
     private static class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.ViewHolder> {
 
@@ -335,6 +448,8 @@ public class DailyOrderListActivity extends AppCompatActivity {
         public interface OnOrderClickListener {
             void onOrderClick(DailyItemModel item);
             void onAcceptClick(DailyItemModel item);
+            void onCallClick(String phone);
+            void onWhatsAppClick(String phone);
         }
 
         public VendorOrderAdapter(List<DailyItemModel> orderList, Map<String, UserData> userMap, OnOrderClickListener listener) {
@@ -363,18 +478,19 @@ public class DailyOrderListActivity extends AppCompatActivity {
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             CardView cardOrder;
-            ImageView ivStatusDot;
-            TextView tvItemName, tvCategory;
+            TextView tvItemName, tvCategory, tvStatusBadge;
             TextView tvCustomerName, tvCustomerContact, tvCustomerAddress;
-            TextView tvQuantityInfo, tvOrderDate, tvOrderStatus;
-            MaterialButton btnAcceptOrder;
+            TextView tvQuantityInfo, tvOrderDate;
+            LinearLayout llNotesContainer;
+            TextView tvOrderNotes;
+            MaterialButton btnCallCustomer, btnWhatsAppCustomer, btnAcceptOrder;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 cardOrder = itemView.findViewById(R.id.cardOrder);
-                ivStatusDot = itemView.findViewById(R.id.ivStatusDot);
                 tvItemName = itemView.findViewById(R.id.tvItemName);
                 tvCategory = itemView.findViewById(R.id.tvCategory);
+                tvStatusBadge = itemView.findViewById(R.id.tvStatusBadge);
 
                 tvCustomerName = itemView.findViewById(R.id.tvCustomerName);
                 tvCustomerContact = itemView.findViewById(R.id.tvCustomerContact);
@@ -382,24 +498,33 @@ public class DailyOrderListActivity extends AppCompatActivity {
 
                 tvQuantityInfo = itemView.findViewById(R.id.tvQuantityInfo);
                 tvOrderDate = itemView.findViewById(R.id.tvOrderDate);
-                tvOrderStatus = itemView.findViewById(R.id.tvOrderStatus);
+
+                llNotesContainer = itemView.findViewById(R.id.llNotesContainer);
+                tvOrderNotes = itemView.findViewById(R.id.tvOrderNotes);
+
+                btnCallCustomer = itemView.findViewById(R.id.btnCallCustomer);
+                btnWhatsAppCustomer = itemView.findViewById(R.id.btnWhatsAppCustomer);
                 btnAcceptOrder = itemView.findViewById(R.id.btnAcceptOrder);
             }
 
             public void bind(DailyItemModel item, UserData customer, OnOrderClickListener listener) {
-                tvItemName.setText(item.getItemName() != null ? item.getItemName() : "Daily Order");
-                tvCategory.setText(item.getCategory() != null ? item.getCategory() : "Order");
+                tvItemName.setText(item.getItemName() != null ? item.getItemName() : "Daily Vendor Order");
+                tvCategory.setText(item.getCategory() != null ? item.getCategory().toUpperCase() : "ORDER");
+
+                final String customerPhone;
 
                 // Customer Info
                 if (customer != null) {
                     tvCustomerName.setText("Ordered By: " + (customer.getFullName() != null ? customer.getFullName() : "Customer"));
-                    tvCustomerContact.setText("Phone: " + (customer.getPhone() != null ? customer.getPhone() : "N/A") + " | Email: " + (customer.getEmail() != null ? customer.getEmail() : "N/A"));
+                    customerPhone = customer.getPhone();
+                    tvCustomerContact.setText("Phone: " + (customerPhone != null ? customerPhone : "N/A"));
                     String addr = (customer.getAddress() != null ? customer.getAddress() : "") + (customer.getCity() != null ? ", " + customer.getCity() : "");
                     tvCustomerAddress.setText("Address: " + (!addr.trim().isEmpty() ? addr : "N/A"));
                 } else {
-                    tvCustomerName.setText("Ordered By Customer ID: " + (item.getCreatedBy() != null ? item.getCreatedBy() : "N/A"));
-                    tvCustomerContact.setText("Contact info loading...");
-                    tvCustomerAddress.setText("Address loading...");
+                    customerPhone = null;
+                    tvCustomerName.setText("Ordered By ID: " + (item.getCreatedBy() != null ? item.getCreatedBy() : "N/A"));
+                    tvCustomerContact.setText("Phone: Loading...");
+                    tvCustomerAddress.setText("Address: Loading...");
                 }
 
                 // Quantity & Duration
@@ -409,24 +534,40 @@ public class DailyOrderListActivity extends AppCompatActivity {
                 }
                 tvQuantityInfo.setText(qInfo);
 
-                tvOrderDate.setText((item.getDate() != null ? item.getDate() : "") + " " + (item.getTime() != null ? item.getTime() : ""));
-                tvOrderStatus.setText("Status: " + (item.getStatus() != null ? item.getStatus() : "Pending"));
+                String dateStr = (item.getDate() != null ? item.getDate() : "") + " " + (item.getTime() != null ? item.getTime() : "");
+                tvOrderDate.setText(!dateStr.trim().isEmpty() ? dateStr.trim() : "N/A");
 
-                // Status formatting
-                if (Status.ACCEPTED.equalsIgnoreCase(item.getStatus())) {
-                    tvOrderStatus.setTextColor(itemView.getContext().getColor(R.color.logo_green));
-                    ivStatusDot.setColorFilter(itemView.getContext().getColor(R.color.logo_green));
+                // Notes
+                if (item.getNotes() != null && !item.getNotes().trim().isEmpty()) {
+                    llNotesContainer.setVisibility(View.VISIBLE);
+                    tvOrderNotes.setText(item.getNotes().trim());
+                } else {
+                    llNotesContainer.setVisibility(View.GONE);
+                }
+
+                // Status Pill Formatting
+                String statusText = item.getStatus() != null ? item.getStatus() : Status.PENDING;
+
+                if (Status.ACCEPTED.equalsIgnoreCase(statusText)) {
+                    tvStatusBadge.setText("✓ ACCEPTED");
+                    tvStatusBadge.setBackgroundResource(R.drawable.card_bg_green_accent);
+                    tvStatusBadge.setTextColor(itemView.getContext().getColor(R.color.logo_green));
                     btnAcceptOrder.setVisibility(View.GONE);
-                } else if (Status.PENDING.equalsIgnoreCase(item.getStatus())) {
-                    tvOrderStatus.setTextColor(itemView.getContext().getColor(R.color.logo_orange));
-                    ivStatusDot.setColorFilter(itemView.getContext().getColor(R.color.logo_orange));
+                } else if (Status.PENDING.equalsIgnoreCase(statusText)) {
+                    tvStatusBadge.setText("● PENDING");
+                    tvStatusBadge.setBackgroundResource(R.drawable.card_bg_orange_accent);
+                    tvStatusBadge.setTextColor(itemView.getContext().getColor(R.color.logo_orange));
                     btnAcceptOrder.setVisibility(View.VISIBLE);
                     btnAcceptOrder.setOnClickListener(v -> listener.onAcceptClick(item));
                 } else {
-                    tvOrderStatus.setTextColor(itemView.getContext().getColor(R.color.logo_green));
-                    ivStatusDot.setColorFilter(itemView.getContext().getColor(R.color.logo_green));
+                    tvStatusBadge.setText("✔ COMPLETED");
+                    tvStatusBadge.setBackgroundResource(R.drawable.card_bg_gold_accent);
+                    tvStatusBadge.setTextColor(itemView.getContext().getColor(R.color.logo_gold));
                     btnAcceptOrder.setVisibility(View.GONE);
                 }
+
+                btnCallCustomer.setOnClickListener(v -> listener.onCallClick(customerPhone));
+                btnWhatsAppCustomer.setOnClickListener(v -> listener.onWhatsAppClick(customerPhone));
 
                 cardOrder.setOnClickListener(v -> listener.onOrderClick(item));
             }

@@ -1,27 +1,34 @@
 package com.rituraj.sevamitra.ui.worker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.bumptech.glide.Glide;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -45,7 +52,7 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
     private FirebaseDatabase database;
     private DatabaseReference reference;
     // Views
-    private Toolbar toolbar;
+    private ImageView ivBack, ivSupport;
     private RecyclerView rvWorkers;
     private ProgressBar progressBar;
     private TextView tvNoData;
@@ -74,6 +81,8 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_worker_list);
 
+        setupStatusBar();
+
         // Initialize Firebase
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
@@ -91,9 +100,24 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
         new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+    }
+
     private void initViews() {
+        ivBack = findViewById(R.id.ivBack);
+        ivSupport = findViewById(R.id.ivSupport);
         swipeRefresh = findViewById(R.id.swipeRefresh);
-        toolbar = findViewById(R.id.toolbar);
         rvWorkers = findViewById(R.id.rvWorkers);
         progressBar = findViewById(R.id.progressBar);
         tvNoData = findViewById(R.id.tvNoData);
@@ -126,12 +150,12 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
     }
 
     private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Workers List");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        if (ivSupport != null) {
+            ivSupport.setOnClickListener(v -> startActivity(new Intent(WorkerListActivity.this, SupportActivity.class)));
+        }
     }
 
     private void setupRecyclerView() {
@@ -480,25 +504,100 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
     }
 
     private void showManageDialog(UserData worker) {
-        reference = database.getReference().child("UserData").child("WORKER").child(worker.getId()).child("isSelected");
-        AlertDialog.Builder builder = new AlertDialog.Builder(WorkerListActivity.this);
-        builder.setTitle("Worker Request");
-        builder.setMessage(
-                "Are you sure you want to accept this worker request?\n\n" +
-                        "Worker: " + worker.getFullName()
-        );
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_manage_worker, null);
 
-        builder.setPositiveButton("ACTIVE", (dialog, which) -> {
-            reference.setValue(Status.ACTIVE);
+        AlertDialog dialog = new AlertDialog.Builder(WorkerListActivity.this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        ImageView ivClose = dialogView.findViewById(R.id.ivClose);
+        ImageView ivProfile = dialogView.findViewById(R.id.ivProfile);
+        ImageView ivStatus = dialogView.findViewById(R.id.ivStatus);
+        TextView tvName = dialogView.findViewById(R.id.tvName);
+        TextView tvCategory = dialogView.findViewById(R.id.tvCategory);
+        TextView tvCurrentStatus = dialogView.findViewById(R.id.tvCurrentStatus);
+        TextView tvEmail = dialogView.findViewById(R.id.tvEmail);
+        TextView tvPhone = dialogView.findViewById(R.id.tvPhone);
+        TextView tvCityState = dialogView.findViewById(R.id.tvCityState);
+        TextView tvSkills = dialogView.findViewById(R.id.tvSkills);
+
+        MaterialButton btnActive = dialogView.findViewById(R.id.btnActive);
+        MaterialButton btnInactive = dialogView.findViewById(R.id.btnInactive);
+        MaterialButton btnSuspend = dialogView.findViewById(R.id.btnSuspend);
+        MaterialButton btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+        // Populate details
+        tvName.setText(worker.getFullName());
+        tvCategory.setText(worker.getDepartment() != null ? worker.getDepartment() : "General");
+        tvEmail.setText(worker.getEmail() != null ? worker.getEmail() : "Email not provided");
+        tvPhone.setText(worker.getPhone() != null ? worker.getPhone() : "Phone not provided");
+
+        String cityStateStr = (worker.getCity() != null ? worker.getCity() : "") +
+                ((worker.getCity() != null && worker.getState() != null) ? ", " : "") +
+                (worker.getState() != null ? worker.getState() : "");
+        tvCityState.setText(!cityStateStr.isEmpty() ? cityStateStr : "Location not provided");
+
+        if (worker.getSkills() != null && !worker.getSkills().isEmpty()) {
+            StringBuilder skillsStr = new StringBuilder();
+            for (String skill : worker.getSkills()) {
+                if (skillsStr.length() > 0) skillsStr.append(" • ");
+                skillsStr.append(skill);
+            }
+            tvSkills.setText(skillsStr.toString());
+        } else {
+            tvSkills.setText("No additional skills listed");
+        }
+
+        String currentStatus = worker.getIsSelected() != null ? worker.getIsSelected() : Status.PENDING;
+        tvCurrentStatus.setText("Status: " + currentStatus);
+
+        if (Status.ACTIVE.equalsIgnoreCase(currentStatus)) {
+            tvCurrentStatus.setTextColor(getColor(R.color.logo_green));
+            ivStatus.setColorFilter(getColor(R.color.logo_green));
+        } else if (Status.SUSPENDED.equalsIgnoreCase(currentStatus)) {
+            tvCurrentStatus.setTextColor(getColor(R.color.logo_red));
+            ivStatus.setColorFilter(getColor(R.color.logo_red));
+        } else {
+            tvCurrentStatus.setTextColor(getColor(R.color.logo_orange));
+            ivStatus.setColorFilter(getColor(R.color.logo_orange));
+        }
+
+        if (worker.getProfileUrl() != null && !worker.getProfileUrl().isEmpty()) {
+            Glide.with(this)
+                    .load(worker.getProfileUrl())
+                    .placeholder(R.drawable.ic_profile)
+                    .into(ivProfile);
+        }
+
+        DatabaseReference statusRef = database.getReference()
+                .child("UserData").child("WORKER").child(worker.getId()).child("isSelected");
+
+        ivClose.setOnClickListener(v -> dialog.dismiss());
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnActive.setOnClickListener(v -> {
+            statusRef.setValue(Status.ACTIVE);
+            Toast.makeText(this, worker.getFullName() + " activated successfully", Toast.LENGTH_SHORT).show();
             dialog.dismiss();
         });
 
-        builder.setNegativeButton("SUSPENDED", (dialog, which) -> {
-            reference.setValue(Status.SUSPENDED);
+        btnInactive.setOnClickListener(v -> {
+            statusRef.setValue(Status.INACTIVE);
+            Toast.makeText(this, worker.getFullName() + " marked as inactive", Toast.LENGTH_SHORT).show();
             dialog.dismiss();
         });
 
-        builder.show();
+        btnSuspend.setOnClickListener(v -> {
+            statusRef.setValue(Status.SUSPENDED);
+            Toast.makeText(this, worker.getFullName() + " suspended", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
 }

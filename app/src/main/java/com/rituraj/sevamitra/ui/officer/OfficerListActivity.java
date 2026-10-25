@@ -1,26 +1,36 @@
 package com.rituraj.sevamitra.ui.officer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.button.MaterialButton;
+
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,7 +50,7 @@ import java.util.List;
 public class OfficerListActivity extends AppCompatActivity implements OfficerAdapter.OnOfficerClickListener {
 
     // Views
-    private Toolbar toolbar;
+    private ImageView ivBack, ivSupport;
     private RecyclerView rvOfficers;
     private ProgressBar progressBar;
     private TextView tvNoData, tvTotalOfficers;
@@ -75,6 +85,8 @@ public class OfficerListActivity extends AppCompatActivity implements OfficerAda
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_officer_list);
 
+        setupStatusBar();
+
         database = FirebaseDatabase.getInstance();
         reference = database.getReference();
 
@@ -87,9 +99,24 @@ public class OfficerListActivity extends AppCompatActivity implements OfficerAda
         new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+    }
+
     private void initViews() {
+        ivBack = findViewById(R.id.ivBack);
+        ivSupport = findViewById(R.id.ivSupport);
         swipeRefresh = findViewById(R.id.swipeRefresh);
-        toolbar = findViewById(R.id.toolbar);
         rvOfficers = findViewById(R.id.rvOfficers);
         progressBar = findViewById(R.id.progressBar);
         tvNoData = findViewById(R.id.tvNoData);
@@ -128,12 +155,12 @@ public class OfficerListActivity extends AppCompatActivity implements OfficerAda
     }
 
     private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Officers List");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        if (ivSupport != null) {
+            ivSupport.setOnClickListener(v -> startActivity(new Intent(OfficerListActivity.this, SupportActivity.class)));
+        }
     }
 
     private void setupRecyclerView() {
@@ -416,7 +443,17 @@ public class OfficerListActivity extends AppCompatActivity implements OfficerAda
 
     @Override
     public void onContactClick(UserData officer) {
-        Toast.makeText(this, "Contact: " + officer.getPhone(), Toast.LENGTH_SHORT).show();
+        if (officer != null && officer.getPhone() != null && !officer.getPhone().trim().isEmpty()) {
+            try {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + officer.getPhone().trim()));
+                startActivity(intent);
+            } catch (Exception e) {
+                Toast.makeText(this, "Unable to make phone call", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Phone number not available", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -425,20 +462,65 @@ public class OfficerListActivity extends AppCompatActivity implements OfficerAda
     }
 
     private void showOfficerDetails(UserData officer) {
-        String message = "👤 Officer Details\n\n" +
-                "Name: " + officer.getFullName() + "\n" +
-                "Email: " + officer.getEmail() + "\n" +
-                "Phone: " + officer.getPhone() + "\n" +
-                "District: " + (officer.getDistrict() != null ? officer.getDistrict() : "N/A") + "\n" +
-                "Division: " + (officer.getDivision() != null ? officer.getDivision() : "N/A") + "\n" +
-                "City: " + (officer.getCity() != null ? officer.getCity() : "N/A") + "\n" +
-                "State: " + (officer.getState() != null ? officer.getState() : "N/A") + "\n" +
-                "Address: " + (officer.getAddress() != null ? officer.getAddress() : "N/A");
+        if (officer == null) return;
 
-        new android.app.AlertDialog.Builder(this)
-                .setTitle("Officer Details")
-                .setMessage(message)
-                .setPositiveButton("OK", null)
-                .show();
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_officer_details, null);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        TextView tvDialogName = dialogView.findViewById(R.id.tvDialogName);
+        TextView tvDialogDepartment = dialogView.findViewById(R.id.tvDialogDepartment);
+        TextView tvDialogDesignation = dialogView.findViewById(R.id.tvDialogDesignation);
+        TextView tvDialogDistrict = dialogView.findViewById(R.id.tvDialogDistrict);
+        TextView tvDialogDivision = dialogView.findViewById(R.id.tvDialogDivision);
+        TextView tvDialogEmail = dialogView.findViewById(R.id.tvDialogEmail);
+        TextView tvDialogPhone = dialogView.findViewById(R.id.tvDialogPhone);
+        TextView tvDialogAddress = dialogView.findViewById(R.id.tvDialogAddress);
+
+        ImageView btnCloseDialog = dialogView.findViewById(R.id.btnCloseDialog);
+        MaterialButton btnDialogCall = dialogView.findViewById(R.id.btnDialogCall);
+        MaterialButton btnDialogEmail = dialogView.findViewById(R.id.btnDialogEmail);
+
+        tvDialogName.setText(officer.getFullName() != null ? officer.getFullName() : "Officer Name");
+        tvDialogDepartment.setText(officer.getDepartment() != null ? officer.getDepartment() : "N/A");
+        tvDialogDesignation.setText(officer.getDesignation() != null ? officer.getDesignation() : "Executive Officer");
+        tvDialogDistrict.setText(officer.getDistrict() != null ? officer.getDistrict() : "N/A");
+        tvDialogDivision.setText(officer.getDivision() != null ? officer.getDivision() : "N/A");
+        tvDialogEmail.setText(officer.getEmail() != null ? officer.getEmail() : "N/A");
+        tvDialogPhone.setText(officer.getPhone() != null ? officer.getPhone() : "N/A");
+
+        String addr = (officer.getAddress() != null ? officer.getAddress() : "") +
+                (officer.getCity() != null ? ", " + officer.getCity() : "") +
+                (officer.getState() != null ? ", " + officer.getState() : "");
+        tvDialogAddress.setText(!addr.trim().isEmpty() ? addr.trim() : "N/A");
+
+        btnCloseDialog.setOnClickListener(v -> dialog.dismiss());
+
+        btnDialogCall.setOnClickListener(v -> {
+            dialog.dismiss();
+            onContactClick(officer);
+        });
+
+        btnDialogEmail.setOnClickListener(v -> {
+            dialog.dismiss();
+            if (officer.getEmail() != null && !officer.getEmail().trim().isEmpty()) {
+                try {
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+                    emailIntent.setData(Uri.parse("mailto:" + officer.getEmail().trim()));
+                    startActivity(Intent.createChooser(emailIntent, "Send email to officer"));
+                } catch (Exception e) {
+                    Toast.makeText(this, "No email client found", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Email address not available", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
     }
 }

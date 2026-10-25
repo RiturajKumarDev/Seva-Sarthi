@@ -1,19 +1,30 @@
 package com.rituraj.sevamitra.ui.auth;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -22,7 +33,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.LanguageModel;
-import com.rituraj.sevamitra.ui.dashboard.BaseDashboardActivity;
+import com.rituraj.sevamitra.ui.BaseDashboardActivity;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
 
 public class LoginActivity extends AppCompatActivity {
@@ -36,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private CardView cardLogin;
     private ImageView ivShowPassword;
+    private View bgCircle1, bgCircle2, bgCircle3, logoContainer;
 
     // Animations
     private Animation fadeIn, slideUp, shake;
@@ -51,6 +63,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        setupStatusBar();
+
         // Initialize Firebase
         mAuth = FirebaseAuth.getInstance();
 
@@ -64,7 +78,26 @@ public class LoginActivity extends AppCompatActivity {
         setupClickListeners();
     }
 
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+    }
+
     private void initViews() {
+        bgCircle1 = findViewById(R.id.bgCircle1);
+        bgCircle2 = findViewById(R.id.bgCircle2);
+        bgCircle3 = findViewById(R.id.bgCircle3);
+        logoContainer = findViewById(R.id.logoContainer);
+
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
@@ -96,12 +129,116 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loadAnimations() {
-        fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
-        slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_up);
         shake = AnimationUtils.loadAnimation(this, R.anim.shake);
 
-        cardLogin.startAnimation(slideUp);
-        tvAppName.startAnimation(fadeIn);
+        // 1. Background Floating Circles Animation (Rotation + Scale Pulse)
+        if (bgCircle1 != null) {
+            bgCircle1.animate()
+                    .rotation(360f)
+                    .setDuration(25000)
+                    .setInterpolator(new LinearInterpolator())
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            if (!isFinishing() && bgCircle1 != null) bgCircle1.setRotation(0f);
+                        }
+                    });
+            bgCircle1.startAnimation(AnimationUtils.loadAnimation(this, R.anim.logo_pulse));
+        }
+
+        if (bgCircle2 != null) {
+            bgCircle2.startAnimation(AnimationUtils.loadAnimation(this, R.anim.logo_pulse));
+        }
+
+        // 2. Logo Spring Scale Entrance
+        if (logoContainer != null) {
+            logoContainer.setScaleX(0.2f);
+            logoContainer.setScaleY(0.2f);
+            logoContainer.setAlpha(0f);
+            logoContainer.animate()
+                    .scaleX(1.0f)
+                    .scaleY(1.0f)
+                    .alpha(1.0f)
+                    .setDuration(800)
+                    .setStartDelay(100)
+                    .setInterpolator(new OvershootInterpolator(1.4f))
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            if (!isFinishing() && logoContainer != null) {
+                                logoContainer.startAnimation(AnimationUtils.loadAnimation(LoginActivity.this, R.anim.logo_pulse));
+                            }
+                        }
+                    })
+                    .start();
+        }
+
+        // 3. App Name Fade In Down
+        if (tvAppName != null) {
+            tvAppName.setTranslationY(-40f);
+            tvAppName.setAlpha(0f);
+            tvAppName.animate()
+                    .translationY(0f)
+                    .alpha(1.0f)
+                    .setDuration(700)
+                    .setStartDelay(250)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        }
+
+        // 4. Card Login Spring Slide Up
+        if (cardLogin != null) {
+            cardLogin.setTranslationY(120f);
+            cardLogin.setAlpha(0f);
+            cardLogin.animate()
+                    .translationY(0f)
+                    .alpha(1.0f)
+                    .setDuration(800)
+                    .setStartDelay(400)
+                    .setInterpolator(new OvershootInterpolator(1.1f))
+                    .start();
+        }
+
+        // 5. Staggered Form Elements Entrance
+        View[] formItems = new View[]{spinnerLanguage, tilEmail, tilPassword, btnLogin, btnRegister};
+        long delay = 500;
+        for (View item : formItems) {
+            if (item != null) {
+                item.setAlpha(0f);
+                item.setTranslationY(30f);
+                item.animate()
+                        .alpha(1.0f)
+                        .translationY(0f)
+                        .setDuration(500)
+                        .setStartDelay(delay)
+                        .setInterpolator(new DecelerateInterpolator())
+                        .start();
+                delay += 80;
+            }
+        }
+
+        // 6. Touch Micro-Interactions on Buttons
+        setupButtonTouchAnimations(btnLogin);
+        setupButtonTouchAnimations(btnRegister);
+    }
+
+    private void setupButtonTouchAnimations(View button) {
+        if (button == null) return;
+        button.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    v.animate().scaleX(0.96f).scaleY(0.96f).setDuration(120).setInterpolator(new DecelerateInterpolator()).start();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    v.performClick();
+                    v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(120).setInterpolator(new OvershootInterpolator(1.2f)).start();
+                    break;
+                case MotionEvent.ACTION_CANCEL:
+                    v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(120).setInterpolator(new OvershootInterpolator(1.2f)).start();
+                    break;
+            }
+            return false;
+        });
     }
 
     private void setupClickListeners() {

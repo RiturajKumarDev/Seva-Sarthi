@@ -1,4 +1,4 @@
-package com.rituraj.sevamitra.ui.dashboard.fragments;
+package com.rituraj.sevamitra.ui.auth;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,9 +15,11 @@ import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,7 +32,6 @@ import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.LanguageModel;
 import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.translationLanguage.LanguageManager;
-import com.rituraj.sevamitra.ui.auth.LoginActivity;
 
 public class ProfileFragment extends Fragment {
     private View view;
@@ -221,15 +222,17 @@ public class ProfileFragment extends Fragment {
                 break;
         }
 
+        ivEditProfile.setVisibility(View.VISIBLE);
         ivEditProfile.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Change profile picture", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Edit Profile Picture", Toast.LENGTH_SHORT).show();
         });
     }
 
     private void setAvatarColor(String name) {
+        if (getContext() == null || name == null || name.isEmpty()) return;
         Context context = getContext();
         int color;
-        char firstChar = name.charAt(0);
+        char firstChar = Character.toUpperCase(name.charAt(0));
         vtProfileLetter.setText(String.valueOf(firstChar));
 
         if (firstChar >= 'A' && firstChar <= 'E') {
@@ -565,18 +568,42 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setupBottomButtons(View view) {
-        btnChangePassword.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Change password", Toast.LENGTH_SHORT).show();
-        });
+        if (btnChangePassword != null) {
+            btnChangePassword.setOnClickListener(v -> {
+                Toast.makeText(getContext(), "Change password", Toast.LENGTH_SHORT).show();
+            });
+        }
 
-        btnLogout.setOnClickListener(v -> {
-            // Logout logic
-            if (getActivity() != null) {
-                auth.signOut();
-                requireActivity().startActivity(new Intent(requireActivity(), LoginActivity.class));
-                getActivity().finish();
-            }
-        });
+        if (btnLogout != null) {
+            btnLogout.setOnClickListener(v -> {
+                if (getContext() == null || getActivity() == null) return;
+
+                View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_logout_confirmation, null);
+                AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                        .setView(dialogView)
+                        .create();
+
+                if (dialog.getWindow() != null) {
+                    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                }
+
+                MaterialButton btnCancel = dialogView.findViewById(R.id.btnCancel);
+                MaterialButton btnConfirmLogout = dialogView.findViewById(R.id.btnConfirmLogout);
+
+                btnCancel.setOnClickListener(v1 -> dialog.dismiss());
+
+                btnConfirmLogout.setOnClickListener(v1 -> {
+                    dialog.dismiss();
+                    if (getActivity() != null) {
+                        auth.signOut();
+                        requireActivity().startActivity(new Intent(requireActivity(), LoginActivity.class));
+                        getActivity().finish();
+                    }
+                });
+
+                dialog.show();
+            });
+        }
     }
 
     private void loadSampleUserData(FirebaseUser user) {

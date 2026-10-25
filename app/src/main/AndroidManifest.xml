@@ -34,7 +34,7 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.dashboard.BaseDashboardActivity"
+            android:name=".ui.BaseDashboardActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
@@ -86,7 +86,7 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.worker.DailyOrderListActivity"
+            android:name=".ui.vendor.DailyOrderListActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
     </application>

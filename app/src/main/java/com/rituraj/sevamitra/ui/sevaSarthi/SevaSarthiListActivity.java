@@ -1,26 +1,36 @@
 package com.rituraj.sevamitra.ui.sevaSarthi;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.button.MaterialButton;
+
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,7 +48,7 @@ import java.util.List;
 public class SevaSarthiListActivity extends AppCompatActivity implements SevaSarthiAdapter.OnSevaMitraClickListener {
 
     // Views
-    private Toolbar toolbar;
+    private ImageView ivBack, ivSupport;
     private RecyclerView rvSevaMitra;
     private ProgressBar progressBar;
     private TextView tvNoData, tvTotalSevaMitra;
@@ -73,6 +83,8 @@ public class SevaSarthiListActivity extends AppCompatActivity implements SevaSar
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_seva_mitra_list);
 
+        setupStatusBar();
+
         database = FirebaseDatabase.getInstance();
         reference = database.getReference();
 
@@ -85,9 +97,24 @@ public class SevaSarthiListActivity extends AppCompatActivity implements SevaSar
         new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+    }
+
     private void initViews() {
+        ivBack = findViewById(R.id.ivBack);
+        ivSupport = findViewById(R.id.ivSupport);
         swipeRefresh = findViewById(R.id.swipeRefresh);
-        toolbar = findViewById(R.id.toolbar);
         rvSevaMitra = findViewById(R.id.rvSevaMitra);
         progressBar = findViewById(R.id.progressBar);
         tvNoData = findViewById(R.id.tvNoData);
@@ -126,12 +153,12 @@ public class SevaSarthiListActivity extends AppCompatActivity implements SevaSar
     }
 
     private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("SevaSarthi List");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        if (ivSupport != null) {
+            ivSupport.setOnClickListener(v -> startActivity(new Intent(SevaSarthiListActivity.this, SupportActivity.class)));
+        }
     }
 
     private void setupRecyclerView() {
@@ -414,7 +441,17 @@ public class SevaSarthiListActivity extends AppCompatActivity implements SevaSar
 
     @Override
     public void onContactClick(UserData sevaMitra) {
-        Toast.makeText(this, "Contact: " + sevaMitra.getPhone(), Toast.LENGTH_SHORT).show();
+        if (sevaMitra != null && sevaMitra.getPhone() != null && !sevaMitra.getPhone().trim().isEmpty()) {
+            try {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + sevaMitra.getPhone().trim()));
+                startActivity(intent);
+            } catch (Exception e) {
+                Toast.makeText(this, "Unable to make phone call", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Phone number not available", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -423,20 +460,61 @@ public class SevaSarthiListActivity extends AppCompatActivity implements SevaSar
     }
 
     private void showSevaMitraDetails(UserData sevaMitra) {
-        String message = "🌟 SevaMitra Details\n\n" +
-                "Name: " + sevaMitra.getFullName() + "\n" +
-                "Email: " + sevaMitra.getEmail() + "\n" +
-                "Phone: " + sevaMitra.getPhone() + "\n" +
-                "Department: " + (sevaMitra.getDepartment() != null ? sevaMitra.getDepartment() : "N/A") + "\n" +
-                "Designation: " + (sevaMitra.getDesignation() != null ? sevaMitra.getDesignation() : "N/A") + "\n" +
-                "City: " + (sevaMitra.getCity() != null ? sevaMitra.getCity() : "N/A") + "\n" +
-                "State: " + (sevaMitra.getState() != null ? sevaMitra.getState() : "N/A") + "\n" +
-                "Address: " + (sevaMitra.getAddress() != null ? sevaMitra.getAddress() : "N/A");
+        if (sevaMitra == null) return;
 
-        new android.app.AlertDialog.Builder(this)
-                .setTitle("SevaMitra Details")
-                .setMessage(message)
-                .setPositiveButton("OK", null)
-                .show();
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_sevasarthi_details, null);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        TextView tvDialogName = dialogView.findViewById(R.id.tvDialogName);
+        TextView tvDialogDepartment = dialogView.findViewById(R.id.tvDialogDepartment);
+        TextView tvDialogDesignation = dialogView.findViewById(R.id.tvDialogDesignation);
+        TextView tvDialogEmail = dialogView.findViewById(R.id.tvDialogEmail);
+        TextView tvDialogPhone = dialogView.findViewById(R.id.tvDialogPhone);
+        TextView tvDialogAddress = dialogView.findViewById(R.id.tvDialogAddress);
+
+        ImageView btnCloseDialog = dialogView.findViewById(R.id.btnCloseDialog);
+        MaterialButton btnDialogCall = dialogView.findViewById(R.id.btnDialogCall);
+        MaterialButton btnDialogEmail = dialogView.findViewById(R.id.btnDialogEmail);
+
+        tvDialogName.setText(sevaMitra.getFullName() != null ? sevaMitra.getFullName() : "SevaSarthi Name");
+        tvDialogDepartment.setText(sevaMitra.getDepartment() != null ? sevaMitra.getDepartment() : "N/A");
+        tvDialogDesignation.setText(sevaMitra.getDesignation() != null ? sevaMitra.getDesignation() : "SevaSarthi Volunteer");
+        tvDialogEmail.setText(sevaMitra.getEmail() != null ? sevaMitra.getEmail() : "N/A");
+        tvDialogPhone.setText(sevaMitra.getPhone() != null ? sevaMitra.getPhone() : "N/A");
+
+        String addr = (sevaMitra.getAddress() != null ? sevaMitra.getAddress() : "") +
+                (sevaMitra.getCity() != null ? ", " + sevaMitra.getCity() : "") +
+                (sevaMitra.getState() != null ? ", " + sevaMitra.getState() : "");
+        tvDialogAddress.setText(!addr.trim().isEmpty() ? addr.trim() : "N/A");
+
+        btnCloseDialog.setOnClickListener(v -> dialog.dismiss());
+
+        btnDialogCall.setOnClickListener(v -> {
+            dialog.dismiss();
+            onContactClick(sevaMitra);
+        });
+
+        btnDialogEmail.setOnClickListener(v -> {
+            dialog.dismiss();
+            if (sevaMitra.getEmail() != null && !sevaMitra.getEmail().trim().isEmpty()) {
+                try {
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+                    emailIntent.setData(Uri.parse("mailto:" + sevaMitra.getEmail().trim()));
+                    startActivity(Intent.createChooser(emailIntent, "Send email to SevaSarthi"));
+                } catch (Exception e) {
+                    Toast.makeText(this, "No email client found", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Email address not available", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
     }
 }

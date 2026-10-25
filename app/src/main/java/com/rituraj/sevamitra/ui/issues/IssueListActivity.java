@@ -9,18 +9,22 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.chip.Chip;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -46,7 +50,7 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
     private FirebaseDatabase database;
     private DatabaseReference reference;
     // Views
-    private Toolbar toolbar;
+    private ImageView ivBack, ivSupport;
     private RecyclerView rvIssues;
     private ProgressBar progressBar;
     private TextView tvNoData;
@@ -80,6 +84,8 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_issue_list);
 
+        setupStatusBar();
+
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
@@ -89,7 +95,7 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
         if (firebaseUser.getPhotoUrl() != null) {
             userType = firebaseUser.getPhotoUrl().toString();
         } else {
-            userType = "WORKER"; // Default or handle appropriately
+            userType = "WORKER";
         }
 
         initViews();
@@ -100,6 +106,20 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
         if (userType.equalsIgnoreCase("OFFICER")) getOfficerData();
         else loadIssuesFromFirebase();
         new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
+    }
+
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
     }
 
     private void getOfficerData() {
@@ -125,8 +145,9 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
     }
 
     private void initViews() {
+        ivBack = findViewById(R.id.ivBack);
+        ivSupport = findViewById(R.id.ivSupport);
         swipeRefresh = findViewById(R.id.swipeRefresh);
-        toolbar = findViewById(R.id.toolbar);
         rvIssues = findViewById(R.id.rvIssues);
         progressBar = findViewById(R.id.progressBar);
         tvNoData = findViewById(R.id.tvNoData);
@@ -165,12 +186,12 @@ public class IssueListActivity extends AppCompatActivity implements IssueAdapter
     }
 
     private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Issues List");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        if (ivSupport != null) {
+            ivSupport.setOnClickListener(v -> startActivity(new Intent(IssueListActivity.this, SupportActivity.class)));
+        }
     }
 
     private void setupRecyclerView() {

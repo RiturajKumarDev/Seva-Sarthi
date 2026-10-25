@@ -4,14 +4,16 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardBackgroundColor="#1AFFFFFF"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    android:layout_marginBottom="14dp"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/card_bg_founder_header"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -24,8 +26,8 @@
 
             <ImageView
                 android:id="@+id/ivStatus"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
                 android:layout_marginEnd="8dp"
                 android:src="@drawable/circle_shape_green" />
 
@@ -34,34 +36,37 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Item Name"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Daily Item Name"
                 android:textColor="@color/logo_white"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvCategory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#1AFFFFFF"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="2dp"
+                android:background="#33E8C44B"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp"
                 android:text="Category"
                 android:textColor="@color/logo_gold"
                 android:textSize="11sp"
-                app:cornerRadius="8dp" />
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Details Row -->
+        <!-- Details Row Grid -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
+            android:background="#1AFFFFFF"
             android:orientation="horizontal"
-            android:weightSum="3">
+            android:padding="12dp">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical">
@@ -69,7 +74,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Quantity"
+                    android:text="Quantity Info"
                     android:textColor="@color/logo_gold_light"
                     android:textSize="10sp" />
 
@@ -79,11 +84,12 @@
                     android:layout_height="wrap_content"
                     android:text="10 Liters"
                     android:textColor="@color/logo_white"
-                    android:textSize="13sp" />
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical">
@@ -91,7 +97,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Order BY:"
+                    android:text="Order Date &amp; Time"
                     android:textColor="@color/logo_gold_light"
                     android:textSize="10sp" />
 
@@ -99,9 +105,9 @@
                     android:id="@+id/tvTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="₹600"
+                    android:text="15/05/2025"
                     android:textColor="@color/logo_gold"
-                    android:textSize="11sp"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
@@ -110,17 +116,27 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/ic_workers"
+                app:tint="@color/logo_gold_light" />
 
             <TextView
                 android:id="@+id/tvSupplier"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="Supplier: Amul Dairy"
                 android:textColor="@color/logo_gold_light"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/tvDate"
@@ -128,14 +144,15 @@
                 android:layout_height="wrap_content"
                 android:text="15/07/2024 08:30 AM"
                 android:textColor="@color/logo_gold_light"
-                android:textSize="10sp" />
+                android:textSize="11sp" />
         </LinearLayout>
 
-        <!-- Status and Delete Row -->
+        <!-- Status and Action Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
@@ -143,15 +160,15 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Available"
+                android:text="Active / Available"
                 android:textColor="@color/logo_green"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
 
             <ImageView
                 android:id="@+id/ivDelete"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:padding="4dp"
                 android:src="@drawable/ic_delete"
                 android:visibility="gone"

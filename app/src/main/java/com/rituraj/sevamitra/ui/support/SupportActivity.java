@@ -7,11 +7,15 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,8 +32,7 @@ import java.util.*;
 
 public class SupportActivity extends AppCompatActivity {
 
-    // Toolbar
-    private Toolbar toolbar;
+    private ImageView ivBack;
 
     // Support Options Cards
     private CardView cardFAQ, cardLiveChat, cardEmailSupport;
@@ -40,7 +43,7 @@ public class SupportActivity extends AppCompatActivity {
     private TextView tvFAQCount;
 
     // Quick Actions
-    private LinearLayout btnWhatsApp, btnEmail, btnCall, btnWebsite;
+    private CardView btnWhatsApp, btnEmail, btnCall, btnWebsite;
 
     // Data
     private FirebaseUser currentUser;
@@ -50,6 +53,8 @@ public class SupportActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_support);
 
+        setupStatusBar();
+
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         initViews();
@@ -57,8 +62,22 @@ public class SupportActivity extends AppCompatActivity {
         setupClickListeners();
     }
 
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+    }
+
     private void initViews() {
-        toolbar = findViewById(R.id.toolbar);
+        ivBack = findViewById(R.id.ivBack);
 
         // Support Options
         cardFAQ = findViewById(R.id.cardFAQ);
@@ -94,12 +113,9 @@ public class SupportActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Support");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
     }
 
     private void setupClickListeners() {

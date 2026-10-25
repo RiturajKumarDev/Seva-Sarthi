@@ -4,14 +4,16 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="#1AFFFFFF">
+    android:layout_marginBottom="14dp"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/card_bg_founder_header"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -19,185 +21,218 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/ivProfile"
+            <RelativeLayout
                 android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@drawable/ic_profile"
-                android:background="@drawable/profile_bg"
-                android:padding="4dp" />
+                android:layout_height="60dp">
+
+                <FrameLayout
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/profile_avatar_frame"
+                    android:padding="3dp">
+
+                    <ImageView
+                        android:id="@+id/ivProfile"
+                        android:layout_width="54dp"
+                        android:layout_height="54dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_sevamitra" />
+                </FrameLayout>
+
+                <ImageView
+                    android:id="@+id/ivStatus"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:elevation="6dp"
+                    android:src="@drawable/circle_shape_green" />
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
                 android:layout_weight="1"
-                android:layout_marginStart="12dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SevaMitra Name"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/logo_white" />
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="SevaSarthi Name"
+                    android:textColor="@color/logo_white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="Email"
-                    android:textSize="12sp"
                     android:textColor="@color/logo_gold_light"
-                    android:layout_marginTop="4dp" />
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tvPhone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Phone"
-                    android:textSize="12sp"
-                    android:textColor="@color/logo_gold_light" />
+                    android:textColor="@color/logo_gold_light"
+                    android:textSize="12sp" />
             </LinearLayout>
-
-            <ImageView
-                android:id="@+id/ivStatus"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:src="@drawable/circle_shape_gold"
-                android:layout_marginTop="8dp" />
         </LinearLayout>
 
         <!-- Divider -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/logo_gold_dark"
-            android:layout_marginVertical="12dp" />
+            android:layout_height="1.5dp"
+            android:layout_marginVertical="12dp"
+            android:background="#20FFFFFF" />
 
-        <!-- Details Row -->
+        <!-- Details Box -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:background="#1AFFFFFF"
+            android:orientation="vertical"
+            android:padding="12dp">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Department"
-                    android:textSize="10sp"
-                    android:textColor="@color/logo_gold_light" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tvDepartment"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Department"
+                        android:textColor="@color/logo_gold_light"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/tvDepartment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Department Name"
+                        android:textColor="@color/logo_white"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Department Name"
-                    android:textSize="13sp"
-                    android:textColor="@color/logo_white"
-                    android:layout_marginTop="2dp" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Designation"
+                        android:textColor="@color/logo_gold_light"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/tvDesignation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Designation Name"
+                        android:textColor="@color/logo_white"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_location_city"
+                    app:tint="@color/logo_gold_light" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tvLocation"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Designation"
-                    android:textSize="10sp"
-                    android:textColor="@color/logo_gold_light" />
-
-                <TextView
-                    android:id="@+id/tvDesignation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Designation Name"
-                    android:textSize="13sp"
-                    android:textColor="@color/logo_white"
-                    android:layout_marginTop="2dp" />
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="City, State"
+                    android:textColor="@color/logo_gold_light"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Location -->
-        <TextView
-            android:id="@+id/tvLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="City, State"
-            android:textSize="11sp"
-            android:textColor="@color/logo_gold_light"
-            android:layout_marginTop="8dp" />
-
-        <!-- Action Buttons -->
+        <!-- Action Buttons Footer -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="14dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <LinearLayout
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnContact"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
-                android:layout_weight="1"
+                android:layout_height="40dp"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/edit_button_bg"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="0dp"
+                android:text="Contact"
+                android:textColor="@color/logo_green"
+                android:textSize="12sp"
+                app:icon="@drawable/ic_phone"
+                app:iconPadding="4dp"
+                app:iconSize="14dp"
+                app:iconTint="@color/logo_green"
+                app:strokeColor="@color/logo_green" />
 
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_phone"
-                    app:tint="@color/logo_green" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Contact"
-                    android:textColor="@color/logo_green"
-                    android:textSize="12sp"
-                    android:layout_marginStart="6dp" />
-            </LinearLayout>
-
-            <LinearLayout
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnViewDetails"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="40dp"
                 android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/save_button_bg"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_visibility"
-                    app:tint="@color/logo_dark_blue" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="View Details"
-                    android:textColor="@color/logo_dark_blue"
-                    android:textSize="12sp"
-                    android:layout_marginStart="6dp" />
-            </LinearLayout>
+                android:backgroundTint="@color/logo_gold"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="0dp"
+                android:text="View Details"
+                android:textColor="@color/logo_dark_blue"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:cornerRadius="10dp"
+                app:icon="@drawable/ic_visibility"
+                app:iconPadding="4dp"
+                app:iconSize="14dp"
+                app:iconTint="@color/logo_dark_blue" />
         </LinearLayout>
 
     </LinearLayout>

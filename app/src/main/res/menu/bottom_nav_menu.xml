@@ -7,6 +7,16 @@
         android:title="Home" />
 
     <item
+        android:id="@+id/nav_orders"
+        android:icon="@drawable/ic_list"
+        android:title="Orders" />
+
+    <item
+        android:id="@+id/nav_support"
+        android:icon="@drawable/ic_support"
+        android:title="Support" />
+
+    <item
         android:id="@+id/nav_profile"
         android:icon="@drawable/ic_profile"
         android:title="Profile" />

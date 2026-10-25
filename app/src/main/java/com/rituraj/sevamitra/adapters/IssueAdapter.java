@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.material.button.MaterialButton;
+
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
@@ -72,7 +74,7 @@ public class IssueAdapter extends RecyclerView.Adapter<IssueAdapter.IssueViewHol
         private TextView tvWorkAssignTime, tvWorkCompleteTime, tvSevaMitraApproveTime, tvOfficerApproveTime;
         private TextView tvResolutionNotes;
         private ImageView ivPriority, ivStatus;
-        private LinearLayout btnAssign, btnTrack, btnApprove;
+        private MaterialButton btnAssign, btnTrack, btnApprove;
         private LinearLayout timelineLayout, resolutionLayout;
 
         public IssueViewHolder(@NonNull View itemView) {

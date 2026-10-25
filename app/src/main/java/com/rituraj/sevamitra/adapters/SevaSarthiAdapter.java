@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,6 +11,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.button.MaterialButton;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.UserData;
 
@@ -58,7 +58,7 @@ public class SevaSarthiAdapter extends RecyclerView.Adapter<SevaSarthiAdapter.Se
         private CardView cardView;
         private ImageView ivProfile, ivStatus;
         private TextView tvName, tvEmail, tvPhone, tvDepartment, tvDesignation, tvLocation;
-        private LinearLayout btnContact, btnViewDetails;
+        private MaterialButton btnContact, btnViewDetails;
 
         public SevaMitraViewHolder(@NonNull View itemView) {
             super(itemView);

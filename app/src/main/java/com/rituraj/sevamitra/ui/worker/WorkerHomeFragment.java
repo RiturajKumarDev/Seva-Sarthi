@@ -1,4 +1,4 @@
-package com.rituraj.sevamitra.ui.dashboard.fragments.home;
+package com.rituraj.sevamitra.ui.worker;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,7 +32,6 @@ import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 import com.rituraj.sevamitra.ui.dailyItems.DailyItemsActivity;
-import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
 import com.rituraj.sevamitra.ui.issues.DepartmentSelectionActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
 import com.rituraj.sevamitra.ui.support.SupportActivity;

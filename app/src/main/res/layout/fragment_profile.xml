@@ -3,61 +3,76 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login_gradient_bg"
+    android:background="@drawable/dashboard_gradient_bg"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:paddingBottom="80dp">
 
-        <!-- Profile Header -->
+        <!-- Executive Profile Header Card -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardProfileImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            app:cardBackgroundColor="#1AFFFFFF"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp">
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/card_bg_founder_header"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:padding="24dp">
 
                 <RelativeLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_width="108dp"
+                    android:layout_height="108dp">
 
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/ivProfile"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        app:cardCornerRadius="100dp" >
+                    <FrameLayout
+                        android:layout_width="108dp"
+                        android:layout_height="108dp"
+                        android:background="@drawable/profile_avatar_frame"
+                        android:padding="4dp">
 
-                        <TextView
-                            android:id="@+id/vtProfileLetter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/ivProfile"
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
                             android:layout_gravity="center"
-                            android:text="R"
-                            android:textSize="80sp"
-                            android:textStyle="bold" />
-                    </androidx.cardview.widget.CardView>
+                            app:cardBackgroundColor="@color/logo_dark_blue"
+                            app:cardCornerRadius="50dp">
 
+                            <TextView
+                                android:id="@+id/vtProfileLetter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="U"
+                                android:textColor="@color/logo_gold"
+                                android:textSize="48sp"
+                                android:textStyle="bold" />
+                        </androidx.cardview.widget.CardView>
+                    </FrameLayout>
+
+                    <!-- Edit Profile Badge Icon -->
                     <ImageView
                         android:id="@+id/ivEditProfile"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_alignParentEnd="true"
                         android:layout_alignParentBottom="true"
-                        android:background="@drawable/edit_bg"
+                        android:background="@drawable/profile_edit_badge_bg"
+                        android:elevation="6dp"
+                        android:padding="8dp"
                         android:src="@drawable/ic_edit"
-                        android:visibility="gone"
-                        app:tint="@color/logo_gold" />
+                        app:tint="@color/logo_dark_blue" />
                 </RelativeLayout>
 
                 <TextView
@@ -67,36 +82,67 @@
                     android:layout_marginTop="12dp"
                     android:text="User Name"
                     android:textColor="@color/logo_white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvUserType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:paddingHorizontal="12dp"
+                    android:layout_marginTop="6dp"
+                    android:background="#33E8C44B"
+                    android:paddingHorizontal="14dp"
                     android:paddingVertical="4dp"
-                    android:text="User Type"
-                    android:textColor="@color/logo_white"
-                    android:textSize="12sp" />
+                    android:text="USER TYPE"
+                    android:textColor="@color/logo_gold"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvEmail"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="user@example.com"
-                    android:textColor="@color/logo_gold_light"
-                    android:textSize="12sp" />
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tvPhone"
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_support"
+                        app:tint="@color/logo_gold_light" />
+
+                    <TextView
+                        android:id="@+id/tvEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="user@example.com"
+                        android:textColor="@color/logo_gold_light"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="+91 9876543210"
-                    android:textColor="@color/logo_gold_light"
-                    android:textSize="12sp" />
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_active"
+                        app:tint="@color/logo_gold_light" />
+
+                    <TextView
+                        android:id="@+id/tvPhone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+91 9876543210"
+                        android:textColor="@color/logo_gold_light"
+                        android:textSize="13sp" />
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -105,15 +151,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="#1AFFFFFF"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/card_bg_gold_accent"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="18dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -121,6 +168,12 @@
                     android:layout_marginBottom="16dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@color/logo_gold" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -134,21 +187,25 @@
                     <Button
                         android:id="@+id/btnEditPersonal"
                         android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:background="@drawable/edit_button_bg"
+                        android:layout_height="36dp"
+                        android:background="@drawable/gold_button_bg"
+                        android:paddingHorizontal="14dp"
                         android:text="Edit"
                         android:textColor="@color/logo_white"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                     <Button
                         android:id="@+id/btnSavePersonal"
                         android:layout_width="wrap_content"
-                        android:layout_height="32dp"
+                        android:layout_height="36dp"
                         android:layout_marginStart="8dp"
                         android:background="@drawable/save_button_bg"
+                        android:paddingHorizontal="14dp"
                         android:text="Save"
                         android:textColor="@color/logo_white"
                         android:textSize="12sp"
+                        android:textStyle="bold"
                         android:visibility="gone" />
                 </LinearLayout>
 
@@ -180,6 +237,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="Email"
+                        app:boxStrokeColor="@color/logo_gold"
                         app:hintTextColor="@color/logo_gold_light">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -197,6 +255,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="Phone Number"
+                        app:boxStrokeColor="@color/logo_gold"
                         app:hintTextColor="@color/logo_gold_light">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -213,6 +272,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="Address"
+                        app:boxStrokeColor="@color/logo_gold"
                         app:hintTextColor="@color/logo_gold_light">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -235,6 +295,7 @@
                             android:layout_marginEnd="8dp"
                             android:layout_weight="1"
                             android:hint="State"
+                            app:boxStrokeColor="@color/logo_gold"
                             app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -251,6 +312,7 @@
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
                             android:hint="City"
+                            app:boxStrokeColor="@color/logo_gold"
                             app:hintTextColor="@color/logo_gold_light">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -271,15 +333,16 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:visibility="gone"
-            app:cardBackgroundColor="#1AFFFFFF"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/card_bg_gold_accent"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="18dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -287,6 +350,12 @@
                     android:layout_marginBottom="16dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@color/logo_gold" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -300,25 +369,26 @@
                     <Button
                         android:id="@+id/btnEditOfficer"
                         android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:background="@drawable/edit_button_bg"
+                        android:layout_height="36dp"
+                        android:background="@drawable/gold_button_bg"
                         android:text="Edit"
                         android:textColor="@color/logo_white"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                     <Button
                         android:id="@+id/btnSaveOfficer"
                         android:layout_width="wrap_content"
-                        android:layout_height="32dp"
+                        android:layout_height="36dp"
                         android:layout_marginStart="8dp"
                         android:background="@drawable/save_button_bg"
                         android:text="Save"
                         android:textColor="@color/logo_white"
                         android:textSize="12sp"
+                        android:textStyle="bold"
                         android:visibility="gone" />
                 </LinearLayout>
 
-                <!-- Display Layout -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -338,7 +408,8 @@
                         android:layout_marginBottom="12dp"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -354,7 +425,8 @@
                         android:layout_marginBottom="12dp"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -369,14 +441,15 @@
                         android:layout_height="wrap_content"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- Edit Layout -->
                 <LinearLayout
                     android:id="@+id/officerEditLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
                     android:orientation="vertical"
                     android:visibility="gone">
 
@@ -434,15 +507,16 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:visibility="gone"
-            app:cardBackgroundColor="#1AFFFFFF"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/card_bg_green_accent"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="18dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -451,37 +525,44 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@color/logo_green" />
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Worker Details"
-                        android:textColor="@color/logo_gold"
+                        android:textColor="@color/logo_green"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <Button
                         android:id="@+id/btnEditWorker"
                         android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:background="@drawable/edit_button_bg"
+                        android:layout_height="36dp"
+                        android:background="@drawable/gold_button_bg"
                         android:text="Edit"
                         android:textColor="@color/logo_white"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                     <Button
                         android:id="@+id/btnSaveWorker"
                         android:layout_width="wrap_content"
-                        android:layout_height="32dp"
+                        android:layout_height="36dp"
                         android:layout_marginStart="8dp"
                         android:background="@drawable/save_button_bg"
                         android:text="Save"
                         android:textColor="@color/logo_white"
                         android:textSize="12sp"
+                        android:textStyle="bold"
                         android:visibility="gone" />
                 </LinearLayout>
 
-                <!-- Display Layout -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -501,12 +582,13 @@
                         android:layout_marginBottom="12dp"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Skills"
+                        android:text="Skills &amp; Specialization"
                         android:textColor="@color/logo_gold_light"
                         android:textSize="12sp" />
 
@@ -517,7 +599,8 @@
                         android:layout_marginBottom="12dp"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -533,7 +616,8 @@
                         android:layout_marginBottom="12dp"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -549,7 +633,8 @@
                         android:layout_marginBottom="12dp"
                         android:text="-"
                         android:textColor="@color/logo_green"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -564,7 +649,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         android:text="-"
-                        android:textSize="14sp" />
+                        android:textColor="@color/logo_white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -580,7 +667,8 @@
                         android:layout_marginBottom="12dp"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -595,14 +683,15 @@
                         android:layout_height="wrap_content"
                         android:text="-"
                         android:textColor="@color/logo_gold"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- Edit Layout -->
                 <LinearLayout
                     android:id="@+id/workerEditLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
                     android:orientation="vertical"
                     android:visibility="gone">
 
@@ -667,9 +756,6 @@
                             android:textColor="@color/logo_white" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
-
-                <!-- Stats Section for Worker -->
-
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -680,15 +766,16 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:visibility="gone"
-            app:cardBackgroundColor="#1AFFFFFF"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/card_bg_gold_accent"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="18dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -696,6 +783,12 @@
                     android:layout_marginBottom="16dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@color/logo_gold" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -709,25 +802,26 @@
                     <Button
                         android:id="@+id/btnEditFounder"
                         android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:background="@drawable/edit_button_bg"
+                        android:layout_height="36dp"
+                        android:background="@drawable/gold_button_bg"
                         android:text="Edit"
                         android:textColor="@color/logo_white"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                     <Button
                         android:id="@+id/btnSaveFounder"
                         android:layout_width="wrap_content"
-                        android:layout_height="32dp"
+                        android:layout_height="36dp"
                         android:layout_marginStart="8dp"
                         android:background="@drawable/save_button_bg"
                         android:text="Save"
                         android:textColor="@color/logo_white"
                         android:textSize="12sp"
+                        android:textStyle="bold"
                         android:visibility="gone" />
                 </LinearLayout>
 
-                <!-- Display Layout -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -747,7 +841,8 @@
                         android:layout_marginBottom="12dp"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -763,7 +858,8 @@
                         android:layout_marginBottom="12dp"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -778,14 +874,15 @@
                         android:layout_height="wrap_content"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- Edit Layout -->
                 <LinearLayout
                     android:id="@+id/founderEditLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
                     android:orientation="vertical"
                     android:visibility="gone">
 
@@ -843,15 +940,16 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:visibility="gone"
-            app:cardBackgroundColor="#1AFFFFFF"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/card_bg_gold_accent"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="18dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -859,6 +957,12 @@
                     android:layout_marginBottom="16dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@color/logo_gold" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -872,25 +976,26 @@
                     <Button
                         android:id="@+id/btnEditSDM"
                         android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:background="@drawable/edit_button_bg"
+                        android:layout_height="36dp"
+                        android:background="@drawable/gold_button_bg"
                         android:text="Edit"
                         android:textColor="@color/logo_white"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                     <Button
                         android:id="@+id/btnSaveSDM"
                         android:layout_width="wrap_content"
-                        android:layout_height="32dp"
+                        android:layout_height="36dp"
                         android:layout_marginStart="8dp"
                         android:background="@drawable/save_button_bg"
                         android:text="Save"
                         android:textColor="@color/logo_white"
                         android:textSize="12sp"
+                        android:textStyle="bold"
                         android:visibility="gone" />
                 </LinearLayout>
 
-                <!-- Display Layout -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -910,7 +1015,8 @@
                         android:layout_marginBottom="12dp"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -926,12 +1032,13 @@
                         android:layout_marginBottom="12dp"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Department"
+                        android:text="Official ID"
                         android:textColor="@color/logo_gold_light"
                         android:textSize="12sp" />
 
@@ -941,14 +1048,15 @@
                         android:layout_height="wrap_content"
                         android:text="-"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- Edit Layout -->
                 <LinearLayout
                     android:id="@+id/sdmEditLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
                     android:orientation="vertical"
                     android:visibility="gone">
 
@@ -986,7 +1094,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:hint="Government ID"
+                        android:hint="Official ID"
                         app:hintTextColor="@color/logo_gold_light">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -999,38 +1107,44 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Bottom Buttons -->
+        <!-- Bottom Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:layout_marginBottom="32dp"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnChangePassword"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="52dp"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:background="@drawable/edit_button_bg"
+                android:background="@drawable/gold_button_bg"
                 android:text="Change Password"
                 android:textColor="@color/logo_white"
                 android:textSize="14sp"
+                android:textStyle="bold"
                 android:visibility="gone" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:background="@drawable/logout_button_bg"
-                android:text="Logout"
-                android:textColor="@android:color/holo_red_light"
-                android:textSize="14sp"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/red_gradient_bg"
+                android:elevation="6dp"
+                android:text="LOGOUT FROM ACCOUNT"
+                android:textColor="@color/logo_white"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null"
+                app:cornerRadius="16dp"
                 app:icon="@drawable/ic_logout"
-                app:iconTint="@android:color/holo_red_light" />
+                app:iconGravity="textStart"
+                app:iconPadding="10dp"
+                app:iconSize="22dp"
+                app:iconTint="@color/logo_white" />
         </LinearLayout>
 
     </LinearLayout>

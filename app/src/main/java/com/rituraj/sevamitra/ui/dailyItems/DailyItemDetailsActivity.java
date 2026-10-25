@@ -1,6 +1,7 @@
 package com.rituraj.sevamitra.ui.dailyItems;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,6 +9,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -16,9 +19,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -42,7 +47,7 @@ import java.util.Map;
 
 public class DailyItemDetailsActivity extends AppCompatActivity {
 
-    private Toolbar toolbar;
+    private ImageView ivBack, ivSupport;
     private TextView tvTodayQuestion, tvTodayDate, tvTodayStatus;
     private MaterialButton btnReceiveToday;
     private TextView tvProgressText, tvTotalQuantityInfo;
@@ -63,6 +68,8 @@ public class DailyItemDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_item_details);
 
+        setupStatusBar();
+
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
 
@@ -81,8 +88,23 @@ public class DailyItemDetailsActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+    }
+
     private void initViews() {
-        toolbar = findViewById(R.id.toolbar);
+        ivBack = findViewById(R.id.ivBack);
+        ivSupport = findViewById(R.id.ivSupport);
         tvTodayQuestion = findViewById(R.id.tvTodayQuestion);
         tvTodayDate = findViewById(R.id.tvTodayDate);
         tvTodayStatus = findViewById(R.id.tvTodayStatus);
@@ -103,12 +125,12 @@ public class DailyItemDetailsActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Daily Item Details");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        if (ivSupport != null) {
+            ivSupport.setOnClickListener(v -> startActivity(new Intent(DailyItemDetailsActivity.this, SupportActivity.class)));
+        }
     }
 
     private LanguageModel getSavedLanguage(Context context) {
@@ -172,33 +194,9 @@ public class DailyItemDetailsActivity extends AppCompatActivity {
 
         tvTodayDate.setText("Today (" + todayDisplay + ")");
 
-        Map<String, Long> receivedMap = item.getDailyReceivedTimestamps();
-        if (receivedMap == null) {
-            receivedMap = new HashMap<>();
-        }
-
-        // Today Status
-        if (receivedMap.containsKey(todayKey)) {
-            Long timestamp = receivedMap.get(todayKey);
-            String timeStr = timestamp != null ? formatTime(timestamp) : "";
-            tvTodayStatus.setText("Status: Received Today at " + timeStr + " ✓");
-            tvTodayStatus.setTextColor(getColor(R.color.logo_green));
-            btnReceiveToday.setEnabled(false);
-            btnReceiveToday.setText("Already Received Today ✓");
-            btnReceiveToday.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.logo_green)));
-        } else {
-            tvTodayStatus.setText("Status: Pending for Today ⏳");
-            tvTodayStatus.setTextColor(getColor(R.color.logo_orange));
-            btnReceiveToday.setEnabled(true);
-            btnReceiveToday.setText("Yes, Received Today");
-            btnReceiveToday.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.logo_gold)));
-            btnReceiveToday.setOnClickListener(v -> markDateAsReceived(todayKey));
-        }
-
-        // Build Daily Schedule
-        layoutDaysContainer.removeAllViews();
+        // Calculate Start Date and End Date for order schedule
         Calendar startCal = Calendar.getInstance();
-        if (item.getDate() != null && !item.getDate().isEmpty()) {
+        if (item.getDate() != null && !item.getDate().trim().isEmpty()) {
             try {
                 Date parsed = displaySdf.parse(item.getDate().trim());
                 if (parsed != null) {
@@ -207,6 +205,68 @@ public class DailyItemDetailsActivity extends AppCompatActivity {
             } catch (ParseException ignored) {
             }
         }
+        startCal.set(Calendar.HOUR_OF_DAY, 0);
+        startCal.set(Calendar.MINUTE, 0);
+        startCal.set(Calendar.SECOND, 0);
+        startCal.set(Calendar.MILLISECOND, 0);
+
+        Calendar endCal = (Calendar) startCal.clone();
+        endCal.add(Calendar.DAY_OF_MONTH, Math.max(1, totalDays) - 1);
+        endCal.set(Calendar.HOUR_OF_DAY, 23);
+        endCal.set(Calendar.MINUTE, 59);
+        endCal.set(Calendar.SECOND, 59);
+        endCal.set(Calendar.MILLISECOND, 999);
+
+        // Normalize todayCal for comparison
+        Calendar todayCheckCal = Calendar.getInstance();
+        todayCheckCal.set(Calendar.HOUR_OF_DAY, 12);
+
+        boolean isTodayInSchedule = !todayCheckCal.before(startCal) && !todayCheckCal.after(endCal);
+
+        Map<String, Long> receivedMap = item.getDailyReceivedTimestamps();
+        if (receivedMap == null) {
+            receivedMap = new HashMap<>();
+        }
+
+        boolean isVendor = firebaseUser != null && firebaseUser.getPhotoUrl() != null &&
+                String.valueOf(firebaseUser.getPhotoUrl()).equalsIgnoreCase("VENDOR");
+
+        // Today Status & Top Button logic
+        if (receivedMap.containsKey(todayKey)) {
+            Long timestamp = receivedMap.get(todayKey);
+            String timeStr = timestamp != null ? formatTime(timestamp) : "";
+            tvTodayStatus.setText("Status: Received Today at " + timeStr + " ✓");
+            tvTodayStatus.setTextColor(getColor(R.color.logo_green));
+            btnReceiveToday.setEnabled(false);
+            btnReceiveToday.setVisibility(View.VISIBLE);
+            btnReceiveToday.setText("Already Received Today ✓");
+            btnReceiveToday.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.logo_green)));
+        } else if (isVendor) {
+            tvTodayStatus.setText("Status: Pending for Today ⏳");
+            tvTodayStatus.setTextColor(getColor(R.color.logo_orange));
+            btnReceiveToday.setEnabled(false);
+            btnReceiveToday.setVisibility(View.GONE);
+        } else if (!isTodayInSchedule) {
+            if (todayCheckCal.before(startCal)) {
+                tvTodayStatus.setText("Status: Order Starts on " + displaySdf.format(startCal.getTime()) + " 🕒");
+            } else {
+                tvTodayStatus.setText("Status: Order Duration Expired 🏁");
+            }
+            tvTodayStatus.setTextColor(getColor(R.color.logo_gold_light));
+            btnReceiveToday.setEnabled(false);
+            btnReceiveToday.setVisibility(View.GONE);
+        } else {
+            tvTodayStatus.setText("Status: Pending for Today ⏳");
+            tvTodayStatus.setTextColor(getColor(R.color.logo_orange));
+            btnReceiveToday.setEnabled(true);
+            btnReceiveToday.setVisibility(View.VISIBLE);
+            btnReceiveToday.setText("Yes, Received Today");
+            btnReceiveToday.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.logo_gold)));
+            btnReceiveToday.setOnClickListener(v -> markDateAsReceived(todayKey));
+        }
+
+        // Build Daily Schedule
+        layoutDaysContainer.removeAllViews();
 
         int receivedCount = 0;
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -237,13 +297,17 @@ public class DailyItemDetailsActivity extends AppCompatActivity {
                 if (dayKey.equals(todayKey)) {
                     tvDayStatusText.setText("Pending Today");
                     tvDayStatusText.setTextColor(getColor(R.color.logo_orange));
-                    btnMarkReceived.setVisibility(View.VISIBLE);
-                    btnMarkReceived.setOnClickListener(v -> markDateAsReceived(dayKey));
+                    if (isVendor) {
+                        btnMarkReceived.setVisibility(View.GONE);
+                    } else {
+                        btnMarkReceived.setVisibility(View.VISIBLE);
+                        btnMarkReceived.setEnabled(true);
+                        btnMarkReceived.setOnClickListener(v -> markDateAsReceived(dayKey));
+                    }
                 } else if (dayCal.before(todayCal)) {
                     tvDayStatusText.setText("Not Received");
                     tvDayStatusText.setTextColor(getColor(R.color.logo_red));
-                    btnMarkReceived.setVisibility(View.VISIBLE);
-                    btnMarkReceived.setOnClickListener(v -> markDateAsReceived(dayKey));
+                    btnMarkReceived.setVisibility(View.GONE);
                 } else {
                     tvDayStatusText.setText("Upcoming");
                     tvDayStatusText.setTextColor(getColor(R.color.logo_gold_light));
@@ -260,11 +324,24 @@ public class DailyItemDetailsActivity extends AppCompatActivity {
     }
 
     private void markDateAsReceived(String dateKey) {
-        if (itemId == null) return;
-        if (firebaseUser.getPhotoUrl() == null) return;
-        if (String.valueOf(firebaseUser.getPhotoUrl()).equalsIgnoreCase("VENDOR")) return;
+        if (itemId == null || firebaseUser == null) return;
+        if (firebaseUser.getPhotoUrl() != null &&
+                String.valueOf(firebaseUser.getPhotoUrl()).equalsIgnoreCase("VENDOR")) {
+            Toast.makeText(this, "Vendors cannot mark items as received", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        SimpleDateFormat dateKeySdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        String todayKey = dateKeySdf.format(Calendar.getInstance().getTime());
+        if (!todayKey.equals(dateKey)) {
+            Toast.makeText(this, "You can only mark today's item as received", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         DatabaseReference itemRef = database.getReference().child("DailyWorks").child(itemId);
-        itemRef.child("dailyReceivedTimestamps").child(dateKey).setValue(System.currentTimeMillis()).addOnSuccessListener(aVoid -> Toast.makeText(DailyItemDetailsActivity.this, "Marked as Received!", Toast.LENGTH_SHORT).show()).addOnFailureListener(e -> Toast.makeText(DailyItemDetailsActivity.this, "Failed to update status", Toast.LENGTH_SHORT).show());
+        itemRef.child("dailyReceivedTimestamps").child(dateKey).setValue(System.currentTimeMillis())
+                .addOnSuccessListener(aVoid -> Toast.makeText(DailyItemDetailsActivity.this, "Marked as Received!", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(DailyItemDetailsActivity.this, "Failed to update status", Toast.LENGTH_SHORT).show());
     }
 
     private String formatTime(long timestamp) {

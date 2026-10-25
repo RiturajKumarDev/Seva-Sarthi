@@ -4,30 +4,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.*;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -61,18 +58,17 @@ import java.util.*;
 
 public class DailyItemsActivity extends AppCompatActivity {
 
-    // Toolbar
-    private Toolbar toolbar;
+    private ImageView ivBack, ivSupport;
 
     // Stats Views
     private TextView tvTotalItems, tvTotalMilk, tvTotalWater;
     private LinearLayout cardStats;
-    private TextInputEditText etCalender;
+    private EditText etCalender;
     private Calendar calendar;
 
     // Search
     private EditText etSearch;
-    private ImageView ivFilter;
+    private ImageView ivClearSearch;
 
     // Filter Chips
     private Chip chipAll, chipMilk, chipWater;
@@ -105,6 +101,8 @@ public class DailyItemsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_items);
 
+        setupStatusBar();
+
         calendar = Calendar.getInstance();
         // Get user data
         auth = FirebaseAuth.getInstance();
@@ -127,8 +125,23 @@ public class DailyItemsActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+    }
+
     private void initViews() {
-        toolbar = findViewById(R.id.toolbar);
+        ivBack = findViewById(R.id.ivBack);
+        ivSupport = findViewById(R.id.ivSupport);
         swipeRefresh = findViewById(R.id.swipeRefresh);
 
         // Stats
@@ -141,7 +154,7 @@ public class DailyItemsActivity extends AppCompatActivity {
 
         // Search
         etSearch = findViewById(R.id.etSearch);
-        ivFilter = findViewById(R.id.ivFilter);
+        ivClearSearch = findViewById(R.id.ivClearSearch);
 
         // Filter Chips
         chipAll = findViewById(R.id.chipAll);
@@ -168,12 +181,12 @@ public class DailyItemsActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Daily Items");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        if (ivSupport != null) {
+            ivSupport.setOnClickListener(v -> startActivity(new Intent(DailyItemsActivity.this, SupportActivity.class)));
+        }
     }
 
     private void setupRecyclerView() {
@@ -197,6 +210,11 @@ public class DailyItemsActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         swipeRefresh.setOnRefreshListener(DailyItemsActivity.this::loadItemsFromFirebase);
+
+        if (ivClearSearch != null) {
+            ivClearSearch.setOnClickListener(v -> etSearch.setText(""));
+        }
+
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -204,7 +222,14 @@ public class DailyItemsActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterItems(s.toString());
+                if (ivClearSearch != null) {
+                    if (s != null && s.length() > 0) {
+                        ivClearSearch.setVisibility(View.VISIBLE);
+                    } else {
+                        ivClearSearch.setVisibility(View.GONE);
+                    }
+                }
+                applyFilters();
             }
 
             @Override
@@ -231,7 +256,7 @@ public class DailyItemsActivity extends AppCompatActivity {
             applyFilters();
         });
 
-        etCalender.setOnClickListener((v) -> {
+        View.OnClickListener monthPickerListener = (v) -> {
             MonthYearPickerDialogFragment dialog = MonthYearPickerDialogFragment
                     .getInstance(Calendar.getInstance().get(Calendar.MONTH), Calendar.getInstance().get(Calendar.YEAR));
 
@@ -239,11 +264,17 @@ public class DailyItemsActivity extends AppCompatActivity {
                 currentMonthFilter = monthOfYear + 1;
                 currentYearFilter = year;
                 String monthName = new DateFormatSymbols().getMonths()[monthOfYear];
-                etCalender.setText(String.valueOf(monthName + " " + year));
+                etCalender.setText(monthName + " " + year);
                 applyFilters();
             });
             dialog.show(getSupportFragmentManager(), "MonthYearPicker");
-        });
+        };
+
+        etCalender.setOnClickListener(monthPickerListener);
+        CardView cardMonthPicker = findViewById(R.id.cardMonthPicker);
+        if (cardMonthPicker != null) {
+            cardMonthPicker.setOnClickListener(monthPickerListener);
+        }
     }
 
     private void updateChipSelection(Chip selectedChip) {
@@ -255,19 +286,23 @@ public class DailyItemsActivity extends AppCompatActivity {
 
     private void applyFilters() {
         List<DailyItemModel> filteredList = new ArrayList<>();
+        String query = etSearch.getText() != null ? etSearch.getText().toString().toLowerCase().trim() : "";
 
         for (DailyItemModel item : itemList) {
             boolean categoryMatch = false;
             boolean dateMatch = true;
+            boolean searchMatch = true;
 
             // Category filter
-            if ("all".equals(currentCategoryFilter)) {
+            if ("all".equalsIgnoreCase(currentCategoryFilter)) {
                 categoryMatch = true;
-            } else {
-                categoryMatch = item.getCategory().contains(currentCategoryFilter);
+            } else if (item.getCategory() != null) {
+                categoryMatch = item.getCategory().toLowerCase().contains(currentCategoryFilter.toLowerCase());
             }
 
-            String[] date = item.getDate().trim().split("/");
+            // Month/Year Date filter
+            String itemDateStr = item.getDate() != null ? item.getDate().trim() : "";
+            String[] date = itemDateStr.split("/");
             if (date.length >= 3 && currentYearFilter != 0) {
                 try {
                     int itemMonth = Integer.parseInt(date[1]);
@@ -278,29 +313,21 @@ public class DailyItemsActivity extends AppCompatActivity {
                 }
             }
 
-            if (categoryMatch && dateMatch) {
-                filteredList.add(item);
+            // Search query match
+            if (!query.isEmpty()) {
+                String itemName = item.getItemName() != null ? item.getItemName().toLowerCase() : "";
+                String category = item.getCategory() != null ? item.getCategory().toLowerCase() : "";
+                String supplier = item.getSupplierDetail() != null ? item.getSupplierDetail().toLowerCase() : "";
+                String dateStr = item.getDate() != null ? item.getDate().toLowerCase() : "";
+                String problemType = item.getProblemType() != null ? item.getProblemType().toLowerCase() : "";
+
+                searchMatch = itemName.contains(query) || category.contains(query) ||
+                        supplier.contains(query) || dateStr.contains(query) ||
+                        problemType.contains(query);
             }
-        }
 
-        itemAdapter.updateList(filteredList);
-        updateNoDataVisibility(filteredList.isEmpty());
-    }
-
-    private void filterItems(String query) {
-        List<DailyItemModel> filteredList = new ArrayList<>();
-
-        if (query.isEmpty()) {
-            filteredList.addAll(itemList);
-        } else {
-            String lowerCaseQuery = query.toLowerCase();
-            for (DailyItemModel item : itemList) {
-                if (item.getItemName().toLowerCase().contains(lowerCaseQuery) ||
-                        item.getCategory().toLowerCase().contains(lowerCaseQuery) ||
-                        item.getSupplierDetail().toLowerCase().contains(lowerCaseQuery) ||
-                        item.getDate().contains(lowerCaseQuery)) {
-                    filteredList.add(item);
-                }
+            if (categoryMatch && dateMatch && searchMatch) {
+                filteredList.add(item);
             }
         }
 

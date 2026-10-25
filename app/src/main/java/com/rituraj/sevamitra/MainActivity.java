@@ -9,7 +9,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.rituraj.sevamitra.ui.dashboard.BaseDashboardActivity;
+import com.rituraj.sevamitra.ui.BaseDashboardActivity;
 
 public class MainActivity extends AppCompatActivity {
 
