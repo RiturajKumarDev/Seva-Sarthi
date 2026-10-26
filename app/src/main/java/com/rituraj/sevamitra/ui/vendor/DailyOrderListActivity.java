@@ -53,9 +53,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.rituraj.sevamitra.ui.support.SupportActivity;
+
 public class DailyOrderListActivity extends AppCompatActivity {
 
-    private Toolbar toolbar;
+    private ImageView ivBack, ivSupport;
     private EditText etSearch;
     private ImageView ivClearSearch;
     private ChipGroup chipGroup;
@@ -122,7 +124,8 @@ public class DailyOrderListActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        toolbar = findViewById(R.id.toolbar);
+        ivBack = findViewById(R.id.ivBack);
+        ivSupport = findViewById(R.id.ivSupport);
         etSearch = findViewById(R.id.etSearch);
         ivClearSearch = findViewById(R.id.ivClearSearch);
         chipGroup = findViewById(R.id.chipGroup);
@@ -146,12 +149,12 @@ public class DailyOrderListActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Vendor Daily Orders");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        if (ivSupport != null) {
+            ivSupport.setOnClickListener(v -> startActivity(new Intent(DailyOrderListActivity.this, SupportActivity.class)));
+        }
     }
 
     private LanguageModel getSavedLanguage(Context context) {

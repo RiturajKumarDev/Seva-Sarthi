@@ -3,6 +3,7 @@ package com.rituraj.sevamitra.ui.issues;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,19 +11,20 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -47,7 +49,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class AddDailyIssueActivity extends AppCompatActivity {
-    private Toolbar toolbar;
+    private ImageView ivBack, ivSupport;
     private FirebaseAuth auth;
     private FirebaseUser firebaseUser;
     private FirebaseDatabase database;
@@ -69,6 +71,8 @@ public class AddDailyIssueActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_daily_issue);
+
+        setupStatusBar();
 
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
@@ -92,8 +96,23 @@ public class AddDailyIssueActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+    }
+
     private void initViews() {
-        toolbar = findViewById(R.id.toolbar);
+        ivBack = findViewById(R.id.ivBack);
+        ivSupport = findViewById(R.id.ivSupport);
 
         itemName = findViewById(R.id.etItemName);
         layoutWaterSupplyFields = findViewById(R.id.layoutWaterSupplyFields);
@@ -214,12 +233,12 @@ public class AddDailyIssueActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Register New Daily Issue");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        if (ivSupport != null) {
+            ivSupport.setOnClickListener(v -> startActivity(new Intent(AddDailyIssueActivity.this, SupportActivity.class)));
+        }
     }
 
     private void setupSpinners() {

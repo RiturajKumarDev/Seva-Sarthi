@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/splash_gradient_bg"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="16dp">
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="6dp">
 
     <LinearLayout
         android:id="@+id/formLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/card_bg_founder_header"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,12 +22,18 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <View
+                android:layout_width="4dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/logo_gold" />
+
             <TextView
                 android:id="@+id/tvFormTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Daily Issue"
+                android:text="Daily Issue Details"
                 android:textColor="@color/logo_gold"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -37,26 +43,29 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:text="Select Issue"
+            android:layout_marginBottom="6dp"
+            android:text="Select Specific Issue"
             android:textColor="@color/logo_white"
             android:textSize="13sp" />
 
         <Spinner
             android:id="@+id/spinnerCategory"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/spinner_background" />
+            android:layout_height="52dp"
+            android:background="@drawable/spinner_background"
+            android:popupBackground="@drawable/spinner_dropdown_bg" />
 
         <!-- Item Name -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Item Name"
+            android:layout_marginTop="14dp"
+            android:hint="Item / Request Name"
             app:boxStrokeColor="@color/logo_gold"
-            app:hintTextColor="@color/logo_gold_light">
+            app:hintTextColor="@color/logo_gold_light"
+            app:startIconDrawable="@drawable/ic_issue"
+            app:startIconTint="@color/logo_gold">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etItemName"
@@ -70,7 +79,7 @@
             android:id="@+id/layoutWaterSupplyFields"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="14dp"
             android:orientation="horizontal"
             android:visibility="gone">
 
@@ -78,7 +87,7 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="6dp"
                 android:layout_weight="1"
                 android:hint="Number of Days"
                 app:boxStrokeColor="@color/logo_gold"
@@ -96,7 +105,7 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="6dp"
                 android:layout_weight="1"
                 android:hint="Items Per Day"
                 app:boxStrokeColor="@color/logo_gold"
@@ -115,16 +124,18 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="14dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="6dp"
                 android:layout_weight="1"
                 android:hint="Quantity"
+                app:boxStrokeColor="@color/logo_gold"
                 app:hintTextColor="@color/logo_gold_light">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -138,37 +149,40 @@
             <Spinner
                 android:id="@+id/spinnerUnit"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="8dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="6dp"
                 android:layout_weight="1"
                 android:background="@drawable/spinner_background"
-                android:entries="@array/measurement_units" />
+                android:entries="@array/measurement_units"
+                android:popupBackground="@drawable/spinner_dropdown_bg" />
         </LinearLayout>
 
         <!-- Supplier -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="4dp"
-            android:text="Select Supplier"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="6dp"
+            android:text="Select Assigned Supplier / Worker"
             android:textColor="@color/logo_white"
             android:textSize="13sp" />
 
         <Spinner
             android:id="@+id/spinnerSupplier"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/spinner_background" />
+            android:layout_height="52dp"
+            android:background="@drawable/spinner_background"
+            android:popupBackground="@drawable/spinner_dropdown_bg" />
 
         <!-- Status -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="14dp"
             android:enabled="false"
             android:hint="Status"
+            app:boxStrokeColor="@color/logo_gold"
             app:hintTextColor="@color/logo_gold_light">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -184,16 +198,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="14dp"
             android:orientation="horizontal">
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="6dp"
                 android:layout_weight="1"
                 android:hint="Date"
+                app:boxStrokeColor="@color/logo_gold"
                 app:hintTextColor="@color/logo_gold_light">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -208,9 +223,10 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="6dp"
                 android:layout_weight="1"
                 android:hint="Time"
+                app:boxStrokeColor="@color/logo_gold"
                 app:hintTextColor="@color/logo_gold_light">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -227,9 +243,12 @@
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="14dp"
             android:hint="Notes (Optional)"
-            app:hintTextColor="@color/logo_gold_light">
+            app:boxStrokeColor="@color/logo_gold"
+            app:hintTextColor="@color/logo_gold_light"
+            app:startIconDrawable="@drawable/ic_edit"
+            app:startIconTint="@color/logo_gold">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNotes"
@@ -244,29 +263,35 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnUpdateItem"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="8dp"
+                android:layout_height="52dp"
+                android:layout_marginEnd="6dp"
                 android:layout_weight="1"
-                android:text="Update Issue"
+                android:text="REGISTER DAILY ISSUE"
                 android:textColor="@color/logo_dark_blue"
+                android:textSize="14sp"
+                android:textStyle="bold"
                 app:backgroundTint="@color/logo_gold"
-                app:cornerRadius="24dp" />
+                app:cornerRadius="16dp"
+                app:elevation="6dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCloseItem"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="6dp"
                 android:layout_weight="1"
                 android:text="Close"
                 android:textColor="@color/logo_white"
-                app:backgroundTint="@color/logo_orange"
-                app:cornerRadius="24dp" />
+                android:textSize="14sp"
+                app:cornerRadius="16dp"
+                app:strokeColor="#40FFFFFF" />
         </LinearLayout>
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</androidx.cardview.widget.CardView>

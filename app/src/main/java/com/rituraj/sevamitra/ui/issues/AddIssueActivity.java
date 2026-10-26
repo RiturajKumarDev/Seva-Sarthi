@@ -1,21 +1,26 @@
 package com.rituraj.sevamitra.ui.issues;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -39,8 +44,8 @@ public class AddIssueActivity extends AppCompatActivity {
     private FirebaseUser firebaseUser;
     private FirebaseDatabase database;
     private DatabaseReference reference;
-    // Toolbar
-    private Toolbar toolbar;
+    // Views
+    private ImageView ivBack, ivSupport;
 
     // Problem Details
     private TextInputEditText etProblemTitle, etProblemDescription, etLocation;
@@ -73,6 +78,8 @@ public class AddIssueActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_issue);
 
+        setupStatusBar();
+
         auth = FirebaseAuth.getInstance();
         firebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
@@ -93,8 +100,23 @@ public class AddIssueActivity extends AppCompatActivity {
         translationViews();
     }
 
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+    }
+
     private void initViews() {
-        toolbar = findViewById(R.id.toolbar);
+        ivBack = findViewById(R.id.ivBack);
+        ivSupport = findViewById(R.id.ivSupport);
 
         // Problem Details
         etProblemTitle = findViewById(R.id.etProblemTitle);
@@ -129,12 +151,12 @@ public class AddIssueActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Register New Issue");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        if (ivSupport != null) {
+            ivSupport.setOnClickListener(v -> startActivity(new Intent(AddIssueActivity.this, SupportActivity.class)));
+        }
     }
 
     private void setupSpinners() {

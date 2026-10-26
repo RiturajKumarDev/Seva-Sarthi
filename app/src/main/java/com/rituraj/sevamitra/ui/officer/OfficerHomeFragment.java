@@ -69,8 +69,8 @@ public class OfficerHomeFragment extends Fragment {
     private TextView tvDistrictName, tvDivisionName, vtProfileLetter;
 
     // Quick Actions
-    private CardView cardViewComplaints, cardTrackComplaints, cardOfficerReports;
-    private CardView cardWorkerVerification, cardEmergencyAlerts, cardAnnouncements;
+    private CardView cardViewComplaints, cardTrackComplaints;
+    private CardView cardEmergencyAlerts, cardAnnouncements;
     private FloatingActionButton fabNewIssue;
 
     // Charts
@@ -142,8 +142,6 @@ public class OfficerHomeFragment extends Fragment {
         // Quick Actions
         cardViewComplaints = view.findViewById(R.id.cardViewComplaints);
         cardTrackComplaints = view.findViewById(R.id.cardTrackComplaints);
-        cardOfficerReports = view.findViewById(R.id.cardOfficerReports);
-        cardWorkerVerification = view.findViewById(R.id.cardWorkerVerification);
         cardEmergencyAlerts = view.findViewById(R.id.cardEmergencyAlerts);
         cardAnnouncements = view.findViewById(R.id.cardAnnouncements);
         fabNewIssue = view.findViewById(R.id.fabNewIssue);
@@ -212,12 +210,6 @@ public class OfficerHomeFragment extends Fragment {
 
         cardTrackComplaints.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), IssueListActivity.class)));
-
-        cardOfficerReports.setOnClickListener(v ->
-                Toast.makeText(getContext(), "View officer performance reports", Toast.LENGTH_SHORT).show());
-
-        cardWorkerVerification.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Verify worker credentials", Toast.LENGTH_SHORT).show());
 
         cardEmergencyAlerts.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), SupportActivity.class)));

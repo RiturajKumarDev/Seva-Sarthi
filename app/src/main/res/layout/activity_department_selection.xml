@@ -1,62 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login_gradient_bg"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true"
+    android:background="@drawable/dashboard_gradient_bg"
+    android:orientation="vertical"
+    tools:context=".ui.issues.DepartmentSelectionActivity">
 
-    <!-- Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <!-- Professional Top App Bar -->
+    <RelativeLayout
+        android:id="@+id/cardTopBar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/logo_dark_blue"
-        app:navigationIcon="@drawable/ic_arrow_back"
-        app:titleTextColor="@color/logo_white" />
+        android:layout_height="64dp"
+        android:background="@color/logo_dark_blue">
 
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select Your Department"
-            android:textColor="@color/logo_white"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            <!-- Back Button -->
+            <ImageView
+                android:id="@+id/ivBack"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="@color/logo_white" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Choose one option below"
-            android:textColor="@color/logo_gold_light"
-            android:textSize="14sp" />
-    </LinearLayout>
+            <!-- App Logo / Icon -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                app:cardBackgroundColor="@color/logo_dark_blue"
+                app:cardCornerRadius="19dp"
+                app:cardElevation="0dp">
 
-    <!-- Selected Department Display -->
+                <ImageView
+                    android:id="@+id/ivTopLogo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/app_logo"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/app_logo" />
+            </androidx.cardview.widget.CardView>
 
-    <!-- Department Grid -->
+            <!-- Title & Subtitle -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTopTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select Department"
+                    android:textColor="@color/logo_white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTopSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Choose service category for issue"
+                    android:textColor="@color/logo_gold_light"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- Support Action Icon -->
+            <ImageView
+                android:id="@+id/ivSupport"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="#1AFFFFFF"
+                android:padding="8dp"
+                android:src="@drawable/ic_support"
+                app:tint="@color/logo_gold_light" />
+        </LinearLayout>
+
+        <!-- Bottom Accent Gold Border Line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1.5dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/logo_gold" />
+    </RelativeLayout>
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="8dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:padding="12dp">
 
-        <GridLayout
-            android:id="@+id/gridDepartments"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="3"
-            android:rowCount="5" />
+            android:orientation="vertical">
 
+            <!-- Department Grid -->
+            <GridLayout
+                android:id="@+id/gridDepartments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="3"
+                android:rowCount="5" />
+
+        </LinearLayout>
     </ScrollView>
-
-    <!-- Confirm Button -->
-
 </LinearLayout>

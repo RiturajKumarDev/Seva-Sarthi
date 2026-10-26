@@ -1,77 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login_gradient_bg"
-    android:fillViewport="true">
+    android:fitsSystemWindows="true"
+    android:background="@drawable/dashboard_gradient_bg"
+    android:orientation="vertical"
+    tools:context=".ui.issues.AddIssueActivity">
 
-    <LinearLayout
+    <!-- Professional Top App Bar -->
+    <RelativeLayout
+        android:id="@+id/cardTopBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="64dp"
+        android:background="@color/logo_dark_blue">
 
-        <!-- Toolbar -->
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/logo_dark_blue"
-            app:navigationIcon="@drawable/ic_arrow_back"
-            app:titleTextColor="@color/logo_white" />
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
+
+            <!-- Back Button -->
+            <ImageView
+                android:id="@+id/ivBack"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="@color/logo_white" />
+
+            <!-- App Logo / Icon -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                app:cardBackgroundColor="@color/logo_dark_blue"
+                app:cardCornerRadius="19dp"
+                app:cardElevation="0dp">
+
+                <ImageView
+                    android:id="@+id/ivTopLogo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/app_logo"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/app_logo" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Title & Subtitle -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTopTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Register New Issue"
+                    android:textColor="@color/logo_white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTopSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Report &amp; log public or service issue"
+                    android:textColor="@color/logo_gold_light"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- Support Action Icon -->
+            <ImageView
+                android:id="@+id/ivSupport"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="#1AFFFFFF"
+                android:padding="8dp"
+                android:src="@drawable/ic_support"
+                app:tint="@color/logo_gold_light" />
+        </LinearLayout>
+
+        <!-- Bottom Accent Gold Border Line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1.5dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/logo_gold" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp"
-            android:paddingBottom="32dp">
-
-            <!-- Header -->
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Register New Issue"
-                android:textColor="@color/logo_white"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:text="Fill in the details below"
-                android:textColor="@color/logo_gold_light"
-                android:textSize="14sp" />
+            android:paddingBottom="80dp">
 
             <!-- Error Text -->
             <TextView
                 android:id="@+id/tvError"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:gravity="center"
                 android:text=""
                 android:textColor="@color/logo_orange"
-                android:textSize="12sp"
+                android:textSize="13sp"
+                android:textStyle="bold"
                 android:visibility="gone" />
 
-            <!-- Problem Details Card -->
+            <!-- Issue Classification Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="#1AFFFFFF"
-                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/card_bg_founder_header"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="18dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -82,64 +149,79 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
-                    <!-- Problem Type -->
-
                     <!-- Issue Type -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="Issue"
+                        android:layout_marginBottom="6dp"
+                        android:text="Select Specific Issue"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="13sp" />
 
                     <Spinner
                         android:id="@+id/spinnerIssueType"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:layout_marginBottom="12dp"
-                        android:background="@drawable/spinner_background" />
+                        android:layout_height="52dp"
+                        android:layout_marginBottom="14dp"
+                        android:background="@drawable/spinner_background"
+                        android:popupBackground="@drawable/spinner_dropdown_bg" />
 
                     <!-- Priority -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="Priority Level"
+                        android:layout_marginBottom="6dp"
+                        android:text="Select Priority Level"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp" />
+                        android:textSize="13sp" />
 
                     <Spinner
                         android:id="@+id/spinnerPriority"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="@drawable/spinner_background" />
+                        android:layout_height="52dp"
+                        android:background="@drawable/spinner_background"
+                        android:popupBackground="@drawable/spinner_dropdown_bg" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- Problem Details Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="#1AFFFFFF"
-                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/card_bg_gold_accent"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="18dp">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:text="Problem Details"
-                        android:textColor="@color/logo_gold"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="4dp"
+                            android:layout_height="18dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/logo_gold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Problem Details"
+                            android:textColor="@color/logo_gold"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
 
                     <!-- Problem Title -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -149,7 +231,9 @@
                         android:layout_height="wrap_content"
                         android:hint="Problem Title"
                         app:boxStrokeColor="@color/logo_gold"
-                        app:hintTextColor="@color/logo_gold_light">
+                        app:hintTextColor="@color/logo_gold_light"
+                        app:startIconDrawable="@drawable/ic_issue"
+                        app:startIconTint="@color/logo_gold">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etProblemTitle"
@@ -166,7 +250,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="Problem Description"
-                        app:hintTextColor="@color/logo_gold_light">
+                        app:boxStrokeColor="@color/logo_gold"
+                        app:hintTextColor="@color/logo_gold_light"
+                        app:startIconDrawable="@drawable/ic_edit"
+                        app:startIconTint="@color/logo_gold">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etProblemDescription"
@@ -185,7 +272,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:hint="Location / Address"
-                        app:hintTextColor="@color/logo_gold_light">
+                        app:boxStrokeColor="@color/logo_gold"
+                        app:hintTextColor="@color/logo_gold_light"
+                        app:startIconDrawable="@drawable/ic_location"
+                        app:startIconTint="@color/logo_gold">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etLocation"
@@ -200,13 +290,13 @@
                         android:layout_marginTop="12dp"
                         android:text="Select Founder"
                         android:textColor="@color/logo_white"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:visibility="gone" />
 
                     <Spinner
                         android:id="@+id/spinnerFounder"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
+                        android:layout_height="52dp"
                         android:layout_marginTop="8dp"
                         android:background="@drawable/spinner_background"
                         android:visibility="gone" />
@@ -214,24 +304,23 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Issue Classification Card -->
-
             <!-- Submit Button -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
+                android:layout_marginTop="18dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSubmitIssue"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Register Issue"
+                    android:text="REGISTER ISSUE"
                     android:textColor="@color/logo_dark_blue"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
                     app:backgroundTint="@color/logo_gold"
-                    app:cornerRadius="28dp" />
+                    app:cornerRadius="16dp"
+                    app:elevation="6dp" />
 
                 <ProgressBar
                     android:id="@+id/progressBar"
@@ -242,5 +331,5 @@
             </FrameLayout>
 
         </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>

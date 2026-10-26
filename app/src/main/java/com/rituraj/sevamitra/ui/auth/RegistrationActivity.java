@@ -7,15 +7,20 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -38,6 +43,7 @@ import java.util.Map;
 
 public class RegistrationActivity extends AppCompatActivity {
 
+    private ImageView ivBack, ivSupport;
     // User Type Spinner
     private Spinner spinnerUserType;
     private CardView cardSevaMitraFields, cardWorkerFields, cardFounderFields, cardOfficerFields;
@@ -91,6 +97,8 @@ public class RegistrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
+        setupStatusBar();
+
         // Initialize Firebase
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -106,7 +114,24 @@ public class RegistrationActivity extends AppCompatActivity {
         setupClickListeners();
     }
 
+    private void setupStatusBar() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getColor(R.color.logo_dark_blue));
+        window.setNavigationBarColor(getColor(R.color.logo_dark_blue));
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+    }
+
     private void initViews() {
+        ivBack = findViewById(R.id.ivBack);
+        ivSupport = findViewById(R.id.ivSupport);
+
         // User Type Spinner
         spinnerUserType = findViewById(R.id.spinnerUserType);
 
@@ -385,6 +410,13 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> finish());
+        }
+        if (ivSupport != null) {
+            ivSupport.setOnClickListener(v -> startActivity(new Intent(RegistrationActivity.this, SupportActivity.class)));
+        }
+
         btnRegister.setOnClickListener(v -> validateAndRegister());
         btnLogin.setOnClickListener(v -> {
             Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);

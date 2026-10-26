@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.*;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -148,23 +150,67 @@ public class SupportActivity extends AppCompatActivity {
                 "How to update profile?"
         };
 
-        new android.app.AlertDialog.Builder(this)
-                .setTitle("Frequently Asked Questions")
-                .setItems(faqs, (dialog, which) -> {
-                    showFAQAnswer(which);
-                })
-                .setNegativeButton("Close", null)
-                .show();
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_faq_help, null);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        TextView tvDialogTitle = dialogView.findViewById(R.id.tvDialogTitle);
+        ImageView btnCloseDialog = dialogView.findViewById(R.id.btnCloseDialog);
+        LinearLayout llFaqListContainer = dialogView.findViewById(R.id.llFaqListContainer);
+        MaterialButton btnDialogContact = dialogView.findViewById(R.id.btnDialogContact);
+        MaterialButton btnDialogClose = dialogView.findViewById(R.id.btnDialogClose);
+
+        tvDialogTitle.setText("Frequently Asked Questions");
+
+        for (int i = 0; i < faqs.length; i++) {
+            final int index = i;
+            TextView questionView = new TextView(this);
+            questionView.setText((i + 1) + ". " + faqs[i]);
+            questionView.setTextColor(getColor(R.color.logo_white));
+            questionView.setTextSize(14);
+            questionView.setPadding(12, 16, 12, 16);
+            questionView.setBackgroundResource(R.drawable.card_bg_founder_header);
+            questionView.setClickable(true);
+            questionView.setFocusable(true);
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(0, 0, 0, 10);
+            questionView.setLayoutParams(params);
+
+            questionView.setOnClickListener(v -> {
+                dialog.dismiss();
+                showFAQAnswer(index, faqs[index]);
+            });
+
+            llFaqListContainer.addView(questionView);
+        }
+
+        btnCloseDialog.setOnClickListener(v -> dialog.dismiss());
+        btnDialogClose.setOnClickListener(v -> dialog.dismiss());
+        btnDialogContact.setOnClickListener(v -> {
+            dialog.dismiss();
+            openWhatsApp();
+        });
+
+        dialog.show();
     }
 
-    private void showFAQAnswer(int index) {
+    private void showFAQAnswer(int index, String question) {
         String answer = "";
         switch (index) {
             case 0:
                 answer = "Go to Registration page, select 'Worker' user type, fill in your details, and submit. You'll be verified by the Founder.";
                 break;
             case 1:
-                answer = "Login as SevaMitra, go to Issues tab, click 'Create Issue', fill all details and submit.";
+                answer = "Login as SevaSarthi, go to Issues tab, click 'Create Issue', fill all details and submit.";
                 break;
             case 2:
                 answer = "Select the issue, click 'Assign Worker', choose from available workers and assign.";
@@ -181,13 +227,44 @@ public class SupportActivity extends AppCompatActivity {
             case 6:
                 answer = "Go to Profile section, click Edit button, update your information and save.";
                 break;
+            default:
+                answer = "For " + question + ", please refer to our support team for live assistance.";
+                break;
         }
 
-        new android.app.AlertDialog.Builder(this)
-                .setTitle("Answer")
-                .setMessage(answer)
-                .setPositiveButton("OK", null)
-                .show();
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_faq_help, null);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        TextView tvDialogTitle = dialogView.findViewById(R.id.tvDialogTitle);
+        ImageView btnCloseDialog = dialogView.findViewById(R.id.btnCloseDialog);
+        LinearLayout llFaqListContainer = dialogView.findViewById(R.id.llFaqListContainer);
+        LinearLayout llFaqAnswerContainer = dialogView.findViewById(R.id.llFaqAnswerContainer);
+        TextView tvFaqQuestion = dialogView.findViewById(R.id.tvFaqQuestion);
+        TextView tvFaqAnswer = dialogView.findViewById(R.id.tvFaqAnswer);
+        MaterialButton btnDialogContact = dialogView.findViewById(R.id.btnDialogContact);
+        MaterialButton btnDialogClose = dialogView.findViewById(R.id.btnDialogClose);
+
+        tvDialogTitle.setText("FAQ Solution");
+        llFaqListContainer.setVisibility(View.GONE);
+        llFaqAnswerContainer.setVisibility(View.VISIBLE);
+
+        tvFaqQuestion.setText(question);
+        tvFaqAnswer.setText(answer);
+
+        btnCloseDialog.setOnClickListener(v -> dialog.dismiss());
+        btnDialogClose.setOnClickListener(v -> dialog.dismiss());
+        btnDialogContact.setOnClickListener(v -> {
+            dialog.dismiss();
+            openWhatsApp();
+        });
+
+        dialog.show();
     }
 
     private void setupFAQItems() {
