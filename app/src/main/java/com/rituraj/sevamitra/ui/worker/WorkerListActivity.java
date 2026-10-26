@@ -1,8 +1,15 @@
 package com.rituraj.sevamitra.ui.worker;
 
+import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -21,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -28,6 +36,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.textfield.TextInputEditText;
+import com.rituraj.sevamitra.locations.LocationManager;
+import com.rituraj.sevamitra.locations.PermissionManager;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -45,6 +56,7 @@ import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class WorkerListActivity extends AppCompatActivity implements WorkerAdapter.OnWorkerClickListener {
     private FirebaseAuth auth;
@@ -63,6 +75,19 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
     private LinearLayout sortOptionsLayout;
     private CardView cardFilter;
     private Button btnClearFilters;
+
+    // Location Filter Views
+    private MaterialButton btnFilterMyLocation, btnApplyLocationFilter;
+    private TextInputEditText etFilterState, etFilterCity, etFilterPincode;
+
+    // Location Managers
+    private PermissionManager permissionManager;
+    private LocationManager locationManager;
+    private IntentFilter localBroadcastIntentFilter;
+    private final String[] foregroundLocationPermissions = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    };
 
     // Adapter and Data
     private WorkerAdapter workerAdapter;
@@ -92,6 +117,7 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
         issueId = getIntent().getStringExtra("IssueId");
 
         initViews();
+        takeUserLocation();
         setupToolbar();
         setupRecyclerView();
         setupSearch();
@@ -117,6 +143,11 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
     private void initViews() {
         ivBack = findViewById(R.id.ivBack);
         ivSupport = findViewById(R.id.ivSupport);
+        btnFilterMyLocation = findViewById(R.id.btnFilterMyLocation);
+        btnApplyLocationFilter = findViewById(R.id.btnApplyLocationFilter);
+        etFilterState = findViewById(R.id.etFilterState);
+        etFilterCity = findViewById(R.id.etFilterCity);
+        etFilterPincode = findViewById(R.id.etFilterPincode);
         swipeRefresh = findViewById(R.id.swipeRefresh);
         rvWorkers = findViewById(R.id.rvWorkers);
         progressBar = findViewById(R.id.progressBar);
@@ -247,12 +278,27 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
             applyFilters();
         });
 
+        // Location Filter Listeners
+        if (btnFilterMyLocation != null) {
+            btnFilterMyLocation.setOnClickListener(v -> fetchUserLocation());
+        }
+
+        if (btnApplyLocationFilter != null) {
+            btnApplyLocationFilter.setOnClickListener(v -> {
+                applyFilters();
+                cardFilter.setVisibility(View.GONE);
+            });
+        }
+
         // Clear filters button
         btnClearFilters.setOnClickListener(v -> {
             currentStatusFilter = "all";
             currentCategoryFilter = "all";
             updateChipSelection(chipAll);
             updateCategoryChipSelection(null);
+            if (etFilterState != null) etFilterState.setText("");
+            if (etFilterCity != null) etFilterCity.setText("");
+            if (etFilterPincode != null) etFilterPincode.setText("");
             applyFilters();
             cardFilter.setVisibility(View.GONE);
         });
@@ -330,9 +376,16 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
     private void applyFilters() {
         List<UserData> filteredList = new ArrayList<>();
 
+        String stateFilter = etFilterState != null && etFilterState.getText() != null ? etFilterState.getText().toString().trim().toLowerCase() : "";
+        String cityFilter = etFilterCity != null && etFilterCity.getText() != null ? etFilterCity.getText().toString().trim().toLowerCase() : "";
+        String pincodeFilter = etFilterPincode != null && etFilterPincode.getText() != null ? etFilterPincode.getText().toString().trim().toLowerCase() : "";
+
         for (UserData worker : workerListFull) {
             boolean statusMatch = false;
             boolean categoryMatch = false;
+            boolean stateMatch = true;
+            boolean cityMatch = true;
+            boolean pincodeMatch = true;
 
             // Status filter
             switch (currentStatusFilter) {
@@ -348,10 +401,26 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
             if ("all".equals(currentCategoryFilter)) {
                 categoryMatch = true;
             } else {
-                categoryMatch = currentCategoryFilter.equals(worker.getDepartment());
+                categoryMatch = currentCategoryFilter.equalsIgnoreCase(worker.getDepartment());
             }
 
-            if (statusMatch && categoryMatch) {
+            // Location Filters (State, City, Pincode)
+            if (!stateFilter.isEmpty()) {
+                String workerState = worker.getState() != null ? worker.getState().toLowerCase() : "";
+                stateMatch = workerState.contains(stateFilter);
+            }
+
+            if (!cityFilter.isEmpty()) {
+                String workerCity = worker.getCity() != null ? worker.getCity().toLowerCase() : "";
+                cityMatch = workerCity.contains(cityFilter);
+            }
+
+            if (!pincodeFilter.isEmpty()) {
+                String workerPincode = worker.getPinCode() != null ? worker.getPinCode().toLowerCase() : "";
+                pincodeMatch = workerPincode.contains(pincodeFilter);
+            }
+
+            if (statusMatch && categoryMatch && stateMatch && cityMatch && pincodeMatch) {
                 filteredList.add(worker);
             }
         }
@@ -598,6 +667,116 @@ public class WorkerListActivity extends AppCompatActivity implements WorkerAdapt
         });
 
         dialog.show();
+    }
+
+    public void takeUserLocation() {
+        permissionManager = PermissionManager.getInstance(WorkerListActivity.this);
+        locationManager = LocationManager.getInstance(WorkerListActivity.this);
+
+        localBroadcastIntentFilter = new IntentFilter();
+        localBroadcastIntentFilter.addAction("foreground_location");
+    }
+
+    public void fetchUserLocation() {
+        if (permissionManager == null) {
+            permissionManager = PermissionManager.getInstance(WorkerListActivity.this);
+        }
+        if (locationManager == null) {
+            locationManager = LocationManager.getInstance(WorkerListActivity.this);
+        }
+
+        if (!permissionManager.checkPermissions(foregroundLocationPermissions)) {
+            permissionManager.askPermissions(WorkerListActivity.this, foregroundLocationPermissions, 100);
+        } else {
+            if (locationManager.isLocationEnabled()) {
+                Location location = locationManager.getLastLocation();
+                if (location != null) {
+                    getAddressFromLocation(WorkerListActivity.this, location.getLatitude(), location.getLongitude());
+                } else {
+                    locationManager.startLocationUpdates();
+                    Toast.makeText(this, "Fetching GPS location...", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                locationManager.createLocationRequest();
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (locationManager != null) {
+            locationManager.startLocationUpdates();
+        }
+        if (localBroadcastIntentFilter != null) {
+            LocalBroadcastManager.getInstance(WorkerListActivity.this).registerReceiver(foregroundLocationBroadCastReceiver, localBroadcastIntentFilter);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (localBroadcastIntentFilter != null) {
+            LocalBroadcastManager.getInstance(WorkerListActivity.this).unregisterReceiver(foregroundLocationBroadCastReceiver);
+        }
+        if (locationManager != null) {
+            locationManager.stopLocationUpdates();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (permissionManager != null && permissionManager.handlePermissionResult(WorkerListActivity.this, 100, permissions, grantResults)) {
+            if (locationManager != null) {
+                locationManager.createLocationRequest();
+                fetchUserLocation();
+            }
+        } else {
+            Toast.makeText(WorkerListActivity.this, "Permission denied.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    BroadcastReceiver foregroundLocationBroadCastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && intent.hasExtra("Lat") && intent.hasExtra("Lng")) {
+                try {
+                    double lat = Double.parseDouble(intent.getStringExtra("Lat"));
+                    double lng = Double.parseDouble(intent.getStringExtra("Lng"));
+                    getAddressFromLocation(context, lat, lng);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    };
+
+    private void getAddressFromLocation(Context context, double lat, double lng) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address addressObj = addresses.get(0);
+                String city = addressObj.getLocality() != null ? addressObj.getLocality() : addressObj.getSubAdminArea();
+                String state = addressObj.getAdminArea();
+                String postalCode = addressObj.getPostalCode();
+
+                if (state != null && etFilterState != null) {
+                    etFilterState.setText(state);
+                }
+
+                if (city != null && etFilterCity != null) {
+                    etFilterCity.setText(city);
+                }
+
+                if (postalCode != null && etFilterPincode != null) {
+                    etFilterPincode.setText(postalCode);
+                }
+//                Toast.makeText(context, "GPS Location fetched! Click 'APPLY LOCATION FILTER' to filter workers.", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(context, "Location fetched. Please verify filters.", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

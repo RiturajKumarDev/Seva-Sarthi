@@ -1,7 +1,14 @@
 package com.rituraj.sevamitra.ui.auth;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,9 +24,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.rituraj.sevamitra.locations.LocationManager;
+import com.rituraj.sevamitra.locations.PermissionManager;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,9 +49,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class RegistrationActivity extends AppCompatActivity {
+    private final String[] foregroundLocationPermissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+    private PermissionManager permissionManager;
+    private LocationManager locationManager;
+    private IntentFilter localBroadcastIntentFilter;
 
     private ImageView ivBack, ivSupport;
     // User Type Spinner
@@ -50,8 +65,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
     // Common Fields
     private TextInputEditText etFullName, etEmail, etPhone, etPassword, etConfirmPassword;
-    private TextInputEditText etAddress;
-    private Spinner spinnerState, spinnerCity;
+    private TextInputEditText etAddress, etState, etCity, etPincode;
 
     // SevaMitra (Earlier Officer) Specific Fields
     private TextInputEditText etDepartment, etDesignation;
@@ -73,7 +87,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private TextInputEditText etDistrict, etDivision;
 
     // Buttons
-    private MaterialButton btnRegister;
+    private MaterialButton btnRegister, btnFetchLocation;
     private TextView btnLogin;
     private ProgressBar progressBar;
     private TextView tvError;
@@ -108,10 +122,10 @@ public class RegistrationActivity extends AppCompatActivity {
             userTypes = new String[]{"Select User Type", "SevaSarthi", "Worker", "Vendor", "Founder", "Officer", "Other"};
 
         initViews();
-        setupStateCityMap();
         setupSpinners();
         setupUserTypeSpinner();
         setupClickListeners();
+        takeUserLocation();
     }
 
     private void setupStatusBar() {
@@ -148,8 +162,9 @@ public class RegistrationActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         etAddress = findViewById(R.id.etAddress);
-        spinnerState = findViewById(R.id.spinnerState);
-        spinnerCity = findViewById(R.id.spinnerCity);
+        etState = findViewById(R.id.etState);
+        etCity = findViewById(R.id.etCity);
+        etPincode = findViewById(R.id.etPincode);
 
         // SevaMitra Fields (Earlier Officer)
         etDepartment = findViewById(R.id.etDepartment);
@@ -176,44 +191,13 @@ public class RegistrationActivity extends AppCompatActivity {
 
         // Buttons
         btnRegister = findViewById(R.id.btnRegister);
+        btnFetchLocation = findViewById(R.id.btnFetchLocation);
         btnLogin = findViewById(R.id.btnLogin);
         progressBar = findViewById(R.id.progressBar);
         tvError = findViewById(R.id.tvError);
     }
 
-    private void setupStateCityMap() {
-        stateCityMap.put("Bihar", new String[]{"Ara", "Araria", "Aurangabad", "Bagaha", "Banka", "Barh", "Barsoi", "Begusarai", "Bettiah", "Bhagalpur", "Bihar Sharif", "Bikramganj", "Bodh Gaya", "Buxar", "Chapra", "Dalsinghsarai", "Danapur", "Darbhanga", "Dehri", "Forbesganj", "Gaya", "Gopalganj", "Hajipur", "Hilsa", "Islampur", "Jamui", "Jehanabad", "Jhajha", "Kahalgaon", "Katihar", "Khagaria", "Kishanganj", "Lakhisarai", "Madhepura", "Madhubani", "Maner", "Manihari", "Masaurhi", "Mokama", "Motihari", "Munger", "Muzaffarpur", "Nabinagar", "Narkatiaganj", "Nawada", "Patna", "Purnia", "Rafiganj", "Raxaul", "Revelganj", "Rosera", "Saharsa", "Samastipur", "Sasaram", "Sheikhpura", "Sherghati", "Sitamarhi", "Siwan", "Sultanganj", "Supaul", "Teghra", "Vaishali", "Warisaliganj"});
-        stateCityMap.put("Uttar Pradesh", new String[]{"Lucknow", "Kanpur", "Varanasi", "Agra", "Prayagraj", "Noida", "Ghaziabad"});
-        stateCityMap.put("Maharashtra", new String[]{"Mumbai", "Pune", "Nagpur", "Nashik", "Thane"});
-        stateCityMap.put("Delhi", new String[]{"New Delhi", "South Delhi", "East Delhi", "West Delhi", "North Delhi"});
-        stateCityMap.put("Gujarat", new String[]{"Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar"});
-        stateCityMap.put("Rajasthan", new String[]{"Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer"});
-        stateCityMap.put("Madhya Pradesh", new String[]{"Bhopal", "Indore", "Gwalior", "Jabalpur", "Ujjain"});
-        stateCityMap.put("West Bengal", new String[]{"Kolkata", "Howrah", "Durgapur", "Siliguri", "Darjeeling"});
-        stateCityMap.put("Tamil Nadu", new String[]{"Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem"});
-        stateCityMap.put("Karnataka", new String[]{"Bengaluru", "Mysore", "Hubli", "Mangalore", "Belgaum"});
-    }
-
     private void setupSpinners() {
-        // State Spinner
-        ArrayAdapter<String> stateAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, new ArrayList<>(stateCityMap.keySet()));
-        spinnerState.setAdapter(stateAdapter);
-        spinnerState.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedState = parent.getItemAtPosition(position).toString();
-                String[] cities = stateCityMap.get(selectedState);
-                if (cities != null) {
-                    ArrayAdapter<String> cityAdapter = new ArrayAdapter<>(RegistrationActivity.this, android.R.layout.simple_spinner_dropdown_item, cities);
-                    spinnerCity.setAdapter(cityAdapter);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
         spinnerWorkerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
@@ -416,6 +400,9 @@ public class RegistrationActivity extends AppCompatActivity {
         if (ivSupport != null) {
             ivSupport.setOnClickListener(v -> startActivity(new Intent(RegistrationActivity.this, SupportActivity.class)));
         }
+        if (btnFetchLocation != null) {
+            btnFetchLocation.setOnClickListener(v -> fetchUserLocation());
+        }
 
         btnRegister.setOnClickListener(v -> validateAndRegister());
         btnLogin.setOnClickListener(v -> {
@@ -454,8 +441,9 @@ public class RegistrationActivity extends AppCompatActivity {
         String password = etPassword.getText().toString();
         String confirmPassword = etConfirmPassword.getText().toString();
         String address = etAddress.getText().toString().trim();
-        String state = spinnerState.getSelectedItem().toString();
-        String city = spinnerCity.getSelectedItem().toString();
+        String state = etState != null && etState.getText() != null ? etState.getText().toString().trim() : "";
+        String city = etCity != null && etCity.getText() != null ? etCity.getText().toString().trim() : "";
+        String pincode = etPincode != null && etPincode.getText() != null ? etPincode.getText().toString().trim() : "";
 
         if (TextUtils.isEmpty(fullName)) {
             showError("Full name is required");
@@ -493,6 +481,18 @@ public class RegistrationActivity extends AppCompatActivity {
             return;
         }
 
+        if (TextUtils.isEmpty(state)) {
+            showError("State is required");
+            if (etState != null) etState.requestFocus();
+            return;
+        }
+
+        if (TextUtils.isEmpty(city)) {
+            showError("City is required");
+            if (etCity != null) etCity.requestFocus();
+            return;
+        }
+
         // Create UserData object
         UserData userData = new UserData();
         userData.setFullName(fullName);
@@ -501,6 +501,7 @@ public class RegistrationActivity extends AppCompatActivity {
         userData.setAddress(address);
         userData.setState(state);
         userData.setCity(city);
+        userData.setPinCode(pincode);
         userData.setUserType(selectedUserType);
 
         // Type specific validation and data
@@ -706,5 +707,125 @@ public class RegistrationActivity extends AppCompatActivity {
 
         // Auto hide after 3 seconds
         new android.os.Handler().postDelayed(() -> tvError.setVisibility(View.GONE), 3000);
+    }
+
+    private void setupCurrentLocation() {
+        fetchUserLocation();
+    }
+
+    public void takeUserLocation() {
+        permissionManager = PermissionManager.getInstance(RegistrationActivity.this);
+        locationManager = LocationManager.getInstance(RegistrationActivity.this);
+
+        localBroadcastIntentFilter = new IntentFilter();
+        localBroadcastIntentFilter.addAction("foreground_location");
+    }
+
+    public void fetchUserLocation() {
+        if (permissionManager == null) {
+            permissionManager = PermissionManager.getInstance(RegistrationActivity.this);
+        }
+        if (locationManager == null) {
+            locationManager = LocationManager.getInstance(RegistrationActivity.this);
+        }
+
+        if (!permissionManager.checkPermissions(foregroundLocationPermissions)) {
+            permissionManager.askPermissions(RegistrationActivity.this, foregroundLocationPermissions, 100);
+        } else {
+            if (locationManager.isLocationEnabled()) {
+                Location location = locationManager.getLastLocation();
+                if (location != null) {
+                    getAddressFromLocation(RegistrationActivity.this, location.getLatitude(), location.getLongitude());
+                } else {
+                    locationManager.startLocationUpdates();
+                    Toast.makeText(this, "Fetching GPS location...", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                locationManager.createLocationRequest();
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (locationManager != null) {
+            locationManager.startLocationUpdates();
+        }
+        if (localBroadcastIntentFilter != null) {
+            LocalBroadcastManager.getInstance(RegistrationActivity.this).registerReceiver(foregroundLocationBroadCastReceiver, localBroadcastIntentFilter);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (localBroadcastIntentFilter != null) {
+            LocalBroadcastManager.getInstance(RegistrationActivity.this).unregisterReceiver(foregroundLocationBroadCastReceiver);
+        }
+        if (locationManager != null) {
+            locationManager.stopLocationUpdates();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (permissionManager != null && permissionManager.handlePermissionResult(RegistrationActivity.this, 100, permissions, grantResults)) {
+            if (locationManager != null) {
+                locationManager.createLocationRequest();
+                fetchUserLocation();
+            }
+        } else {
+            Toast.makeText(RegistrationActivity.this, "Permission denied.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    BroadcastReceiver foregroundLocationBroadCastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && intent.hasExtra("Lat") && intent.hasExtra("Lng")) {
+                try {
+                    double lat = Double.parseDouble(intent.getStringExtra("Lat"));
+                    double lng = Double.parseDouble(intent.getStringExtra("Lng"));
+                    getAddressFromLocation(context, lat, lng);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    };
+
+    private void getAddressFromLocation(Context context, double lat, double lng) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address addressObj = addresses.get(0);
+                String fullAddress = addressObj.getAddressLine(0);
+                String city = addressObj.getLocality() != null ? addressObj.getLocality() : addressObj.getSubAdminArea();
+                String state = addressObj.getAdminArea();
+
+                if (fullAddress != null && etAddress != null) {
+                    etAddress.setText(fullAddress);
+                }
+
+                if (state != null && etState != null) {
+                    etState.setText(state);
+                }
+
+                if (city != null && etCity != null) {
+                    etCity.setText(city);
+                }
+
+                String postalCode = addressObj.getPostalCode();
+                if (postalCode != null && etPincode != null) {
+                    etPincode.setText(postalCode);
+                }
+
+                Toast.makeText(context, "Location fetched successfully!", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(context, "Location fetched. Please verify address.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

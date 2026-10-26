@@ -79,4 +79,7 @@ dependencies {
 
     // Only Selecting Month and Year
     implementation("com.github.dewinjm:monthyear-picker:1.0.2")
+
+    // Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }

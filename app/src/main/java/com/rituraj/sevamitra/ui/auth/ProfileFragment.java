@@ -1,8 +1,14 @@
 package com.rituraj.sevamitra.ui.auth;
 
+import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,14 +19,20 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.rituraj.sevamitra.locations.LocationManager;
+import com.rituraj.sevamitra.locations.PermissionManager;
+
+import java.util.List;
+import java.util.Locale;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -48,10 +60,20 @@ public class ProfileFragment extends Fragment {
 
     // Personal Information Views
     private TextInputEditText etFullName, etEmail, etPhone, etAddress;
-    private TextInputEditText etState, etCity;
+    private TextInputEditText etState, etCity, etPincode;
     private Button btnEditPersonal, btnSavePersonal;
+    private MaterialButton btnFetchLocation;
     private LinearLayout personalInfoLayout;
     private boolean isPersonalEditing = false;
+
+    // Location
+    private PermissionManager permissionManager;
+    private LocationManager locationManager;
+    private IntentFilter localBroadcastIntentFilter;
+    private final String[] foregroundLocationPermissions = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    };
 
     // Officer Specific Views
     private CardView officerSection;
@@ -126,9 +148,13 @@ public class ProfileFragment extends Fragment {
         etAddress = view.findViewById(R.id.etAddress);
         etState = view.findViewById(R.id.etState);
         etCity = view.findViewById(R.id.etCity);
+        etPincode = view.findViewById(R.id.etPincode);
         btnEditPersonal = view.findViewById(R.id.btnEditPersonal);
         btnSavePersonal = view.findViewById(R.id.btnSavePersonal);
+        btnFetchLocation = view.findViewById(R.id.btnFetchLocation);
         personalInfoLayout = view.findViewById(R.id.personalInfoLayout);
+
+        takeUserLocation();
 
         // Officer Section
         officerSection = view.findViewById(R.id.officerSection);
@@ -251,14 +277,17 @@ public class ProfileFragment extends Fragment {
 
     private void setupPersonalInfo() {
         // Set personal info
-        etFullName.setText(currentUser.getFullName());
-        etEmail.setText(currentUser.getEmail());
-        etPhone.setText(currentUser.getPhone());
-        etAddress.setText(currentUser.getAddress());
-        etState.setText(currentUser.getState());
-        etCity.setText(currentUser.getCity());
+        if (currentUser != null) {
+            etFullName.setText(currentUser.getFullName());
+            etEmail.setText(currentUser.getEmail());
+            etPhone.setText(currentUser.getPhone());
+            etAddress.setText(currentUser.getAddress());
+            etState.setText(currentUser.getState());
+            etCity.setText(currentUser.getCity());
+            if (currentUser.getPinCode() != null) etPincode.setText(currentUser.getPinCode());
+        }
 
-        // Make fields non-editable initially
+        // Make ONLY location address fields editable
         setPersonalInfoEditable(false);
 
         btnEditPersonal.setOnClickListener(v -> {
@@ -266,48 +295,179 @@ public class ProfileFragment extends Fragment {
                 // Save mode
                 savePersonalInfo();
             } else {
-                // Edit mode
+                // Edit mode (ONLY location address editable)
                 setPersonalInfoEditable(true);
-                btnEditPersonal.setText("Cancel");
-                btnSavePersonal.setVisibility(View.VISIBLE);
-                isPersonalEditing = true;
             }
         });
 
-        btnSavePersonal.setOnClickListener(v -> {
-            savePersonalInfo();
-        });
+        btnSavePersonal.setOnClickListener(v -> savePersonalInfo());
+
+        if (btnFetchLocation != null) {
+            btnFetchLocation.setOnClickListener(v -> fetchUserLocation());
+        }
     }
 
     private void setPersonalInfoEditable(boolean editable) {
-        etPhone.setEnabled(editable);
+        // Name, Email, Phone are kept locked / read-only as requested
+        etFullName.setEnabled(false);
+        etEmail.setEnabled(false);
+        etPhone.setEnabled(false);
+
+        // ONLY Location Address fields are editable
         etAddress.setEnabled(editable);
         etState.setEnabled(editable);
         etCity.setEnabled(editable);
+        etPincode.setEnabled(editable);
 
         if (!editable) {
-            btnEditPersonal.setText("Edit");
+            btnEditPersonal.setText("Edit Location");
             btnSavePersonal.setVisibility(View.GONE);
+            if (btnFetchLocation != null) btnFetchLocation.setVisibility(View.GONE);
             isPersonalEditing = false;
+        } else {
+            btnEditPersonal.setText("Cancel");
+            btnSavePersonal.setVisibility(View.VISIBLE);
+            if (btnFetchLocation != null) btnFetchLocation.setVisibility(View.VISIBLE);
+            isPersonalEditing = true;
         }
     }
 
     private void savePersonalInfo() {
-        // Save personal info to database
-        currentUser.setFullName(etFullName.getText().toString());
-        currentUser.setEmail(etEmail.getText().toString());
-        currentUser.setPhone(etPhone.getText().toString());
-        currentUser.setAddress(etAddress.getText().toString());
-        currentUser.setState(etState.getText().toString());
-        currentUser.setCity(etCity.getText().toString());
+        if (currentUser == null) return;
 
-        // Update header
-        tvName.setText(currentUser.getFullName());
-        tvEmail.setText(currentUser.getEmail());
-        tvPhone.setText(currentUser.getPhone());
+        currentUser.setAddress(etAddress.getText() != null ? etAddress.getText().toString().trim() : "");
+        currentUser.setState(etState.getText() != null ? etState.getText().toString().trim() : "");
+        currentUser.setCity(etCity.getText() != null ? etCity.getText().toString().trim() : "");
+        currentUser.setPinCode(etPincode.getText() != null ? etPincode.getText().toString().trim() : "");
+
+        if (reference != null) {
+            reference.setValue(currentUser).addOnSuccessListener(aVoid -> {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Location address saved successfully!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
         setPersonalInfoEditable(false);
-        Toast.makeText(getContext(), "Personal information saved", Toast.LENGTH_SHORT).show();
+    }
+
+    public void takeUserLocation() {
+        if (getContext() == null) return;
+        permissionManager = PermissionManager.getInstance(requireContext());
+        locationManager = LocationManager.getInstance(requireContext());
+
+        localBroadcastIntentFilter = new IntentFilter();
+        localBroadcastIntentFilter.addAction("foreground_location");
+    }
+
+    public void fetchUserLocation() {
+        if (getContext() == null || getActivity() == null) return;
+        if (permissionManager == null) {
+            permissionManager = PermissionManager.getInstance(requireContext());
+        }
+        if (locationManager == null) {
+            locationManager = LocationManager.getInstance(requireContext());
+        }
+
+        if (!permissionManager.checkPermissions(foregroundLocationPermissions)) {
+            permissionManager.askPermissions(requireActivity(), foregroundLocationPermissions, 100);
+        } else {
+            if (locationManager.isLocationEnabled()) {
+                Location location = locationManager.getLastLocation();
+                if (location != null) {
+                    getAddressFromLocation(requireContext(), location.getLatitude(), location.getLongitude());
+                } else {
+                    locationManager.startLocationUpdates();
+                    Toast.makeText(requireContext(), "Fetching GPS location...", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                locationManager.createLocationRequest();
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (locationManager != null) {
+            locationManager.startLocationUpdates();
+        }
+        if (localBroadcastIntentFilter != null && getContext() != null) {
+            LocalBroadcastManager.getInstance(requireContext()).registerReceiver(foregroundLocationBroadCastReceiver, localBroadcastIntentFilter);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (localBroadcastIntentFilter != null && getContext() != null) {
+            LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(foregroundLocationBroadCastReceiver);
+        }
+        if (locationManager != null) {
+            locationManager.stopLocationUpdates();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (getActivity() != null && permissionManager != null && permissionManager.handlePermissionResult(requireActivity(), 100, permissions, grantResults)) {
+            if (locationManager != null) {
+                locationManager.createLocationRequest();
+                fetchUserLocation();
+            }
+        } else {
+            if (getContext() != null) {
+                Toast.makeText(requireContext(), "Permission denied.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    BroadcastReceiver foregroundLocationBroadCastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && intent.hasExtra("Lat") && intent.hasExtra("Lng")) {
+                try {
+                    double lat = Double.parseDouble(intent.getStringExtra("Lat"));
+                    double lng = Double.parseDouble(intent.getStringExtra("Lng"));
+                    getAddressFromLocation(context, lat, lng);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    };
+
+    private void getAddressFromLocation(Context context, double lat, double lng) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address addressObj = addresses.get(0);
+                String fullAddress = addressObj.getAddressLine(0);
+                String city = addressObj.getLocality() != null ? addressObj.getLocality() : addressObj.getSubAdminArea();
+                String state = addressObj.getAdminArea();
+
+                if (fullAddress != null && etAddress != null) {
+                    etAddress.setText(fullAddress);
+                }
+
+                if (state != null && etState != null) {
+                    etState.setText(state);
+                }
+
+                if (city != null && etCity != null) {
+                    etCity.setText(city);
+                }
+
+                String postalCode = addressObj.getPostalCode();
+                if (postalCode != null && etPincode != null) {
+                    etPincode.setText(postalCode);
+                }
+//                Toast.makeText(context, "Location fetched successfully!", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(context, "Location fetched. Please verify address.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setupTypeSpecificSections() {

@@ -253,47 +253,110 @@
                             android:textColor="@color/logo_white" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Address -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    <!-- Address with Fetch Location Button -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:hint="Address"
-                        app:boxStrokeColor="@color/logo_gold"
-                        app:hintTextColor="@color/logo_gold_light"
-                        app:startIconDrawable="@drawable/ic_location"
-                        app:startIconTint="@color/logo_gold">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etAddress"
-                            android:layout_width="match_parent"
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/logo_white" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_weight="1"
+                            android:hint="Address"
+                            app:boxStrokeColor="@color/logo_gold"
+                            app:hintTextColor="@color/logo_gold_light"
+                            app:startIconDrawable="@drawable/ic_location"
+                            app:startIconTint="@color/logo_gold">
 
-                    <!-- State and City Row -->
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAddress"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/logo_white" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFetchLocation"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="54dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginTop="3dp"
+                            android:paddingHorizontal="10dp"
+                            android:text="GPS Location"
+                            android:textColor="@color/logo_gold"
+                            android:textSize="12sp"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_location"
+                            app:iconPadding="4dp"
+                            app:iconSize="16dp"
+                            app:iconTint="@color/logo_gold"
+                            app:strokeColor="@color/logo_gold" />
+                    </LinearLayout>
+
+                    <!-- State, City and Pincode Row -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:orientation="horizontal">
 
-                        <Spinner
-                            android:id="@+id/spinnerState"
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                             android:layout_width="0dp"
-                            android:layout_height="52dp"
-                            android:layout_marginEnd="6dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="4dp"
                             android:layout_weight="1"
-                            android:background="@drawable/spinner_background" />
+                            android:hint="State"
+                            app:boxStrokeColor="@color/logo_gold"
+                            app:hintTextColor="@color/logo_gold_light">
 
-                        <Spinner
-                            android:id="@+id/spinnerCity"
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etState"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/logo_white" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                             android:layout_width="0dp"
-                            android:layout_height="52dp"
-                            android:layout_marginStart="6dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="4dp"
                             android:layout_weight="1"
-                            android:background="@drawable/spinner_background" />
+                            android:hint="City"
+                            app:boxStrokeColor="@color/logo_gold"
+                            app:hintTextColor="@color/logo_gold_light">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etCity"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/logo_white" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_weight="1"
+                            android:hint="Pincode"
+                            app:boxStrokeColor="@color/logo_gold"
+                            app:hintTextColor="@color/logo_gold_light">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etPincode"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:maxLength="6"
+                                android:textColor="@color/logo_white" />
+                        </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
                     <!-- Password -->

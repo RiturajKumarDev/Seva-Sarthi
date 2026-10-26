@@ -8,6 +8,7 @@ public class UserData {
     private String fullName;
     private String email;
     private String phone, profileUrl;
+    private String pinCode;
     private String address;
     private String state;
     private String city;
@@ -126,6 +127,14 @@ public class UserData {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public String getPinCode() {
+        return pinCode;
+    }
+
+    public void setPinCode(String pinCode) {
+        this.pinCode = pinCode;
     }
 
     public String getPassword() {
