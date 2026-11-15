@@ -3,6 +3,7 @@ package com.rituraj.sevamitra.ui.issues;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -354,19 +355,59 @@ public class AddDailyIssueActivity extends AppCompatActivity {
     }
 
     private void showDatePicker() {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
-            calendar.set(year, month, dayOfMonth);
-            updateDateDisplay();
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    calendar.set(year, month, dayOfMonth);
+                    updateDateDisplay();
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.setOnShowListener(dialog -> {
+            Button positiveBtn = datePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            Button negativeBtn = datePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+            if (positiveBtn != null) {
+                positiveBtn.setTextColor(getColor(R.color.logo_green_dark));
+                positiveBtn.setTextSize(15);
+                positiveBtn.setTypeface(null, android.graphics.Typeface.BOLD);
+            }
+            if (negativeBtn != null) {
+                negativeBtn.setTextColor(getColor(R.color.logo_green_dark));
+                negativeBtn.setTextSize(15);
+                negativeBtn.setTypeface(null, android.graphics.Typeface.BOLD);
+            }
+        });
         datePickerDialog.show();
     }
 
     private void showTimePicker() {
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view, hourOfDay, minute) -> {
-            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            calendar.set(Calendar.MINUTE, minute);
-            updateTimeDisplay();
-        }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(
+                this,
+                (view, hourOfDay, minute) -> {
+                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    calendar.set(Calendar.MINUTE, minute);
+                    updateTimeDisplay();
+                },
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                false
+        );
+        timePickerDialog.setOnShowListener(dialog -> {
+            Button positiveBtn = timePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            Button negativeBtn = timePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+            if (positiveBtn != null) {
+                positiveBtn.setTextColor(getColor(R.color.logo_green_dark));
+                positiveBtn.setTextSize(15);
+                positiveBtn.setTypeface(null, android.graphics.Typeface.BOLD);
+            }
+            if (negativeBtn != null) {
+                negativeBtn.setTextColor(getColor(R.color.logo_green_dark));
+                negativeBtn.setTextSize(15);
+                negativeBtn.setTypeface(null, android.graphics.Typeface.BOLD);
+            }
+        });
         timePickerDialog.show();
     }
 
