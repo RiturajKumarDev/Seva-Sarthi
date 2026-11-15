@@ -37,7 +37,7 @@ import com.rituraj.sevamitra.models.IssueModel;
 import com.rituraj.sevamitra.models.LanguageModel;
 import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.translationLanguage.LanguageManager;
-import com.rituraj.sevamitra.ui.issues.DepartmentSelectionActivity;
+import com.rituraj.sevamitra.ui.selections.DepartmentSelectionActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
 import com.rituraj.sevamitra.ui.worker.WorkerListActivity;

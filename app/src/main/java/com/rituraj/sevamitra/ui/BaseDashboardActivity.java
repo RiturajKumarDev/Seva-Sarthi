@@ -8,6 +8,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -65,6 +67,45 @@ public class BaseDashboardActivity extends AppCompatActivity {
 
         initTopBar();
         setupBottomNavigation();
+        setupBackPressedHandler();
+    }
+
+    private void setupBackPressedHandler() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                showExitConfirmationDialog();
+            }
+        });
+    }
+
+    private void showExitConfirmationDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_exit_confirmation, null);
+
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        com.google.android.material.button.MaterialButton btnYes = dialogView.findViewById(R.id.btnYes);
+        com.google.android.material.button.MaterialButton btnNo = dialogView.findViewById(R.id.btnNo);
+
+        if (btnYes != null) {
+            btnYes.setOnClickListener(v -> {
+                dialog.dismiss();
+                finishAffinity();
+            });
+        }
+
+        if (btnNo != null) {
+            btnNo.setOnClickListener(v -> dialog.dismiss());
+        }
+
+        dialog.show();
     }
 
     private void setupStatusBar() {

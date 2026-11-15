@@ -41,7 +41,7 @@ import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.translationLanguage.LanguageManager;
 import com.rituraj.sevamitra.ui.auth.RegistrationActivity;
 import com.rituraj.sevamitra.ui.dailyItems.DailyItemsActivity;
-import com.rituraj.sevamitra.ui.issues.DepartmentSelectionActivity;
+import com.rituraj.sevamitra.ui.selections.DepartmentSelectionActivity;
 import com.rituraj.sevamitra.ui.issues.IssueListActivity;
 import com.rituraj.sevamitra.ui.officer.OfficerListActivity;
 import com.rituraj.sevamitra.ui.sevaSarthi.SevaSarthiListActivity;
@@ -50,7 +50,6 @@ import com.rituraj.sevamitra.ui.worker.WorkerListActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 public class FounderHomeFragment extends Fragment {
 

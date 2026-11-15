@@ -18,12 +18,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+
 import com.rituraj.sevamitra.ui.support.SupportActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -55,13 +57,14 @@ public class AddDailyIssueActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference reference;
     private String userId;
-    private String selectedProblemType;
+    private String selectedProblemType, selectedVendorId, selectedVendorName;
     private Calendar calendar;
 
     private TextInputEditText itemName, etQuantity, itemDescription, etDate, etTime, etStatus;
     private View layoutWaterSupplyFields;
     private TextInputEditText etNumberOfDays, etItemsPerDay;
-    private Spinner spinnerCategory, spinnerSupplier, spinnerUnit;
+    private Spinner spinnerCategory, spinnerUnit;
+    private TextView tvVendorName, tvVendorDepartment, tvVendorPhone, tvVendorLocation;
     private Button btnUpdateItem;
     private String[] issueList;
     private String userType;
@@ -87,12 +90,17 @@ public class AddDailyIssueActivity extends AppCompatActivity {
             return;
         }
         selectedProblemType = getIntent().getStringExtra("REQUEST_DEPARTMENT");
+        selectedVendorId = getIntent().getStringExtra("SELECTED_VENDOR_ID");
+        selectedVendorName = getIntent().getStringExtra("SELECTED_VENDOR_NAME");
         dailyItemModel.setProblemType(selectedProblemType);
+        dailyItemModel.setSupplierId(selectedVendorId);
+        dailyItemModel.setSupplierName(selectedVendorName);
 
         // Initialize Firebase
         calendar = Calendar.getInstance();
         initViews();
         setupToolbar();
+        getVendorData();
         new Handler(Looper.getMainLooper()).postDelayed(this::translationViews, 500);
     }
 
@@ -121,10 +129,20 @@ public class AddDailyIssueActivity extends AppCompatActivity {
         spinnerCategory = findViewById(R.id.spinnerCategory);
         etQuantity = findViewById(R.id.etQuantity);
         spinnerUnit = findViewById(R.id.spinnerUnit);
-        spinnerSupplier = findViewById(R.id.spinnerSupplier);
+        tvVendorName = findViewById(R.id.tvVendorName);
+        tvVendorDepartment = findViewById(R.id.tvVendorDepartment);
+        tvVendorPhone = findViewById(R.id.tvVendorPhone);
+        tvVendorLocation = findViewById(R.id.tvVendorLocation);
         itemDescription = findViewById(R.id.etNotes);
         etStatus = findViewById(R.id.etStatus);
         etStatus.setText(Status.PENDING);
+
+        if (selectedVendorName != null && !selectedVendorName.isEmpty()) {
+            tvVendorName.setText(selectedVendorName);
+        }
+        if (selectedProblemType != null && !selectedProblemType.isEmpty()) {
+            tvVendorDepartment.setText(selectedProblemType);
+        }
 
         etDate = findViewById(R.id.imgCalender);
         etTime = findViewById(R.id.etTime);
@@ -199,7 +217,6 @@ public class AddDailyIssueActivity extends AppCompatActivity {
 
 
     private void setSelectedProblemType() {
-        DailyItemModel dailyItemModel = new DailyItemModel();
         dailyItemModel.setCreatedBy(userId);
         dailyItemModel.setProblemType(selectedProblemType);
         int arrayResId;
@@ -266,30 +283,18 @@ public class AddDailyIssueActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        if (dailyItemModel.getProblemType().equalsIgnoreCase("Water Supply"))
-            getWaterVendorData(dailyItemModel.getProblemType());
-        else
-            getWorkerData(dailyItemModel.getProblemType());
     }
 
-    private void getWorkerData(String workerDepartment) {
-        reference = FirebaseDatabase.getInstance().getReference().child("UserData").child("WORKER");
-        reference.keepSynced(true);
+    void getVendorData() {
+        if (selectedVendorId == null || selectedVendorId.isEmpty()) return;
+        reference = database.getReference().child("UserData").child("VENDOR").child(selectedVendorId);
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    ArrayList<UserData> workerList = new ArrayList<>();
-                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        UserData userData = dataSnapshot.getValue(UserData.class);
-                        if (userData != null) {
-                            userData.setId(dataSnapshot.getKey());
-                            if (userData.getDepartment() != null && userData.getDepartment().equalsIgnoreCase(workerDepartment))
-                                workerList.add(userData);
-                        }
-                    }
-                    ArrayAdapter<UserData> workerAdapter = new ArrayAdapter<>(AddDailyIssueActivity.this, android.R.layout.simple_spinner_dropdown_item, workerList);
-                    spinnerSupplier.setAdapter(workerAdapter);
+                UserData vendor = snapshot.getValue(UserData.class);
+                if (vendor != null) {
+                    vendor.setId(selectedVendorId);
+                    showVendorData(vendor);
                 }
             }
 
@@ -299,31 +304,37 @@ public class AddDailyIssueActivity extends AppCompatActivity {
         });
     }
 
-    private void getWaterVendorData(String workerDepartment) {
-        reference = FirebaseDatabase.getInstance().getReference().child("UserData").child("VENDOR");
-        reference.keepSynced(true);
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    ArrayList<UserData> workerList = new ArrayList<>();
-                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        UserData userData = dataSnapshot.getValue(UserData.class);
-                        if (userData != null) {
-                            userData.setId(dataSnapshot.getKey());
-                            if (userData.getDepartment() != null && userData.getDepartment().equalsIgnoreCase(workerDepartment))
-                                workerList.add(userData);
-                        }
-                    }
-                    ArrayAdapter<UserData> workerAdapter = new ArrayAdapter<>(AddDailyIssueActivity.this, android.R.layout.simple_spinner_dropdown_item, workerList);
-                    spinnerSupplier.setAdapter(workerAdapter);
-                }
-            }
+    public void showVendorData(UserData vendor) {
+        if (vendor == null) return;
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
+        if (vendor.getFullName() != null && !vendor.getFullName().isEmpty()) {
+            tvVendorName.setText(vendor.getFullName());
+            selectedVendorName = vendor.getFullName();
+        }
+        if (vendor.getDepartment() != null && !vendor.getDepartment().isEmpty()) {
+            tvVendorDepartment.setText(vendor.getDepartment());
+        } else if (selectedProblemType != null) {
+            tvVendorDepartment.setText(selectedProblemType);
+        }
+
+        tvVendorPhone.setText(vendor.getPhone() != null && !vendor.getPhone().isEmpty() ? vendor.getPhone() : "N/A");
+
+        String location = "";
+        if (vendor.getCity() != null && !vendor.getCity().isEmpty()) {
+            location += vendor.getCity();
+        }
+        if (vendor.getState() != null && !vendor.getState().isEmpty()) {
+            if (!location.isEmpty()) location += ", ";
+            location += vendor.getState();
+        }
+        if (location.isEmpty() && vendor.getAddress() != null) {
+            location = vendor.getAddress();
+        }
+        tvVendorLocation.setText(!location.isEmpty() ? location : "N/A");
+
+        dailyItemModel.setSupplierId(vendor.getId());
+        dailyItemModel.setSupplierName(vendor.getFullName());
+        dailyItemModel.setSupplierDetail(vendor.toString());
     }
 
     private void setupDateAndTime() {
@@ -385,10 +396,11 @@ public class AddDailyIssueActivity extends AppCompatActivity {
             Toast.makeText(this, "Please select unit", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (spinnerSupplier.getSelectedItem() == null || spinnerSupplier.getSelectedItem().toString().isEmpty()) {
-            Toast.makeText(this, "Please select supplier", Toast.LENGTH_SHORT).show();
+        if (selectedVendorId == null || selectedVendorId.isEmpty()) {
+            Toast.makeText(this, "Selected vendor information is missing", Toast.LENGTH_SHORT).show();
             return false;
         }
+
         if (etQuantity.getText().toString().trim().isEmpty()) {
             etQuantity.setError("Quantity is required");
             etQuantity.requestFocus();
@@ -438,8 +450,13 @@ public class AddDailyIssueActivity extends AppCompatActivity {
             dailyItemModel.setItemsPerDay(etItemsPerDay.getText().toString().trim());
         }
 
-        dailyItemModel.setSupplierId(((UserData) spinnerSupplier.getSelectedItem()).getId());
-        dailyItemModel.setSupplierDetail(spinnerSupplier.getSelectedItem().toString());
+        dailyItemModel.setSupplierId(selectedVendorId);
+        if (dailyItemModel.getSupplierName() == null || dailyItemModel.getSupplierName().isEmpty()) {
+            dailyItemModel.setSupplierName(selectedVendorName != null ? selectedVendorName : "Vendor");
+        }
+        if (dailyItemModel.getSupplierDetail() == null || dailyItemModel.getSupplierDetail().isEmpty()) {
+            dailyItemModel.setSupplierDetail(selectedVendorName != null ? selectedVendorName : "Vendor");
+        }
         dailyItemModel.setCategory(spinnerCategory.getSelectedItem().toString());
         dailyItemModel.setUnit(spinnerUnit.getSelectedItem().toString());
         dailyItemModel.setItemName(itemName.getText().toString());

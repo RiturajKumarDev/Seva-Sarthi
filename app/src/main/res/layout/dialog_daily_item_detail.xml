@@ -157,22 +157,117 @@
                 android:popupBackground="@drawable/spinner_dropdown_bg" />
         </LinearLayout>
 
-        <!-- Supplier -->
+        <!-- Selected Vendor Info Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:layout_marginBottom="6dp"
-            android:text="Select Assigned Supplier / Worker"
+            android:text="Selected Vendor Details"
             android:textColor="@color/logo_white"
             android:textSize="13sp" />
 
-        <Spinner
-            android:id="@+id/spinnerSupplier"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardSelectedVendor"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:background="@drawable/spinner_background"
-            android:popupBackground="@drawable/spinner_dropdown_bg" />
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="#20FFFFFF"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="#33E8C44B"
+                        android:padding="6dp"
+                        android:src="@drawable/ic_worker"
+                        app:tint="@color/logo_gold" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvVendorName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vendor Name"
+                            android:textColor="@color/logo_gold"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvVendorDepartment"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Department / Category"
+                            android:textColor="@color/logo_gold_light"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="8dp"
+                    android:background="#1EFFFFFF" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_phone"
+                        app:tint="@color/logo_gold_light" />
+
+                    <TextView
+                        android:id="@+id/tvVendorPhone"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Phone"
+                        android:textColor="@color/logo_white"
+                        android:textSize="12sp" />
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_location"
+                        app:tint="@color/logo_gold_light" />
+
+                    <TextView
+                        android:id="@+id/tvVendorLocation"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Location"
+                        android:textColor="@color/logo_white"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <!-- Status -->
         <com.google.android.material.textfield.TextInputLayout

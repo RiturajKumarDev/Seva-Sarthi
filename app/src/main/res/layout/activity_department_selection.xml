@@ -8,7 +8,7 @@
     android:fitsSystemWindows="true"
     android:background="@drawable/dashboard_gradient_bg"
     android:orientation="vertical"
-    tools:context=".ui.issues.DepartmentSelectionActivity">
+    tools:context=".ui.selections.DepartmentSelectionActivity">
 
     <!-- Professional Top App Bar -->
     <RelativeLayout

@@ -33,7 +33,7 @@ import com.rituraj.sevamitra.models.LanguageModel;
 import com.rituraj.sevamitra.models.Status;
 import com.rituraj.sevamitra.models.UserData;
 import com.rituraj.sevamitra.translationLanguage.LanguageManager;
-import com.rituraj.sevamitra.ui.issues.DepartmentSelectionActivity;
+import com.rituraj.sevamitra.ui.selections.DepartmentSelectionActivity;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
 
 import java.text.SimpleDateFormat;

@@ -1,4 +1,4 @@
-package com.rituraj.sevamitra.ui.issues;
+package com.rituraj.sevamitra.ui.selections;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +10,6 @@ import android.view.WindowManager;
 import android.widget.*;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
@@ -18,6 +17,8 @@ import com.google.android.material.card.MaterialCardView;
 import com.rituraj.sevamitra.R;
 import com.rituraj.sevamitra.models.LanguageModel;
 import com.rituraj.sevamitra.translationLanguage.LanguageManager;
+import com.rituraj.sevamitra.ui.issues.AddDailyIssueActivity;
+import com.rituraj.sevamitra.ui.issues.AddIssueActivity;
 import com.rituraj.sevamitra.ui.support.SupportActivity;
 
 import java.util.HashMap;
@@ -173,14 +174,12 @@ public class DepartmentSelectionActivity extends AppCompatActivity {
 
         int index = gridDepartments.indexOfChild(selectedCard);
 
-        Toast.makeText(this, "Department: " + index, Toast.LENGTH_SHORT).show();
-
         selectedDepartment = department;
         Intent intent;
         if (index == 14)
             intent = new Intent(DepartmentSelectionActivity.this, AddIssueActivity.class);
         else if (index > 6)
-            intent = new Intent(DepartmentSelectionActivity.this, AddDailyIssueActivity.class);
+            intent = new Intent(DepartmentSelectionActivity.this, VendorSelectionActivity.class);
         else
             intent = new Intent(DepartmentSelectionActivity.this, AddIssueActivity.class);
         intent.putExtra("REQUEST_DEPARTMENT", selectedDepartment);

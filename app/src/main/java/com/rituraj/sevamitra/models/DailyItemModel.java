@@ -14,6 +14,7 @@ public class DailyItemModel {
     private Map<String, Long> dailyReceivedTimestamps;
     private long timestamp;
     private String supplierId;
+    private String supplierName;
     private String supplierDetail;
     private String status = Status.PENDING;
     private String notes;
@@ -74,6 +75,14 @@ public class DailyItemModel {
 
     public void setSupplierId(String supplierId) {
         this.supplierId = supplierId;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 
     public String getProblemType() {
