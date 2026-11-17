@@ -219,6 +219,63 @@ public class VendorSelectionActivity extends AppCompatActivity {
                 }
 
                 // Fallback: If no vendors matched the specific department, show all available vendors
+                if (vendorList.isEmpty()) {
+                    getWorkersData();
+                }
+
+                if (vendorList.isEmpty()) {
+                    layoutEmptyState.setVisibility(View.VISIBLE);
+                    rvVendors.setVisibility(View.GONE);
+                    if (selectedProblemType != null && !selectedProblemType.isEmpty()) {
+                        tvEmptyMessage.setText("No vendors available for " + selectedProblemType);
+                    }
+                } else {
+                    layoutEmptyState.setVisibility(View.GONE);
+                    rvVendors.setVisibility(View.VISIBLE);
+                    vendorAdapter.updateData(vendorList);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                progressBar.setVisibility(View.GONE);
+                layoutEmptyState.setVisibility(View.VISIBLE);
+                rvVendors.setVisibility(View.GONE);
+                Toast.makeText(VendorSelectionActivity.this, "Failed to load vendors: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getWorkersData() {
+        progressBar.setVisibility(View.VISIBLE);
+        layoutEmptyState.setVisibility(View.GONE);
+        rvVendors.setVisibility(View.GONE);
+
+        reference = FirebaseDatabase.getInstance().getReference().child("UserData").child("WORKER");
+        reference.keepSynced(true);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                progressBar.setVisibility(View.GONE);
+                vendorList.clear();
+                ArrayList<UserData> allVendors = new ArrayList<>();
+
+                if (snapshot.exists()) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        UserData userData = dataSnapshot.getValue(UserData.class);
+                        if (userData != null) {
+                            userData.setId(dataSnapshot.getKey());
+                            allVendors.add(userData);
+
+                            if (userData.getDepartment() != null && selectedProblemType != null &&
+                                    (userData.getDepartment().equalsIgnoreCase(selectedProblemType) || userData.getDepartment().equalsIgnoreCase("other"))) {
+                                vendorList.add(userData);
+                            }
+                        }
+                    }
+                }
+
+                // Fallback: If no vendors matched the specific department, show all available vendors
 //                if (vendorList.isEmpty() && !allVendors.isEmpty()) {
 //                    vendorList.addAll(allVendors);
 //                }
